@@ -8,19 +8,21 @@ use SessionUpdateTimestampHandlerInterface;
 
 class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandlerInterface, SessionHandlerInterface
 {
-    private static $lock;
-
     public function open($savePath, $sessionName)
     {
         return true;
     }
     public function close(): bool
     {
-        return flock(self::$lock, LOCK_EX) && fclose(self::$lock);
+        return true;
+    }
+    private function getFile(string $id): string
+    {
+        return dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
     }
     public function write(string $id, string $data): bool
     {
-        $file = dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
+        $file = $this->getFile($id);
         if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
             return fwrite($this->lock, $data);
         }
@@ -28,7 +30,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     }
     public function read(string $id)
     {
-        $file = dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
+        $file = $this->getFile($id);
         if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
             return fread($this->lock, filesize($file));
         }
@@ -36,7 +38,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     }
     public function destroy(string $id): bool
     {
-        $file = dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
+        $file =d$this->getFile($id);
         if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
             return unlink($file);
         }
@@ -58,7 +60,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
 
     public function updateTimestamp(string $id, string $data): bool
     {
-        $file = dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
+        $file = $this->getFile($id);
         if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
             return touch($file);
         }
@@ -67,6 +69,6 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
 
     public function validateId(string $id): bool
     {
-        return preg_match('/^[a-zA-Z0-9]{128}$/') && is_file(dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id);
+        return preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($this->getFile($id));
     }
 }

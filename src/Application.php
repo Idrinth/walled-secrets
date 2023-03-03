@@ -22,6 +22,7 @@ class Application
         session_set_cookie_params(intval($_ENV['SYSTEM_SESSION_DURATION'], 10), '/', $_ENV['SYSTEM_HOSTNAME'], true, true);
         session_start();
         $_SESSION['_last'] = time();
+        exit;
         $this->di = new DependencyInjector();
     }
 
