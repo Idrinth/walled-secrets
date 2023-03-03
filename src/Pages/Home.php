@@ -40,7 +40,7 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM accounts WHERE aid=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT * FROM folders WHERE owner=:id AND `type`="Account"');
+            $stmt = $this->database->prepare('SELECT * FROM folders WHERE (`owner`=:id AND `type`="Account") OR (`type`="Organisation" AND `owner` IN (SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id))');
             $stmt->execute([':id' => $_SESSION['id']]);
             $folders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
