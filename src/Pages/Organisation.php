@@ -53,7 +53,7 @@ class Organisation
                 ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:uuid, "Organisation")')
                 ->execute([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':uuid' => Uuid::uuid1()->toString()]);
             header ('Location: /organisation/'.$id, true, 303);
-            return;
+            return '';
         }
         if (isset($post['id']) && isset($post['role']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
             if ($_SESSION['uuid'] !== $post['id']) {
@@ -62,7 +62,7 @@ class Organisation
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 if (!$user) {
                     header ('Location: /organisation/'.$id, true, 303);
-                    return;
+                    return '';
                 }
                 //@todo
             }
@@ -73,7 +73,7 @@ class Organisation
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$user) {
                 header ('Location: /organisation/'.$id, true, 303);
-                return;
+                return '';
             }
             $stmt = $this->database->prepare('SELECT account FROM memberships WHERE role <> "Proposed" AND organisation=:org');
             $stmt->execute([':org' => $organisation['aid']]);
@@ -86,7 +86,7 @@ class Organisation
                 ->execute([':id' => $user['aid'], ':org' => $organisation['aid']]);
         }
         header ('Location: /organisation/'.$id, true, 303);
-        return;
+        return '';
     }
 
     public function get(string $id): string
