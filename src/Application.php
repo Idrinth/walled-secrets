@@ -6,7 +6,7 @@ use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use ReflectionClass;
-use SessionHandler;
+use De\Idrinth\WalledSecrets\Services\SessionHandler;
 use Throwable;
 use function FastRoute\simpleDispatcher;
 
@@ -18,7 +18,8 @@ class Application
     {
         Dotenv::createImmutable(dirname(__DIR__))->load();
         date_default_timezone_set('UTC');
-        session_set_save_handler(new SessionHandler());
+        $hadler = new SessionHandler();
+        session_set_save_handler($handler);
         session_set_cookie_params(intval($_ENV['SYSTEM_SESSION_DURATION'], 10), '/', $_ENV['SYSTEM_HOSTNAME'], true, true);
         session_start();
         $_SESSION['_last'] = time();
