@@ -1,0 +1,13 @@
+{% include 'header.twig' %}
+<h1>Import files</h1>
+<form method="post">
+    <label for="source">Source Format</label>
+    <select name="source" id="source">
+        <option value="0">Keypass(xml)</option>
+        <option value="1">Bitwarden(json)</option>
+    </select>
+    <label for="file">The exported file</label>
+    <input type="file" name="file" id="file"/>
+    <button type="submit">Import</button>
+</form>
+{% include 'footer.twig' %}

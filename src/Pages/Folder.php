@@ -34,12 +34,12 @@ class Folder
         $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
 
-    private function updateNote(int $owner, string $uuid, string $id, string $name, string $content)
+    private function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content)
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO notes (content,iv,name,`key`,id,`owner`) VALUES ("","","","",:id,:owner)')
-            ->execute([':id' => $id, ':owner' => $owner]);
+            ->prepare('INSERT IGNORE INTO notes (content,iv,name,`key`,id,`owner`,folder) VALUES ("","","","",:id,:owner,:folder)')
+            ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
         $shared = new AES('ctr');
@@ -58,12 +58,12 @@ class Folder
             ]);
     }
 
-    private function updateLogin(int $owner, string $uuid, string $id, string $login, string $password, string $domain, string $note)
+    private function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note)
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,iv,`key`,`note`,`account`) VALUES ("","","","","","",:id,:owner)')
-            ->execute([':id' => $id, ':owner' => $owner]);
+            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","",:id,:owner,:folder)')
+            ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
         $shared = new AES('ctr');
@@ -120,20 +120,20 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateLogin($row['aid'], $row['id'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note']);
+                    $this->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note']);
                 }
             } else {
-                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $post['id'], $post['user'], $post['password'], $post['domain']);
+                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain']);
             }
         } elseif (isset($post['content']) && isset($post['name'])) {
             if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateNote($row['aid'], $row['id'], $post['id'], $post['name'], $post['content']);
+                    $this->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['name'], $post['content']);
                 }
             } else {
-                $this->updateNote($_SESSION['id'], $_SESSION['uuid'], $post['id'], $post['name'], $post['content']);
+                $this->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['name'], $post['content']);
             }
         }
         header ('Location: /folder/' . $id, true, 303);

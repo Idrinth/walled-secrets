@@ -3,6 +3,7 @@
 use De\Idrinth\WalledSecrets\Application;
 use De\Idrinth\WalledSecrets\Pages\Folder;
 use De\Idrinth\WalledSecrets\Pages\Home;
+use De\Idrinth\WalledSecrets\Pages\Import;
 use De\Idrinth\WalledSecrets\Pages\Login;
 use De\Idrinth\WalledSecrets\Pages\Master;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
@@ -23,6 +24,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/', Home::class)
     ->get('/master', Master::class)
     ->post('/master', Master::class)
+    ->get('/import', Import::class)
+    ->post('/import', Import::class)
     ->get('/login/{id}/{pass}', Login::class)
     ->get('/register/{id}/{pass}', SignUp::class)
     ->post('/register/{id}/{pass}', SignUp::class)
