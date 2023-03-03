@@ -13,8 +13,14 @@ class CreateUser
         $this->env = $env;
     }
 
-    public function run($email, $display, $master)
+    public function run()
     {
+        echo "The eMail:\n";
+        $email = trim(fgets(STDIN));
+        echo "The Master-Password:\n";
+        $master = trim(fgets(STDIN));
+        echo "The Display Name:\n";
+        $display = trim(fgets(STDIN));
         $uuid = Uuid::uuid1();
         $private = RSA::createKey($this->env->getInt('SYSTEM_KEY_BYTES'));
         $private->withPassword($master);
