@@ -13,15 +13,17 @@
         <button type="submit">Modify</button>
     </form>
 {% endfor %}
-<form method="post">
-    <label for="user">Username</label>
-    <input type="text" name="user" id="user"/>
-    <label for="domain">Domain</label>
-    <input type="text" name="domain" id="domain"/>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password"/>
-    <button type="submit">Add</button>
-</form>
+{% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
+    <form method="post">
+        <label for="user">Username</label>
+        <input type="text" name="user" id="user"/>
+        <label for="domain">Domain</label>
+        <input type="text" name="domain" id="domain"/>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password"/>
+        <button type="submit">Add</button>
+    </form>
+{% endif %}
 <h2>Notes</h2>
 {% for note in notes %}
     <form method="post">
@@ -32,10 +34,12 @@
         <button type="submit">Modify</button>
     </form>
 {% endfor %}
-<form method="post">
-    <label for="name">Name</label>
-    <input type="text" name="name" id="name"/>
-    <textarea name="content"></textarea>
-    <button type="submit">Add</button>
-</form>
+{% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
+    <form method="post">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name"/>
+        <textarea name="content"></textarea>
+        <button type="submit">Add</button>
+    </form>
+{% endif %}
 {% include 'footer.twig' %}

@@ -81,11 +81,11 @@ class Folder
             header ('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT * FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
+        $stmt = $this->database->prepare('SELECT *, "Owner" as `role` FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$folder) {
-            $stmt = $this->database->prepare('SELECT folders.*
+            $stmt = $this->database->prepare('SELECT folders.*,memberships.`role`
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
 WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.`role` <> "Proposed"');
@@ -112,7 +112,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                     $this->updateLogin($row['aid'], $row['id'], $post['id'], $post['user'], $post['password'], $post['domain']);
                 }
             } else {
-                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $post['id'], $post['login'], $post['password'], $post['domain']);
+                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $post['id'], $post['user'], $post['password'], $post['domain']);
             }
         } elseif (isset($post['content']) && isset($post['name'])) {
             if (isset($folder['role'])) {

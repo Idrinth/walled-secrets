@@ -107,6 +107,9 @@ class SignUp
             true,
             true
         );
+        $this->database
+            ->prepare('INSERT INTO folders (id,`owner`,`name`) VALUES (:id,:owner,"unsorted")')
+            ->execute([':id' => Uuid::uuid1()->toString(), ':owner' => $new]);
         return '';
     }
 }
