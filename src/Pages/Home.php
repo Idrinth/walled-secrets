@@ -124,7 +124,7 @@ class Home
                     ['hostname' => $this->env->getString('SYSTEM_HOSTNAME'), 'password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],
                     'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
                     $post['email'],
-                    $user['name']
+                    $user['display']
                  );
                 $this->database
                     ->prepare('UPDATE accounts SET since=NOW(),identifier=:id WHERE aid=:aid')
