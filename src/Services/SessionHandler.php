@@ -20,7 +20,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     {
         return dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
     }
-    public function write(string $id, string $data): bool
+    public function write($id, $data)
     {
         $file = $this->getFile($id);
         if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
