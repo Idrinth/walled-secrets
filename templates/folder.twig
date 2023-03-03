@@ -7,7 +7,10 @@
 {% endfor %}
 </ul>
 {% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
+    <h3>New</h3>
     <form method="post">
+        <label for="identifier">Public Identifier</label>
+        <input type="text" name="identifier" id="identifier"/>
         <label for="user">Username</label>
         <input type="text" name="user" id="user"/>
         <label for="domain">Domain</label>
@@ -20,10 +23,13 @@
     </form>
 {% endif %}
 <h2>Notes</h2>
+<ul>
 {% for note in notes %}
     <li><a href="/notes/{{ note.id }}">{{ note.public }}</a></li>
 {% endfor %}
+</ul>
 {% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
+    <h3>New</h3>
     <form method="post">
         <label for="name">Name</label>
         <input type="text" name="name" id="name"/>

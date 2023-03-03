@@ -1,6 +1,8 @@
 {% include 'header.twig' %}
 <h1>{{ login.public }}</h1>
 <form method="post">
+    <label for="identifier">Public Identifier</label>
+    <input type="text" name="identifier" value="{{ login.public }}" id="identifier"/>
     <label for="user">Username</label>
     <input type="text" name="user" id="user" value="{{ login.login }}"/>
     <label for="domain">Domain</label>

@@ -48,7 +48,7 @@ class Folder
             ]);
     }
 
-    private function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note)
+    private function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note, string $publicIdentifier)
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
@@ -67,7 +67,7 @@ class Folder
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
                 ':domain' => $public->encrypt($domain),
-                ':public' => $domain,
+                ':public' => $publicIdentifier,
                 ':login' => $public->encrypt($login),
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
@@ -111,10 +111,10 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note']);
+                    $this->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
                 }
             } else {
-                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain']);
+                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['identifier']);
             }
         } elseif (isset($post['content']) && isset($post['name'])) {
             if ($isOrganisation) {
