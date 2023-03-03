@@ -105,7 +105,7 @@ class Home
                     $post['name']
                  );
                 $this->database
-                    ->prepare('INSERT INTO invited (id,mail,secret,inviter) VALUES (:id,:mail,:secret,:inviter)')
+                    ->prepare('INSERT INTO invites (id,mail,secret,inviter) VALUES (:id,:mail,:secret,:inviter)')
                     ->execute([':id' => $uuid, ':mail' => $post['email'], ':secret' => $id, ':inviter' => $_SESSION['id']]);
             }
             header('Location: /', true, 303);
