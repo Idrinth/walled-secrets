@@ -1,10 +1,11 @@
 {% include 'header.twig' %}
 <h1>Welcome</h1>
 <p>Who may we mail to login?</p>
-<form method="post" onchange="this.submit()">
+<form method="post">
     <label for="email">Your eMail</label>
     <input type="email" name="email" id="email"/>
     <label for="password">Your Master Password</label>
     <input type="password" name="password" id="password"/>
+    <button type="submit">Send Login Mail</button>
 </form>
 {% include 'footer.twig' %}
