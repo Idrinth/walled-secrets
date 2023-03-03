@@ -29,7 +29,7 @@ class Organisation
             header ('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=account.aid WHERE memberships.organisation=:org');
+        $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
         $stmt->execute([':org' => $organisation['aid']]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->database->prepare('SELECT target FROM knowns WHERE owner=:id AND target NOT IN (SELECT account FROM memberships WHERE organisation=:org)');
