@@ -68,12 +68,21 @@ class Importer
         foreach ($data['folders'] as $folder) {
             $this->database
                 ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
-                ->execute([':name' => $folder['name'], ':owner' => $_SESSION['id']]);
+                ->execute([':name' => $folder['name'], ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
             $folders[$folder['id']] = $this->database->lastInsertId();
         }
         foreach ($data['items'] as $item) {
             if ($item['type'] === 1) {
-                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folders[$item['folderId']], Uuid::uuid1()->toString(), $item['login']['username'], $item['login']['password'], $item['name'], '');
+                $this->updateLogin(
+                    $_SESSION['id'],
+                    $_SESSION['uuid'],
+                    $folders[$item['folderId']],
+                    Uuid::uuid1()->toString(),
+                    $item['login']['username'] ?? '',
+                    $item['login']['password'] ?? '',
+                    $item['name'],
+                    ''
+                );
             }
         }
         return '';
