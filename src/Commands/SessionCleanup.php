@@ -7,6 +7,12 @@ use De\Idrinth\WalledSecrets\Services\ENV;
 class SessionCleanup
 {
     private ENV $env;
+
+    public function __construct(ENV $env)
+    {
+        $this->env = $env;
+    }
+
     public function run()
     {
         $toDelete = time() - $this->env->getInt('SYSTEM_SESSION_DURATION');
