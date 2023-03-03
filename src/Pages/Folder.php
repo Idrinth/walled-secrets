@@ -75,7 +75,7 @@ class Folder
             ]);
     }
     
-    public function post(string $id): string
+    public function post(array $post, string $id): string
     {
         if (!isset($_SESSION['id'])) {
             header ('Location: /', true, 303);
