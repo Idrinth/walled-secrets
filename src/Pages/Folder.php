@@ -58,20 +58,29 @@ class Folder
             ]);
     }
 
-    private function updateLogin(int $owner, string $uuid, string $id, string $login, string $password, string $domain)
+    private function updateLogin(int $owner, string $uuid, string $id, string $login, string $password, string $domain, string $note)
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,`account`) VALUES ("","","",:id,:owner)')
+            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,iv,`key`,`note`,`account`) VALUES ("","","","","","",:id,:owner)')
             ->execute([':id' => $id, ':owner' => $owner]);
+        $iv = Random::string(16);
+        $key = Random::string(32);
+        $shared = new AES('ctr');
+        $shared->setKeyLength(256);
+        $shared->setKey($key);
+        $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE logins SET pass=:pass, domain=:domain, login=:login WHERE id=:id AND `account`=:owner')
+            ->prepare('UPDATE logins SET pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
             ->execute([
                 ':owner' => $_SESSION['id'],
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
                 ':domain' => $public->encrypt($domain),
                 ':login' => $public->encrypt($login),
+                ':key' => $public->encrypt($key),
+                ':iv' => $public->encrypt($iv),
+                ':note' => $shared->encrypt($note),
             ]);
     }
     
@@ -84,7 +93,9 @@ class Folder
         $stmt = $this->database->prepare('SELECT *, "Owner" as `role` FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
+        $isOrganisation = false;
         if (!$folder) {
+            $isOrganisation = true;
             $stmt = $this->database->prepare('SELECT folders.*,memberships.`role`
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
@@ -104,18 +115,18 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         if (!isset($post['id'])) {
             $post['id'] = Uuid::uuid1();
         }
-        if (isset($post['domain']) && isset($post['password']) && isset($post['user'])) {
-            if (isset($folder['role'])) {
+        if (isset($post['domain']) && isset($post['password']) && isset($post['user']) && isset($post['note'])) {
+            if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateLogin($row['aid'], $row['id'], $post['id'], $post['user'], $post['password'], $post['domain']);
+                    $this->updateLogin($row['aid'], $row['id'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note']);
                 }
             } else {
                 $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $post['id'], $post['user'], $post['password'], $post['domain']);
             }
         } elseif (isset($post['content']) && isset($post['name'])) {
-            if (isset($folder['role'])) {
+            if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -162,6 +173,13 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $row['login'] = $private->decrypt($row['login']);
             $row['pass'] = $private->decrypt($row['pass']);
             $row['domain'] = $private->decrypt($row['domain']);
+            $row['iv'] = $private->decrypt($row['iv']);
+            $row['key'] = $private->decrypt($row['key']);
+            $shared = new AES('ctr');
+            $shared->setIV($row['iv']);
+            $shared->setKeyLength(256);
+            $shared->setKey($row['key']);
+            $row['note'] = $shared->decrypt($row['note']);
             $logins[] = $row;
         }
         $stmt = $this->database->prepare('SELECT * FROM notes WHERE account=:user AND folder=:id');
