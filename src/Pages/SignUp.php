@@ -74,8 +74,8 @@ class SignUp
         $private = RSA::createKey($this->env->getInt('SYSTEM_KEY_BYTES'));
         $private->withPassword($post['master']);
         mkdir(__DIR__ . '/../../keys/' . $uuid);
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('openssl'));
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('openssl'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('OpenSSH'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('OpenSSH'));
         $this->database
             ->prepare('INSERT INTO accounts (id,display,mail) VALUES (:id,:display,:mail)')
             ->execute([':display' => $post['display'], ':id' => $uuid, ':mail' => $post['email']]);

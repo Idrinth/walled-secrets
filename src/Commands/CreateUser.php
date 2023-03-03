@@ -33,8 +33,8 @@ class CreateUser
         $private->withPassword($master);
         echo "Master Password set.\n";
         mkdir(__DIR__ . '/../../keys/' . $uuid);
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('openssl'));
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('openssl'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('OpenSSH'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('OpenSSH'));
         echo "Keys written to filesystem.\n";
         $this->database
             ->prepare('INSERT INTO accounts (id,display,mail) VALUES (:id,:display,:mail)')
