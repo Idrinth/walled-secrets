@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS `accounts` (
-  `aid` bigint(20) unsigned NOT NULL DEFAULT 0 COMMENT 'auto increment for in database use',
+  `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'auto increment for in database use',
   `id` char(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT 'uuid for external use',
   `mail` varchar(255) NOT NULL DEFAULT '' COMMENT 'account email',
-  `name` varchar(255) NOT NULL COMMENT 'display name',
+  `display` varchar(255) NOT NULL COMMENT 'display name',
   `identifier` varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT '' COMMENT 'temporary identifier for login',
   `since` datetime DEFAULT NULL COMMENT 'datetime until identifier is valid',
   `notify` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT 'if activated you will be notified of invites and messages',
@@ -138,4 +138,3 @@ CREATE TABLE IF NOT EXISTS `organisations` (
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='organizations share secrets among their members';
-
