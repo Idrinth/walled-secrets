@@ -83,7 +83,7 @@ class Home
                     ->prepare('INSERT INTO organisations (`name`,id) VALUES (:name,:uuid)')
                     ->execute([':name' => $post['organisation'], ':uuid' => Uuid::uuid1()->toString()]);
                 $this->database
-                    ->prepare('INSERT INTO memberships (organisation,account) VALUES (:organisation,:account)')
+                    ->prepare('INSERT INTO memberships (organisation,account,role) VALUES (:organisation,:account,"Owner")')
                     ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
             } elseif (isset($post['email']) && isset($post['name'])) {
                 $id = $this->makeOneTimePass();
