@@ -81,20 +81,25 @@ class Folder
             header ('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT * FROM folders WHERE account=:user AND id=:id AND `type`="Account"');
+        $stmt = $this->database->prepare('SELECT * FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$folder) {
-            $stmt = $this->database->prepare('SELECT folders.*,membership.role
+            $stmt = $this->database->prepare('SELECT folders.*
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
-WHERE memberships.account=:user AND folders.id=:id AND folder.`type`="Organisation" AND membership.role IN("Administrator","Owner","Member")');
+WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.role <> "Proposed"');
             $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
             $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         }
         if (!$folder) {
             header ('Location: /', true, 303);
             return '';
+        }
+        if (!isset($_SESSION['password'])) {
+            session_destroy();
+            header ('Location: /', true, 303);
+            return '';            
         }
         if (!isset($post['id'])) {
             $post['id'] = Uuid::uuid1();
