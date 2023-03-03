@@ -50,6 +50,7 @@ class Logins
             header ('Location: /', true, 303);
             return '';
         }
+        set_time_limit(0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);;
         $login['login'] = $private->decrypt($login['login']);
