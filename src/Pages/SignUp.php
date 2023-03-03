@@ -43,7 +43,7 @@ class SignUp
             header ('Location: /', true, 303);
             return '';
         }
-        return $this->twig->render('register', ['title' => 'Registration']);
+        return $this->twig->render('register', ['title' => 'Registration', 'disableRefresh' => true]);
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {

@@ -37,7 +37,7 @@ class Master
             header('Location: /', true, 303);
             return '';
         }
-        return $this->twig->render('master', ['title' => 'Confirm Login']);
+        return $this->twig->render('master', ['title' => 'Confirm Login', 'disableRefresh' => true]);
     }
     public function post($post): string
     {

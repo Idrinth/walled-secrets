@@ -4,7 +4,9 @@
         <title>{{ title }} | {{ website_name }}</title>
         <meta charset="utf-8"/>
         <base href="/"/>
-        <meta http-equiv="refresh" content="{{ session_duration }}">
+        {% if not disableRefresh %}
+            <meta http-equiv="refresh" content="{{ session_duration }}"/>
+        {% endif %}
         <link href="styles.css" type="stylesheet"/>
     </head>
     <body>

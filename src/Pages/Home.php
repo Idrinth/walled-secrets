@@ -63,6 +63,7 @@ class Home
         }
         return $this->twig->render('home-anon', [
             'title' => 'Login',
+            'disableRefresh' => true
         ]);
     }
     function makeOneTimePass(): string
