@@ -31,15 +31,15 @@ class Master
         $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
 
-    public function get()
+    public function get(): string
     {
         if (!isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
             header('Location: /', true, 303);
             return '';
         }
-        $this->twig->render('master', ['title' => 'Confirm Login']);
+        return $this->twig->render('master', ['title' => 'Confirm Login']);
     }
-    public function post($post)
+    public function post($post): string
     {
         if (!isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
             header('Location: /', true, 303);
