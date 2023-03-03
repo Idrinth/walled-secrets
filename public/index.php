@@ -4,6 +4,7 @@ use De\Idrinth\WalledSecrets\Application;
 use De\Idrinth\WalledSecrets\Pages\Folder;
 use De\Idrinth\WalledSecrets\Pages\Home;
 use De\Idrinth\WalledSecrets\Pages\Importer;
+use De\Idrinth\WalledSecrets\Pages\Imprint;
 use De\Idrinth\WalledSecrets\Pages\Login;
 use De\Idrinth\WalledSecrets\Pages\Logins;
 use De\Idrinth\WalledSecrets\Pages\Master;
@@ -24,6 +25,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->register(new Blowfish('ctr'))
     ->get('/', Home::class)
     ->post('/', Home::class)
+    ->get('/imprint', Imprint::class)
     ->get('/master', Master::class)
     ->post('/master', Master::class)
     ->get('/import', Importer::class)
