@@ -53,6 +53,7 @@ class Organisation
             return '';
         }
         if (isset($post['folder']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
+            var_dump([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':uuid' => Uuid::uuid1()->toString()]);exit;
             $this->database
                 ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:uuid, "Organisation")')
                 ->execute([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':uuid' => Uuid::uuid1()->toString()]);
@@ -114,7 +115,7 @@ class Organisation
         $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->database->prepare('SELECT * FROM folders WHERE owner=:org AND `type`="Organisation"');
         $stmt->execute([':org' => $organisation['aid']]);
-        $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $folders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $this->twig->render('organisation', [
             'members' => $members,
             'knowns' => $knowns,
