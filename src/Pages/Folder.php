@@ -136,7 +136,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folder.`type`="Organisati
             $stmt = $this->database->prepare('SELECT folders.*
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
-WHERE memberships.account=:user AND folders.id=:id AND folder.`type`="Organisation" AND membership.role <> "Proposed"');
+WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.role <> "Proposed"');
             $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
             $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         }
