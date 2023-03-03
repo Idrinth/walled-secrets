@@ -6,6 +6,7 @@ use De\Idrinth\WalledSecrets\Pages\Home;
 use De\Idrinth\WalledSecrets\Pages\Login;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
+use De\Idrinth\WalledSecrets\Services\Database;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
 use Twig\Loader\FilesystemLoader;
@@ -13,6 +14,7 @@ use Twig\Loader\FilesystemLoader;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Application())
+    ->register(new Database())
     ->register(new FilesystemLoader(__DIR__ . '/../templates'))
     ->register(new AES('ctr'))
     ->register(new Blowfish('ctr'))
