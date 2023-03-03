@@ -43,10 +43,10 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM folders WHERE owner=:id AND `type`="Account"');
             $stmt->execute([':id' => $_SESSION['id']]);
             $folders = $stmt->fetch(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisation.aid WHERE account=:id');
+            $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $organisations = $stmt->fetch(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT iv,key,note,display FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
+            $stmt = $this->database->prepare('SELECT iv,`key`,note,display FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $knowns = $stmt->fetch(PDO::FETCH_ASSOC);
             return $this->twig->render('home-user', [

@@ -37,7 +37,7 @@ class Folder
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO notes (content,iv,name,key,id,owner) VALUES ("","","","",:id,:owner)')
+            ->prepare('INSERT IGNORE INTO notes (content,iv,name,`key`,id,`owner`) VALUES ("","","","",:id,:owner)')
             ->execute([':id' => $id, ':owner' => $owner]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -46,7 +46,7 @@ class Folder
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE notes SET content=:content, name=:name, iv=:iv, key=:key WHERE id=:id AND owner=:owner')
+            ->prepare('UPDATE notes SET content=:content, name=:name, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
             ->execute([
                 ':owner' => $_SESSION['id'],
                 ':id' => $id,
