@@ -98,6 +98,15 @@ class SignUp
         $stmt->execute([':aid' => $invite['inviter']]);
         $this->addKnown($invite['inviter'], $new, $stmt->fetchColumn(), 'Invited them.');
         header ('Location: /', true, 303);
+        setcookie(
+            $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE'),
+            sha1($this->env->getString('SYSTEM_SALT') . $post['email']),
+            time() + $this->env->getString('SYSTEM_QUICK_LOGIN_DURATION'),
+            '/',
+            $this->env->getString('SYSTEM_HOSTNAME'),
+            true,
+            true
+        );
         return '';
     }
 }

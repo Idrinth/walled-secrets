@@ -57,6 +57,10 @@ class Home
                 'knowns' => $knowns,
             ]);
         }
+        if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
+            header('Location: /master', true, 303);
+            return '';
+        }
         return $this->twig->render('home-anon', [
             'title' => 'Login',
         ]);

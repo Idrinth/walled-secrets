@@ -17,13 +17,22 @@ class Login
     }
     public function get(string $id, string $password): string
     {
-        $stmt = $this->database->prepare('SELECT aid,since FROM accounts WHERE id=:id AND identifier=:password');
+        $stmt = $this->database->prepare('SELECT aid,since,mail FROM accounts WHERE id=:id AND identifier=:password');
         $stmt->execute([':id' => $id, ':password' => $password]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
             if (strtotime($user['since']) + $this->env->getInt('SYSTEM_SESSION_DURATION') > time()) {
                 $_SESSION['id'] = $user['aid'];
                 $_SESSION['uuid'] = $id;
+                setcookie(
+                    $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE'),
+                    sha1($this->env->getString('SYSTEM_SALT') . $user['mail']),
+                    time() + $this->env->getString('SYSTEM_QUICK_LOGIN_DURATION'),
+                    '/',
+                    $this->env->getString('SYSTEM_HOSTNAME'),
+                    true,
+                    true
+                );
             }
         }
         header ('Location: /', true, 303);
