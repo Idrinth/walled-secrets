@@ -1,5 +1,5 @@
 {% include 'header.twig' %}
-<h1>{{ login.login }}@{{ login.domain }}</h1>
+<h1>{{ login.public }}</h1>
 <form method="post">
     <label for="user">Username</label>
     <input type="text" name="user" id="user" value="{{ login.login }}"/>
@@ -11,3 +11,4 @@
     <textarea name="note" id="note">{{ login.note }}</textarea>
     <button type="submit">Modify</button>
 </form>
+{% include 'footer.twig' %}

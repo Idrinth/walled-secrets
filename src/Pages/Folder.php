@@ -151,11 +151,6 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             header ('Location: /', true, 303);
             return '';
         }
-        if (!isset($_SESSION['password'])) {
-            session_destroy();
-            header ('Location: /', true, 303);
-            return '';            
-        }
         $stmt = $this->database->prepare('SELECT public,id FROM logins WHERE account=:user AND folder=:id');
         $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
         $logins = [];
