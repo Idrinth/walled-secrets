@@ -9,7 +9,7 @@ use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 use Ramsey\Uuid\Uuid;
 
-class Import
+class Importer
 {
     private Twig $twig;
     private Env $env;
