@@ -44,7 +44,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
         }
         return false;
     }
-    public function gc(int $max_lifetime)
+    public function gc($max_lifetime)
     {
         return 0;
     }
