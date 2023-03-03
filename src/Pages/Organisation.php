@@ -53,10 +53,9 @@ class Organisation
             return '';
         }
         if (isset($post['folder']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
-            var_dump([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':uuid' => Uuid::uuid1()->toString()]);exit;
             $this->database
-                ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:uuid, "Organisation")')
-                ->execute([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':uuid' => Uuid::uuid1()->toString()]);
+                ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:id, "Organisation")')
+                ->execute([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':id' => Uuid::uuid1()->toString()]);
             header ('Location: /organisation/'.$id, true, 303);
             return '';
         }
