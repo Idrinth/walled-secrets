@@ -67,7 +67,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
         return false;
     }
 
-    public function validateId(string $id): bool
+    public function validateId(string $id)
     {
         return preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($this->getFile($id));
     }
