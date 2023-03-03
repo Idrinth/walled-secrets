@@ -1,0 +1,41 @@
+{% include 'header.twig' %}
+<h1>Welcome {{ user.name }}</h1>
+<h2>Folders</h2>
+<ul>
+    {% for folder in folders %}
+        <li><a href="/folder/{{ folder.id }}">{{ folder.name }}</a></li>
+    {% endfor %}
+</ul>
+<h3>New</h3>
+<form method="post">
+    <label for="folder">Your Folder's name</label>
+    <input type="text" placeholder="home" id="folder" name="folder" required/>
+    <button type="submit">Create</button>
+</form>
+<h2>Organisations</h2>
+<ul>
+    {% for organisation in organisations %}
+        <li><a href="/organisation/{{ organisation.id }}">{{ organisation.name }} ({{ organisation.role }})</a></li>
+    {% endfor %}
+</ul>
+<h3>New</h3>
+<form method="post">
+    <label for="organisation">Your Organisation's name</label>
+    <input type="text" placeholder="League of Evil" id="organisation" name="organisation" required/>
+    <button type="submit">Create</button>
+</form>
+<h2>Known Users</h2>
+<ul>
+    {% for known in knowns %}
+        <li title="{{ known.note }}">{{ known.display }} ({{ known.id }})</li>
+    {% endfor %}
+</ul>
+<h3>Invite New</h3>
+<form method="post">
+    <label for="name">Your Friend's name</label>
+    <input type="text" placeholder="Max Mustermann" id="name" name="name" required/>
+    <label for="email">Your Friend's eMail</label>
+    <input type="email" id="email" name="email" required/>
+    <button type="submit">Invite</button>
+</form>
+{% include 'footer.twig' %}

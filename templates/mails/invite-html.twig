@@ -1,0 +1,17 @@
+<!DOCTYLE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Invite for {{ hostname }}</title>
+    </head>
+    <body>
+        <h1>Invite for {{ hostname }}</h1>
+        <p>Hello {{ name }}!</p>
+        <p>You were invited by {{ sender }} to join the password manager at {{ hostname }}.</p>
+        <p>If you aren't interested, just ignore the mail - repeated join requests from {{ sender }} are not possibly.</p>
+        <p>To register please visit <a href="https://{{ hostname }}/register/{{ uuid }}/{{ password }}">here</a>.</p>
+        <p>Have a great day,<br/>Your Walled Secrets Bot</p>
+        <br />
+        <p>The site {{ hostname }} is hosted and operated by Björn 'Idrinth' Büttner, see the <a href="https://{{ hostname }}/imprint">imprint</a> for more information.</p>
+    </body>
+</html>

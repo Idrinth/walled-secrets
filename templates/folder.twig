@@ -1,0 +1,41 @@
+{% include 'header.twig' %}
+<h1>{{ folder.name }}</h1>
+<h2>Logins</h2>
+{% for login in logins %}
+    <form method="post">
+        <input type="hidden" name="id" value="{{ login.id }}"/>
+        <label for="user">Username</label>
+        <input type="text" name="user" id="user" value="{{ login.login }}"/>
+        <label for="domain">Domain</label>
+        <input type="text" name="domain" id="domain" value="{{ login.domain }}"/>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" value="{{ login.pass }}"/>
+        <button type="submit">Modify</button>
+    </form>
+{% endfor %}
+<form method="post">
+    <label for="user">Username</label>
+    <input type="text" name="user" id="user"/>
+    <label for="domain">Domain</label>
+    <input type="text" name="domain" id="domain"/>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password"/>
+    <button type="submit">Add</button>
+</form>
+<h2>Notes</h2>
+{% for note in notes %}
+    <form method="post">
+        <input type="hidden" name="id" value="{{ note.id }}"/>
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" value="{{ note.name }}"/>
+        <textarea name="content">{{ note.content }}</textarea>
+        <button type="submit">Modify</button>
+    </form>
+{% endfor %}
+<form method="post">
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name"/>
+    <textarea name="content"></textarea>
+    <button type="submit">Add</button>
+</form>
+{% include 'footer.twig' %}

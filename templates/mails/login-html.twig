@@ -1,0 +1,16 @@
+<!DOCTYLE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{ subject }}</title>
+    </head>
+    <body>
+        <h1>{{ subject }}</h1>
+        <p>Hello {{ name }}!</p>
+        <p>Someone requested to login with your account. If that wasn't you, just ignore this mail.</p>
+        <p>To login please visit <a href="https://{{ hostname }}/login/{{ uuid }}/{{ password }}">here</a>.</p>
+        <p>Have a great day,<br/>Your Walled Secrets Bot</p>
+        <br />
+        <p>The site {{ hostname }} is hosted and operated by Björn 'Idrinth' Büttner, see the <a href="https://{{ hostname }}/imprint">imprint</a> for more information.</p>
+    </body>
+</html>

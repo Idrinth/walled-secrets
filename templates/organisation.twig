@@ -1,0 +1,29 @@
+{% include 'header.twig' %}
+<h1>{{ organisation.name }}</h1>
+{% for member in members %}
+    <form method="post">
+        <input type="hidden" name="id" value="{{ member.id }}"/>
+        <label for="user">Username</label>
+        <input type="text" disabled id="user" value="{{ member.display }}"/>
+        <label for="role">Role</label>
+        <select name="role"{% if member.role != 'Administrator' and member.role != 'Owner' %}disabled{% endif %}>
+            <option{% if member.role == 'Proposed' %} selected{% endif %}>Proposed</option>
+            <option{% if member.role == 'Reader' %} selected{% endif %}>Reader</option>
+            <option{% if member.role == 'Member' %} selected{% endif %}>Member</option>
+            <option{% if member.role == 'Administrator' %} selected{% endif %}>Administrator</option>
+            <option{% if member.role == 'Owner' %} selected{% endif %}>Owner</option>
+        </select>
+        <button type="submit">Modify</button>
+    </form>
+{% endfor %}
+<h3>Propose a friend</h3>
+<form method="post">
+    <label for="known">User</label>
+    <select name="known" id="known">
+        {% for known in knows %}
+            <option value="{{ known.id }}">{{ known.display }} ({{ known.id }})</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Propose</button>
+</form>
+{% include 'footer.twig' %}
