@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -16,9 +17,11 @@ class SignUp
     private Blowfish $blowfish;
     private AES $aes;
     private ENV $env;
+    private Twig $twig;
 
-    public function __construct(PDO $database, Blowfish $blowfish, AES $aes,ENV $env)
+    public function __construct(Twig $twig, PDO $database, Blowfish $blowfish, AES $aes,ENV $env)
     {
+        $this->twig = $twig;
         $this->database = $database;
         $this->blowfish = $blowfish;
         $this->aes = $aes;
