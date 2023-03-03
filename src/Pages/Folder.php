@@ -75,7 +75,7 @@ class Folder
             ]);
     }
     
-    public function post(string $id)
+    public function post(string $id): string
     {
         if (!isset($_SESSION['id'])) {
             header ('Location: /', true, 303);
@@ -123,7 +123,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folder.`type`="Organisati
         header ('Location: /folder/' . $id, true, 303);
         return '';
     }
-    public function get(string $id)
+    public function get(string $id): string
     {
         if (!isset($_SESSION['id'])) {
             header ('Location: /', true, 303);
@@ -173,7 +173,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $row['name'] = $shared->decrypt($row['name']);
             $notes[] = $row;
         }
-        $this->twig->render('folder', [
+        return $this->twig->render('folder', [
             'notes' => $notes,
             'logins' => $logins,
             'folder' => $folder,
