@@ -20,27 +20,28 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     {
         return dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
     }
+    private function exists(string $id): bool
+    {
+        return preg_match('/^[a-zA-Z0-9]{128}$/', $id) && is_file($this->getFile($id));
+    }
     public function write($id, $data)
     {
-        $file = $this->getFile($id);
-        if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
-            return fwrite($this->lock, $data);
+        if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
+            return (bool) file_put_contents($this->getFile($id), $data);
         }
         return false;
     }
     public function read($id)
     {
-        $file = $this->getFile($id);
-        if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
-            return fread($this->lock, filesize($file));
+        if ($this->exists($id)) {
+            return file_get_contents($this->getFile($id));
         }
         return false;
     }
     public function destroy($id)
     {
-        $file =$this->getFile($id);
-        if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
-            return unlink($file);
+        if ($this->exists($id)) {
+            return unlink($this->getFile($id));
         }
         return false;
     }
@@ -60,15 +61,14 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
 
     public function updateTimestamp($id, $data)
     {
-        $file = $this->getFile($id);
-        if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
-            return touch($file);
+        if ($this->exists($id)) {
+            return touch($this->getFile($id));
         }
         return false;
     }
 
     public function validateId($id)
     {
-        return preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($this->getFile($id));
+        return $this->exists($id);
     }
 }
