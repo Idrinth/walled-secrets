@@ -14,7 +14,7 @@
             <option{% if member.role == 'Administrator' %} selected{% endif %}>Administrator</option>
             <option{% if member.role == 'Owner' %} selected{% endif %}>Owner</option>
         </select>
-        {% if organisation.role == 'Administrator' or organisation.role === 'Owner' %}
+        {% if organisation.role == 'Administrator' or organisation.role == 'Owner' %}
             <button type="submit">Modify</button>
         {% endif %}
     </form>
@@ -35,7 +35,7 @@
         <li><a href="/folder/{{ folder.id }}">{{ folder.name }}</a></li>
     {% endfor %}
 </ul>
-{% if organisation.role == 'Administrator' or organisation.role === 'Owner' %}
+{% if organisation.role == 'Administrator' or organisation.role == 'Owner' %}
     <h3>New</h3>
     <form method="post">
         <label for="folder">Your Folder's name</label>
