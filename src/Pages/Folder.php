@@ -144,6 +144,11 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             header ('Location: /', true, 303);
             return '';
         }
+        if (!isset($_SESSION['password'])) {
+            session_destroy();
+            header ('Location: /', true, 303);
+            return '';            
+        }
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
         $stmt = $this->database->prepare('SELECT * FROM logins WHERE account=:user AND folder=:id');
