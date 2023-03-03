@@ -51,8 +51,10 @@ class Logins
             return '';
         }
         set_time_limit(0);
+        error_log("Loading private Key");
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);;
+        error_log("Loaded private Key");
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
         $login['domain'] = $private->decrypt($login['domain']);
@@ -63,6 +65,7 @@ class Logins
         $shared->setKeyLength(256);
         $shared->setKey($login['key']);
         $login['note'] = $shared->decrypt($login['note']);
+        error_log("Decrypted data");
         return $this->twig->render('login', [
             'title' => $login['public'],
             'login' => $login,
