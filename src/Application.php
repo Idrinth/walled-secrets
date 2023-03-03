@@ -18,7 +18,7 @@ class Application
     {
         Dotenv::createImmutable(dirname(__DIR__))->load();
         date_default_timezone_set('UTC');
-        $hadler = new SessionHandler();
+        $handler = new SessionHandler();
         session_set_save_handler($handler);
         session_set_cookie_params(intval($_ENV['SYSTEM_SESSION_DURATION'], 10), '/', $_ENV['SYSTEM_HOSTNAME'], true, true);
         session_start();
