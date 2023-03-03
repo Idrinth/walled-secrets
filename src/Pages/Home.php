@@ -74,6 +74,7 @@ class Home
     {
         if (isset($_SESSION['id'])) {
             if (isset($post['folder'])) {
+                var_dump([':name' => $post['folder'], ':owner ' => $_SESSION['id'], ':uuid' => Uuid::uuid1()->toString()]);
                 $this->database
                     ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:uuid)')
                     ->execute([':name' => $post['folder'], ':owner ' => $_SESSION['id'], ':uuid' => Uuid::uuid1()->toString()]);
