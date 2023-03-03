@@ -4,12 +4,23 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Crypt\RSA;
+use Ramsey\Uuid\Uuid;
 
 class Import
 {
     private Twig $twig;
     private Env $env;
     private PDO $database;
+
+    public function __construct(Twig $twig, Env $env, PDO $database)
+    {
+        $this->twig = $twig;
+        $this->env = $env;
+        $this->database = $database;
+    }
 
     public function get(): string
     {
