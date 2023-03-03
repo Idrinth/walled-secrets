@@ -13,7 +13,6 @@ use Twig\Loader\FilesystemLoader;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Application())
-    ->register(new PDO('mysql:host=' . $_ENV['DATABASE_HOST'] . ';dbname=' . $_ENV['DATABASE_DATABASE'], $_ENV['DATABASE_USER'], $_ENV['DATABASE_PASSWORD']))
     ->register(new FilesystemLoader(__DIR__ . '/../templates'))
     ->register(new AES('ctr'))
     ->register(new Blowfish('ctr'))
