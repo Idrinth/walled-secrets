@@ -62,10 +62,10 @@ class Folder
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,owner) VALUES ("","","",:id,:owner)')
+            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,`account`) VALUES ("","","",:id,:owner)')
             ->execute([':id' => $id, ':owner' => $owner]);
         $this->database
-            ->prepare('UPDATE logins SET pass=:pass, domain=:domain, login=:login WHERE id=:id AND owner=:owner')
+            ->prepare('UPDATE logins SET pass=:pass, domain=:domain, login=:login WHERE id=:id AND `account`=:owner')
             ->execute([
                 ':owner' => $_SESSION['id'],
                 ':id' => $id,
