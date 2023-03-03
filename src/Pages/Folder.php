@@ -104,12 +104,12 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         if (!isset($post['id'])) {
             $post['id'] = Uuid::uuid1();
         }
-        if (isset($post['domain']) && isset($post['password']) && isset($post['login'])) {
+        if (isset($post['domain']) && isset($post['password']) && isset($post['user'])) {
             if (isset($folder['role'])) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateLogin($row['aid'], $row['id'], $post['id'], $post['login'], $post['password'], $post['domain']);
+                    $this->updateLogin($row['aid'], $row['id'], $post['id'], $post['user'], $post['password'], $post['domain']);
                 }
             } else {
                 $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $post['id'], $post['login'], $post['password'], $post['domain']);
