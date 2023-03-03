@@ -6,7 +6,6 @@ use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Blowfish;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 use Ramsey\Uuid\Uuid;
@@ -15,23 +14,13 @@ class Folder
 {
     private PDO $database;
     private Twig $twig;
-    private Blowfish $blowfish;
-    private AES $aes;
     private ENV $env;
 
-    public function __construct(PDO $database, Twig $twig, Blowfish $blowfish, AES $aes, ENV $env)
+    public function __construct(PDO $database, Twig $twig, ENV $env)
     {
         $this->database = $database;
         $this->env = $env;
         $this->twig = $twig;
-        $this->blowfish = $blowfish;
-        $this->aes = $aes;
-        $this->aes->setKeyLength(256);
-        $this->aes->setKey($this->env->getString('PASSWORD_KEY'));
-        $this->aes->setIV($this->env->getString('PASSWORD_IV'));
-        $this->blowfish->setKeyLength(448);
-        $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
-        $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
 
     private function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content)
