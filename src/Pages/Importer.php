@@ -36,7 +36,7 @@ class Importer
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,iv,`key`,`note`,id,`account`,folder) VALUES ("","","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -47,7 +47,7 @@ class Importer
         $this->database
             ->prepare('UPDATE logins SET pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
             ->execute([
-                ':owner' => $_SESSION['id'],
+                ':owner' => $owner,
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
                 ':domain' => $public->encrypt($domain),
