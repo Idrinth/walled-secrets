@@ -111,7 +111,7 @@ class Home
             header('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT id, name, since, aid FROM accounts WHERE mail=:mail');
+        $stmt = $this->database->prepare('SELECT id, display, since, aid FROM accounts WHERE mail=:mail');
         $stmt->execute([':mail' => $post['email']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
@@ -121,7 +121,7 @@ class Home
                 $this->mailer->send(
                     $user['aid'],
                     'login',
-                    ['hostname' => $this->env->getString('SYSTEM_HOSTNAME'), 'password' => $id, 'uuid' => $user['id'], 'name' => $user['name']],
+                    ['hostname' => $this->env->getString('SYSTEM_HOSTNAME'), 'password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],
                     'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
                     $post['email'],
                     $user['name']
