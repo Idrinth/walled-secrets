@@ -44,7 +44,7 @@ class Logins
             return '';            
         }
         $stmt = $this->database->prepare('SELECT * FROM logins WHERE id=:id AND `account`=:account"');
-        $stmt->execute([':id' => $id, ':owner' => $_SESSION['id']]);
+        $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
         $login = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$login) {
             header ('Location: /', true, 303);
