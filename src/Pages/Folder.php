@@ -129,7 +129,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folder.`type`="Organisati
             header ('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT * FROM folders WHERE account=:user AND id=:id AND `type`="Account"');
+        $stmt = $this->database->prepare('SELECT * FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$folder) {
