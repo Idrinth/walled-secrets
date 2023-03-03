@@ -35,7 +35,7 @@ class Organisation
         $stmt = $this->database->prepare('SELECT target FROM knowns WHERE owner=:id AND target NOT IN (SELECT account FROM memberships WHERE organisation=:org)');
         $stmt->execute([':org' => $organisation['aid'], ':id' => $_SESSION['id']]);
         $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $this->twig->render('organisation', [
+        return $this->twig->render('organisation', [
             'members' => $members,
             'knowns' => $knowns,
             'organisation' => $organisation,
