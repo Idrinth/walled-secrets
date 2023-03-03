@@ -66,6 +66,10 @@ class SignUp
     }
     public function post(array $post, string $id, string $pass): string
     {
+        if (!isset($post['name']) || !isset($post['email'])) {
+            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            return '';
+        }
         $stmt = $this->database->prepare('SELECT aid,inviter FROM invites WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
         $stmt->execute([':id' => $id, ':secret' => $pass, ':mail' => $post['email']]);
         $invite = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -81,7 +85,7 @@ class SignUp
         file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('OpenSSH'));
         $this->database
             ->prepare('INSERT INTO accounts (id,display,mail) VALUES (:id,:display,:mail)')
-            ->execute([':display' => $post['display'], ':id' => $uuid, ':mail' => $post['email']]);
+            ->execute([':display' => $post['name'], ':id' => $uuid, ':mail' => $post['email']]);
         $new = $this->database->lastInsertId();
         $_SESSION['id'] = $new;
         $_SESSION['uuid'] = $uuid;

@@ -112,6 +112,10 @@ class Home
             header('Location: /', true, 303);
             return '';
         }
+        if (!isset($post['email'])) {
+            header('Location: /', true, 303);
+            return '';
+        }
         $stmt = $this->database->prepare('SELECT id, display, since, aid FROM accounts WHERE mail=:mail');
         $stmt->execute([':mail' => $post['email']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
