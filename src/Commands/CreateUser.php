@@ -2,6 +2,11 @@
 
 namespace De\Idrinth\WalledSecrets\Commands;
 
+use De\Idrinth\WalledSecrets\Services\ENV;
+use PDO;
+use phpseclib3\Crypt\RSA;
+use Ramsey\Uuid\Uuid;
+
 class CreateUser
 {
     private PDO $database;
