@@ -22,14 +22,14 @@ class Organisation
             header ('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT organisation.*,memberships.role FROM organisations INNER JOIN memberships ON memberships.organisation=organisation.aid WHERE organisation.id=:id AND memberschips.account=:user AND memberships.role<>"Proposed"');
+        $stmt = $this->database->prepare('SELECT organisations.*,memberships.role FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE organisations.id=:id AND memberships.account=:user AND memberships.role<>"Proposed"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $organisation = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$organisation) {
             header ('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=account.aid WHERE membership.organisation=:org');
+        $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=account.aid WHERE memberships.organisation=:org');
         $stmt->execute([':org' => $organisation['aid']]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->database->prepare('SELECT target FROM knowns WHERE owner=:id AND target NOT IN (SELECT account FROM memberships WHERE organisation=:org)');
