@@ -28,7 +28,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
         }
         return false;
     }
-    public function read(string $id)
+    public function read($id)
     {
         $file = $this->getFile($id);
         if (preg_match('/^[a-zA-Z0-9]{128}$/') && is_file($file)) {
