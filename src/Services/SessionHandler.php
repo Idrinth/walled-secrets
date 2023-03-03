@@ -34,9 +34,9 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     public function read($id)
     {
         if ($this->exists($id)) {
-            return file_get_contents($this->getFile($id));
+            return file_get_contents($this->getFile($id)) ?: '';
         }
-        return false;
+        return '';
     }
     public function destroy($id)
     {
