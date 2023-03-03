@@ -84,7 +84,7 @@ class Home
                 $this->database
                     ->prepare('INSERT INTO memberships (organisation,account) VALUES (:organisation,:account)')
                     ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
-            } elseif (isset($post['mail']) && isset($post['name'])) {
+            } elseif (isset($post['email']) && isset($post['name'])) {
                 $id = $this->makeOneTimePass();
                 $uuid = Uuid::uuid1();
                 $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:id');
@@ -92,7 +92,7 @@ class Home
                 $sender = $stmt->fetchColumn();
                 $this->mailer->send(
                     0,
-                    'login',
+                    'invite',
                     [
                         'hostname' => $this->env->getString('SYSTEM_HOSTNAME'),
                         'password' => $id,
@@ -100,7 +100,7 @@ class Home
                         'name' => $post['name'],
                         'sender' => $sender,
                     ],
-                    'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
+                    'Invite to ' . $this->env->getString('SYSTEM_HOSTNAME'),
                     $post['email'],
                     $post['name']
                  );

@@ -18,6 +18,7 @@ class Twig
     public function render(string $template, array $context = []): string
     {
         $context['website_name'] = $_ENV['SYSTEM_NAME'];
+        $context['session_duration'] = $_ENV['SYSTEM_SESSION_DURATION'];
         return $this->twig->render("$template.twig", $context);
     }
 }
