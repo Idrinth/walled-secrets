@@ -66,10 +66,15 @@ class Importer
         $data = json_decode(file_get_contents($file), true);
         $folders = [];
         foreach ($data['folders'] as $folder) {
-            $this->database
-                ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
-                ->execute([':name' => $folder['name'], ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
-            $folders[$folder['id']] = $this->database->lastInsertId();
+            $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `name`=:name');
+            $stmt->execute([':name' => $folder['name'], ':owner' => $_SESSION['id']]);
+            $folders[$folder['id']] = $stmt->fetchColumn();
+            if (!$folders[$folder['id']]) {
+                $this->database
+                    ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
+                    ->execute([':name' => $folder['name'], ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
+                $folders[$folder['id']] = $this->database->lastInsertId();
+            }
         }
         foreach ($data['items'] as $item) {
             if ($item['type'] === 1) {
