@@ -4,6 +4,10 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Crypt\RSA;
+use Ramsey\Uuid\Uuid;
 
 class Organisation
 {
