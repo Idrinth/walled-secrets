@@ -38,7 +38,7 @@ class Folder
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO notes (content,iv,name,`key`,id,`owner`,folder) VALUES ("","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO notes (public,content,iv,name,`key`,id,`owner`,folder) VALUES ("","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -47,13 +47,14 @@ class Folder
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE notes SET content=:content, name=:name, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
+            ->prepare('UPDATE notes SET public=:public,content=:content, name=:name, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
             ->execute([
                 ':owner' => $_SESSION['id'],
                 ':id' => $id,
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
                 ':name' => $shared->encrypt($name),
+                ':public' => $name,
                 ':content' => $shared->encrypt($content),
             ]);
     }
@@ -62,7 +63,7 @@ class Folder
     {
         $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -71,12 +72,13 @@ class Folder
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE logins SET pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
+            ->prepare('UPDATE logins SET public=:public,pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
             ->execute([
                 ':owner' => $_SESSION['id'],
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
                 ':domain' => $public->encrypt($domain),
+                ':public' => $domain,
                 ':login' => $public->encrypt($login),
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
@@ -165,33 +167,16 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             header ('Location: /', true, 303);
             return '';            
         }
-        set_time_limit(0);
-        $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
-        $stmt = $this->database->prepare('SELECT * FROM logins WHERE account=:user AND folder=:id');
-        $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);$logins = [];
+        $stmt = $this->database->prepare('SELECT public,id FROM logins WHERE account=:user AND folder=:id');
+        $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
+        $logins = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $row['login'] = $private->decrypt($row['login']);
-            $row['domain'] = $private->decrypt($row['domain']);
-            $row['iv'] = $private->decrypt($row['iv']);
-            $row['key'] = $private->decrypt($row['key']);
-            $shared = new AES('ctr');
-            $shared->setIV($row['iv']);
-            $shared->setKeyLength(256);
-            $shared->setKey($row['key']);
             $logins[] = $row;
         }
-        $stmt = $this->database->prepare('SELECT * FROM notes WHERE account=:user AND folder=:id');
+        $stmt = $this->database->prepare('SELECT public,id FROM notes WHERE account=:user AND folder=:id');
         $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
         $notes = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $row['iv'] = $private->decrypt($row['login']);
-            $row['key'] = $private->decrypt($row['pass']);
-            $shared = new AES('ctr');
-            $shared->setIV($row['iv']);
-            $shared->setKeyLength(256);
-            $shared->setKey($row['key']);
-            $row['name'] = $shared->decrypt($row['name']);
             $notes[] = $row;
         }
         return $this->twig->render('folder', [

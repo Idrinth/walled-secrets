@@ -3,7 +3,7 @@
 <h2>Logins</h2>
 <ul>
 {% for login in logins %}
-    <li><a href="/logins/{{ login.id }}">{{ login.login }} @ {{ login.domain }}</a></li>
+    <li><a href="/logins/{{ login.id }}">{{ login.public }}</a></li>
 {% endfor %}
 </ul>
 {% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
@@ -21,7 +21,7 @@
 {% endif %}
 <h2>Notes</h2>
 {% for note in notes %}
-    <li><a href="/notes/{{ note.id }}">{{ note.name }}</a></li>
+    <li><a href="/notes/{{ note.id }}">{{ note.public }}</a></li>
 {% endfor %}
 {% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
     <form method="post">
