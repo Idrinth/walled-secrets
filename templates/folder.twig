@@ -1,20 +1,11 @@
 {% include 'header.twig' %}
 <h1>{{ folder.name }}</h1>
 <h2>Logins</h2>
+<ul>
 {% for login in logins %}
-    <form method="post">
-        <input type="hidden" name="id" value="{{ login.id }}"/>
-        <label for="user{{ login.aid }}">Username</label>
-        <input type="text" name="user" id="user{{ login.aid }}" value="{{ login.login }}"/>
-        <label for="domain{{ login.aid }}">Domain</label>
-        <input type="text" name="domain" id="domain{{ login.aid }}" value="{{ login.domain }}"/>
-        <label for="password{{ login.aid }}">Password</label>
-        <input type="password" name="password" id="password{{ login.aid }}" value="{{ login.pass }}"/>
-        <label for="note{{ login.aid }}">Note for the password</label>
-        <textarea name="note" id="note{{ login.aid }}">{{ login.note }}</textarea>
-        <button type="submit">Modify</button>
-    </form>
+    <li><a href="/logins/{{ login.id }}">{{ login.login }} @ {{ login.domain }}</a></li>
 {% endfor %}
+</ul>
 {% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
     <form method="post">
         <label for="user">Username</label>
@@ -30,13 +21,7 @@
 {% endif %}
 <h2>Notes</h2>
 {% for note in notes %}
-    <form method="post">
-        <input type="hidden" name="id" value="{{ note.id }}"/>
-        <label for="name{{ note.aid }}">Name</label>
-        <input type="text" name="name" id="name{{ note.aid }}" value="{{ note.name }}"/>
-        <textarea name="content">{{ note.content }}</textarea>
-        <button type="submit">Modify</button>
-    </form>
+    <li><a href="/notes/{{ note.id }}">{{ note.name }}</a></li>
 {% endfor %}
 {% if folder.role == 'Owner' or folder.role == 'Administrator' or folder.role == 'Member' %}
     <form method="post">

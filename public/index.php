@@ -5,7 +5,9 @@ use De\Idrinth\WalledSecrets\Pages\Folder;
 use De\Idrinth\WalledSecrets\Pages\Home;
 use De\Idrinth\WalledSecrets\Pages\Importer;
 use De\Idrinth\WalledSecrets\Pages\Login;
+use De\Idrinth\WalledSecrets\Pages\Logins;
 use De\Idrinth\WalledSecrets\Pages\Master;
+use De\Idrinth\WalledSecrets\Pages\Notes;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
 use De\Idrinth\WalledSecrets\Services\Database;
@@ -26,6 +28,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/master', Master::class)
     ->get('/import', Importer::class)
     ->post('/import', Importer::class)
+    ->get('/logins/{id}', Logins::class)
+    ->post('/logins/{id}', Logins::class)
+    ->get('/notes/{id}', Notes::class)
+    ->post('/notes/{id}', Notes::class)
     ->get('/login/{id}/{pass}', Login::class)
     ->get('/register/{id}/{pass}', SignUp::class)
     ->post('/register/{id}/{pass}', SignUp::class)

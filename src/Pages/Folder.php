@@ -172,7 +172,6 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);$logins = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
             $row['login'] = $private->decrypt($row['login']);
-            $row['pass'] = $private->decrypt($row['pass']);
             $row['domain'] = $private->decrypt($row['domain']);
             $row['iv'] = $private->decrypt($row['iv']);
             $row['key'] = $private->decrypt($row['key']);
@@ -180,7 +179,6 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $shared->setIV($row['iv']);
             $shared->setKeyLength(256);
             $shared->setKey($row['key']);
-            $row['note'] = $shared->decrypt($row['note']);
             $logins[] = $row;
         }
         $stmt = $this->database->prepare('SELECT * FROM notes WHERE account=:user AND folder=:id');
@@ -193,7 +191,6 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $shared->setIV($row['iv']);
             $shared->setKeyLength(256);
             $shared->setKey($row['key']);
-            $row['content'] = $shared->decrypt($row['content']);
             $row['name'] = $shared->decrypt($row['name']);
             $notes[] = $row;
         }
