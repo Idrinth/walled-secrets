@@ -25,8 +25,13 @@
             <nav>
                 <ul>
                     <li><a href="/">Home</a></li>
-                    <li><a href="/import">Imports</a></li>
+                    {% if not disableRefresh %}
+                        <li><a href="/import">Imports</a></li>
+                    {% endif %}
                     <li><a href="https://tickets.idrinth.de" target="_blank">Support</a></li>
+                    {% if not disableRefresh %}
+                        <li><a href="https://paypal.me/idrinth" target="_blank">Support the Project</a></li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
