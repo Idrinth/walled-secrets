@@ -7,16 +7,19 @@
         <input type="text" disabled id="user" value="{{ member.display }}"/>
         <label for="role">Role</label>
         <select name="role"{% if member.role != 'Administrator' and member.role != 'Owner' %}disabled{% endif %}>
+            <option>Removed</option>
             <option{% if member.role == 'Proposed' %} selected{% endif %}>Proposed</option>
             <option{% if member.role == 'Reader' %} selected{% endif %}>Reader</option>
             <option{% if member.role == 'Member' %} selected{% endif %}>Member</option>
             <option{% if member.role == 'Administrator' %} selected{% endif %}>Administrator</option>
             <option{% if member.role == 'Owner' %} selected{% endif %}>Owner</option>
         </select>
-        <button type="submit">Modify</button>
+        {% if organisation.role == 'Administrator' or organisation.role === 'Owner' %}
+            <button type="submit">Modify</button>
+        {% endif %}
     </form>
 {% endfor %}
-<h3>Propose a friend</h3>
+<h2>Propose a friend</h2>
 <form method="post">
     <label for="known">User</label>
     <select name="known" id="known">
@@ -26,4 +29,18 @@
     </select>
     <button type="submit">Propose</button>
 </form>
+<h2>Folders</h2>
+<ul>
+    {% for folder in folders %}
+        <li><a href="/folder/{{ folder.id }}">{{ folder.name }}</a></li>
+    {% endfor %}
+</ul>
+{% if organisation.role == 'Administrator' or organisation.role === 'Owner' %}
+    <h3>New</h3>
+    <form method="post">
+        <label for="folder">Your Folder's name</label>
+        <input type="text" placeholder="home" id="folder" name="folder" required/>
+        <button type="submit">Create</button>
+    </form>
+{% endif %}
 {% include 'footer.twig' %}
