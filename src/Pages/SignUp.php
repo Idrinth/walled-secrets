@@ -55,7 +55,7 @@ class SignUp
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('INSERT INTO knowns (`owner`,target,comment,iv,`key`) VALUES (:owner,:target,:comment,:iv,:key)')
+            ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`) VALUES (:owner,:target,:comment,:iv,:key)')
             ->execute([
                 ':comment' => $shared->encrypt($comment),
                 ':iv' => $public->encrypt($iv),
