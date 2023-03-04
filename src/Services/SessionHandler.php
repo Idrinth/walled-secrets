@@ -22,7 +22,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     }
     private function exists(string $id): bool
     {
-        return preg_match('/^[a-zA-Z0-9]{128}$/', $id) && is_file($this->getFile($id));
+        return preg_match('/^[a-zA-Z0-9]{128}$/', $id) && touch($this->getFile($id));
     }
     public function write($id, $data)
     {
@@ -35,6 +35,9 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     {
         if ($this->exists($id)) {
             return file_get_contents($this->getFile($id)) ?: '';
+        }
+        if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
+            return touch($this->getFile($id));
         }
         return '';
     }
