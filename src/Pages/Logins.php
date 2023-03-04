@@ -7,6 +7,7 @@ use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
+use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 
 class Logins
