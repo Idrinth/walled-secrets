@@ -20,11 +20,11 @@ class Application
         Dotenv::createImmutable(dirname(__DIR__))->load();
         date_default_timezone_set('UTC');
         Cookie::setIfExists($_ENV['SYSTEM_QUICK_LOGIN_COOKIE'], intval($_ENV['SYSTEM_QUICK_LOGIN_DURATION'], 10));
-        Cookie::setIfExists(session_name(), intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
         $handler = new SessionHandler();
         session_set_save_handler($handler);
-        session_set_cookie_params(intval($_ENV['SYSTEM_SESSION_DURATION'], 10), '/', $_ENV['SYSTEM_HOSTNAME'], true, true);
+        ini_set('session.use_cookies', '0');
         session_start();
+        Cookie::set(session_name(), session_id, intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
         $_SESSION['_last'] = time();
         $this->di = new DependencyInjector();
     }
