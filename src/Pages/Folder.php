@@ -16,68 +16,18 @@ class Folder
     private PDO $database;
     private Twig $twig;
     private ENV $env;
-    private ShareFolderWithOrganisation $share;
+    private ShareFolderWithOrganisation $bigShare;
+    private \De\Idrinth\WalledSecrets\Services\ShareWithOrganisation $smallShare;
 
-    public function __construct(PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $share)
+    public function __construct(PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, \De\Idrinth\WalledSecrets\Services\ShareWithOrganisation $smallShare)
     {
         $this->database = $database;
         $this->env = $env;
         $this->twig = $twig;
-        $this->share = $share;
+        $this->bigShare = $bigShare;
+        $this->smallShare = $smallShare;
     }
 
-    private function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content)
-    {
-        $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
-        $this->database
-            ->prepare('INSERT IGNORE INTO notes (public,content,iv,name,`key`,id,`owner`,folder) VALUES ("","","","","",:id,:owner,:folder)')
-            ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
-        $iv = Random::string(16);
-        $key = Random::string(32);
-        $shared = new AES('ctr');
-        $shared->setKeyLength(256);
-        $shared->setKey($key);
-        $shared->setIV($iv);
-        $this->database
-            ->prepare('UPDATE notes SET public=:public,content=:content, name=:name, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
-            ->execute([
-                ':owner' => $_SESSION['id'],
-                ':id' => $id,
-                ':key' => $public->encrypt($key),
-                ':iv' => $public->encrypt($iv),
-                ':name' => $shared->encrypt($name),
-                ':public' => $name,
-                ':content' => $shared->encrypt($content),
-            ]);
-    }
-
-    private function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note, string $publicIdentifier)
-    {
-        $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
-        $this->database
-            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
-            ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
-        $iv = Random::string(16);
-        $key = Random::string(32);
-        $shared = new AES('ctr');
-        $shared->setKeyLength(256);
-        $shared->setKey($key);
-        $shared->setIV($iv);
-        $this->database
-            ->prepare('UPDATE logins SET public=:public,pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
-            ->execute([
-                ':owner' => $_SESSION['id'],
-                ':id' => $id,
-                ':pass' => $public->encrypt($password),
-                ':domain' => $public->encrypt($domain),
-                ':public' => $publicIdentifier,
-                ':login' => $public->encrypt($login),
-                ':key' => $public->encrypt($key),
-                ':iv' => $public->encrypt($iv),
-                ':note' => $shared->encrypt($note),
-            ]);
-    }
-    
     public function post(array $post, string $id): string
     {
         if (!isset($_SESSION['id'])) {
@@ -110,7 +60,8 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $this->database
                 ->prepare('UPDATE folders SET `owner`=:owner AND `type`="Organisation" WHERE aid=:id')
                 ->execute([':aid' => $folder['aid'], ':owner' => $post['organisation']]);
-            $this->share->setFolder($folder['aid']);
+            $this->bigShare->setOrganisation($post['organisation']);
+            $this->bigShare->setFolder($folder['aid']);
             header ('Location: /folder/' . $id, true, 303);
             return '';
         }
@@ -146,20 +97,20 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
+                    $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
                 }
             } else {
-                $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['identifier']);
+                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['identifier']);
             }
         } elseif (isset($post['content']) && isset($post['name'])) {
             if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['name'], $post['content']);
+                    $this->smallShare->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['name'], $post['content']);
                 }
             } else {
-                $this->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['name'], $post['content']);
+                $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['name'], $post['content']);
             }
         }
         header ('Location: /folder/' . $id, true, 303);

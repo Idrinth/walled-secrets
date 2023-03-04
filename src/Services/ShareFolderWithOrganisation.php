@@ -11,13 +11,13 @@ use phpseclib3\Crypt\RSA;
 class ShareFolderWithOrganisation
 {
     private PDO $database;
-    private int $organisation;
+    private int $organisation = 0;
     private int $user;
     private array $folders = [];
     private PrivateKey $private;
     private ShareWithOrganisation $share;
 
-    public function __construct(AES $aes, Blowfish $blowfish, PDO $database, int $organisation, ENV $env, ShareWithOrganisation $share)
+    public function __construct(AES $aes, Blowfish $blowfish, PDO $database, ENV $env, ShareWithOrganisation $share)
     {
         $this->share = $share;
         $this->aes = $aes;
@@ -29,7 +29,6 @@ class ShareFolderWithOrganisation
         $this->blowfish->setKey($env->getString('PASSWORD_BLOWFISH_KEY'));
         $this->blowfish->setIV($env->getString('PASSWORD_BLOWFISH_IV'));
         $this->database = $database;
-        $this->organisation = $organisation;
         $this->user = $_SESSION['id'];
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $this->private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
@@ -39,6 +38,10 @@ class ShareFolderWithOrganisation
     public function setFolder(int $folder)
     {
         $this->folders[] = $folder;
+    }
+    public function setOrganisation(int $organisation)
+    {
+        $this->organisation = $organisation;
     }
     private function updateNotes(array $members, int $folder)
     {

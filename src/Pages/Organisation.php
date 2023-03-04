@@ -88,6 +88,7 @@ class Organisation
                     if ($post['role'] !== 'Proposed' && $user['role'] !== 'Proposed') {
                         $stmt = $this->prepare('SELECT aid FROM folders WHERE `owner`=:org AND `type`="Organisation"');
                         $stmt->execute([':org' => $organisation['aid']]);
+                        $this->share->setOrganisation($organisation['aid']);
                         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
                             $this->share->setFolder($row['aid']);
                         }
