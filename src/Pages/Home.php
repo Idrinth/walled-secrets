@@ -46,7 +46,7 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT iv,`key`,note,display FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
+            $stmt = $this->database->prepare('SELECT iv,`key`,note,display,id FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $this->twig->render('home-user', [
@@ -90,6 +90,12 @@ class Home
                     ->prepare('INSERT INTO memberships (organisation,account,role) VALUES (:organisation,:account,"Owner")')
                     ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
             } elseif (isset($post['email']) && isset($post['name'])) {
+                $stmt = $this->database->prepare('SELECT aid FROM invites WHERE mail=:mail AND inviter=:id');
+                $stmt->execute([':id' => $_SESSION['id'], ':mail' => $post['email']]);
+                if ($stmt->fetchColumn() !== false) {
+                    header('Location: /', true, 303);
+                    return '';
+                }
                 $id = $this->makeOneTimePass();
                 $uuid = Uuid::uuid1()->toString();
                 $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:id');

@@ -1,0 +1,24 @@
+{% include 'header.twig' %}
+<h1>Search</h1>
+<form method="post">
+    <label for="term">Search Term</label>
+    <input type="text" name="term" id="term"/>
+    <button type="submit">Add</button>
+</form>
+{% if logins.length > 0 %}
+    <h2>Logins</h2>
+    <ul>
+    {% for login in logins %}
+        <li><a href="/logins/{{ login.id }}">{{ login.public }}</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% if notes.length > 0 %}
+    <h2>Notes</h2>
+    <ul>
+    {% for note in notes %}
+        <li><a href="/notes/{{ note.id }}">{{ note.public }}</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% include 'footer.twig' %}

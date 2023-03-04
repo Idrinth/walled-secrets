@@ -19,6 +19,7 @@ class Twig
     {
         $context['website_name'] = $_ENV['SYSTEM_NAME'];
         $context['session_duration'] = $_ENV['SYSTEM_SESSION_DURATION'];
+        $context['logged_in'] = isset($_SESSION['id']);
         return $this->twig->render("$template.twig", $context);
     }
 }

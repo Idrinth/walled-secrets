@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS `chats` (
   `created` datetime NOT NULL DEFAULT current_timestamp() COMMENT 'when was this written - cleanup after 6h',
   `creator` bigint(20) unsigned NOT NULL COMMENT 'who wrote this',
   `content` longblob NOT NULL COMMENT 'AES encoded data',
-  `iv` varbinary(255) NOT NULL COMMENT 'RSA encoded vector for AES',
-  `key` varbinary(255) NOT NULL COMMENT 'RSA encoded key for AES',
+  `iv` longblob NOT NULL COMMENT 'RSA encoded vector for AES',
+  `key` longblob NOT NULL COMMENT 'RSA encoded key for AES',
   PRIMARY KEY (`aid`),
   KEY `organization_target` (`organisation`,`target`),
   KEY `creator` (`creator`)
@@ -30,6 +30,11 @@ CREATE TABLE IF NOT EXISTS `configurations` (
   `value` varchar(255) NOT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `email_blacklist` (
+  `email` varchar(255) NOT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='blacklisting mails';
 
 CREATE TABLE IF NOT EXISTS `folders` (
   `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'internally used id',
@@ -76,13 +81,17 @@ CREATE TABLE IF NOT EXISTS `knowns` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='notes on users you encountered';
 
 CREATE TABLE IF NOT EXISTS `logins` (
-  `aid` bigint(20) unsigned NOT NULL COMMENT 'internal id',
+  `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'internal id',
   `id` char(36) NOT NULL COMMENT 'external id',
   `domain` longblob NOT NULL COMMENT 'for mapping',
   `login` longblob NOT NULL COMMENT 'encrypted login name',
   `pass` longblob NOT NULL COMMENT 'encrypted password',
+  `note` longblob NOT NULL COMMENT 'a note for the password',
+  `iv` longblob NOT NULL,
+  `key` longblob NOT NULL,
   `folder` bigint(20) unsigned NOT NULL DEFAULT 0 COMMENT 'the folder this secret is in',
   `account` bigint(20) unsigned NOT NULL COMMENT 'owning user',
+  `public` varchar(255) NOT NULL,
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id_account` (`id`,`account`),
   KEY `FK_logins_accounts` (`account`),
@@ -122,8 +131,9 @@ CREATE TABLE IF NOT EXISTS `notes` (
   `name` longblob NOT NULL COMMENT 'RSA encrypted name',
   `account` bigint(20) unsigned NOT NULL COMMENT 'account id of the owner',
   `folder` bigint(20) unsigned NOT NULL COMMENT 'folder the note belongs to',
-  `iv` varbinary(255) NOT NULL COMMENT 'RSA encoded iv for decryption',
-  `key` varbinary(255) NOT NULL COMMENT 'RSA encrypted key for decryption',
+  `iv` longblob NOT NULL COMMENT 'RSA encoded iv for decryption',
+  `key` longblob NOT NULL COMMENT 'RSA encrypted key for decryption',
+  `public` varchar(255) NOT NULL,
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id` (`account`,`id`) USING BTREE,
   KEY `FK_notes_folders` (`folder`),
@@ -138,3 +148,27 @@ CREATE TABLE IF NOT EXISTS `organisations` (
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='organizations share secrets among their members';
+
+CREATE TABLE IF NOT EXISTS `tags` (
+  `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id` char(36) NOT NULL DEFAULT '',
+  `label` varchar(255) NOT NULL DEFAULT '',
+  `folder` bigint(20) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`aid`),
+  UNIQUE KEY `label_folder` (`label`,`folder`),
+  KEY `FK_tags_folders` (`folder`),
+  CONSTRAINT `FK_tags_folders` FOREIGN KEY (`folder`) REFERENCES `folders` (`aid`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `tag_login` (
+  `tag` bigint(20) unsigned NOT NULL,
+  `login` char(36) NOT NULL DEFAULT '',
+  PRIMARY KEY (`tag`,`login`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `tag_note` (
+  `tag` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `note` char(36) NOT NULL,
+  PRIMARY KEY (`tag`,`note`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+

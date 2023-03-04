@@ -10,6 +10,7 @@ use De\Idrinth\WalledSecrets\Pages\Logins;
 use De\Idrinth\WalledSecrets\Pages\Master;
 use De\Idrinth\WalledSecrets\Pages\Notes;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
+use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
 use De\Idrinth\WalledSecrets\Services\Database;
 use phpseclib3\Crypt\AES;
@@ -30,6 +31,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/master', Master::class)
     ->get('/import', Importer::class)
     ->post('/import', Importer::class)
+    ->get('/search', Search::class)
+    ->post('/search', Search::class)
     ->get('/logins/{id}', Logins::class)
     ->post('/logins/{id}', Logins::class)
     ->get('/notes/{id}', Notes::class)
