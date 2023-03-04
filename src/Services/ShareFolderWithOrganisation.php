@@ -87,7 +87,7 @@ class ShareFolderWithOrganisation
             }
         }
     }
-    private function share()
+    public function share()
     {
         if ($this->organisation === 0 || $this->user === 0) {
             return;
