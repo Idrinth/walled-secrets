@@ -3,10 +3,12 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
+use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 
 class Knowns
@@ -56,7 +58,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
             header ('Location: /', true, 303);
             return '';
         }
-        $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/public'));
+        $public = KeyLoader::public($_SESSION['uuid']);
         $iv = Random::string(16);
         $key = Random::string(32);
         $shared = new AES('ctr');
@@ -97,7 +99,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
         }
         set_time_limit(0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);;
+        $private = KeyLoader::private($_SESSION['uuid'], $master);
         if ($known['note']) {
             $known['iv'] = $private->decrypt($known['iv']);
             $known['key'] = $private->decrypt($known['key']);

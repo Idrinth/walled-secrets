@@ -3,8 +3,10 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
 use De\Idrinth\WalledSecrets\Twig;
+use Exception;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -131,6 +133,12 @@ class Home
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
             if (!isset($user['since']) || strtotime($user['since']) < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')) {
+                try {
+                    KeyLoader::private($_SESSION['uuid'], $post['password']);
+                } catch (Exception $ex) {
+                    header('Location: /', true, 303);
+                    return '';
+                }
                 $id = $this->makeOneTimePass();
                 $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
                 $this->mailer->send(

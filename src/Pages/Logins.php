@@ -105,7 +105,7 @@ class Logins
         }
         set_time_limit(0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);;
+        $private = KeyLoader::private($_SESSION['uuid'], $master);
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
         $login['domain'] = $private->decrypt($login['domain']);

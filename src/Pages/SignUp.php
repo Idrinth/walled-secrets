@@ -4,6 +4,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
@@ -48,7 +49,7 @@ class SignUp
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {
-        $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
+        $public = KeyLoader::public($uuid);
         $iv = Random::string(16);
         $key = Random::string(32);
         $shared = new AES('ctr');

@@ -3,7 +3,9 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Twig;
+use Exception;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -53,6 +55,12 @@ class Master
         $stmt->execute([':mail' => $post['email']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
+            header('Location: /master', true, 303);
+            return '';
+        }
+        try {
+            KeyLoader::private($user['id'], $post['password']);
+        } catch (Exception $ex) {
             header('Location: /master', true, 303);
             return '';
         }

@@ -2,12 +2,12 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
 use Ramsey\Uuid\Uuid;
 
 class Organisation
@@ -24,7 +24,7 @@ class Organisation
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {
-        $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
+        $public = KeyLoader::public($uuid);
         $iv = Random::string(16);
         $key = Random::string(32);
         $shared = new AES('ctr');

@@ -6,7 +6,6 @@ use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
 use phpseclib3\Crypt\Common\PrivateKey;
-use phpseclib3\Crypt\RSA;
 
 class ShareFolderWithOrganisation
 {
@@ -32,7 +31,7 @@ class ShareFolderWithOrganisation
         if (isset($_SESSION['id']) && isset($_SESSION['uuid'])) {
             $this->user = $_SESSION['id'];
             $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-            $this->private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
+            $this->private = KeyLoader::private($_SESSION['uuid'], $master);
             register_shutdown_function([$this, 'share']);
         }
     }
