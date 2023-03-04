@@ -26,6 +26,7 @@ class DependencyInjector
     }
     public function init(ReflectionClass $class): object
     {
+        error_log('Building ' . $class->getName());
         if (!isset($this->singletons[$class->getName()])) {
             $args = [];
             $constructor = $class->getConstructor();
