@@ -4,10 +4,19 @@ namespace De\Idrinth\WalledSecrets\Services;
 
 class Cookie
 {
-    public static function getParams($livetime): array
+    public static function getParams(int $livetime): array
     {
+        if ($livetime) {
+            return [
+                'expires' => time() + $livetime,
+                'path' => '/',
+                'domain' => $_ENV['SYSTEM_HOSTNAME'],
+                'secure' => true,
+                'httponly' => true,
+                'samesite' => 'Strict',
+            ];
+        }
         return [
-            'expires' => time() + $livetime,
             'path' => '/',
             'domain' => $_ENV['SYSTEM_HOSTNAME'],
             'secure' => true,

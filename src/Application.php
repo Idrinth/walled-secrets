@@ -23,7 +23,7 @@ class Application
         Cookie::setIfExists($_ENV['SYSTEM_QUICK_LOGIN_COOKIE'], intval($_ENV['SYSTEM_QUICK_LOGIN_DURATION'], 10));
         $handler = new SessionHandler();
         session_set_save_handler($handler);
-        session_set_cookie_params(Cookie::getParams(intval($_ENV['SYSTEM_SESSION_DURATION'], 10)));
+        session_set_cookie_params(Cookie::getParams(0));
         session_start();
         Cookie::setIfExists(session_name(), intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
         $_SESSION['_last'] = time();
