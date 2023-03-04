@@ -9,7 +9,6 @@ use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
 use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
 
 class Knowns
 {
@@ -110,7 +109,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
             $known['note'] = $shared->decrypt($known['note']);
         }
         return $this->twig->render('known', [
-            'note' => $known,
+            'known' => $known,
             'title' => $known['display']
         ]);
     }
