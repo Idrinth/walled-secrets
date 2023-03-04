@@ -32,13 +32,14 @@ class Organisation
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('INSERT IGNORE INTO knowns (`owner`,target,note,iv,`key`) VALUES (:owner,:target,:comment,:iv,:key)')
+            ->prepare('INSERT IGNORE INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
             ->execute([
                 ':comment' => $shared->encrypt($comment),
                 ':iv' => $public->encrypt($iv),
                 ':key' => $public->encrypt($key),
                 ':owner' => $user,
                 ':target' => $known,
+                ':target' => Uuid::uuid1(),
             ]);
     }
 

@@ -46,7 +46,7 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT iv,`key`,note,display,id FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
+            $stmt = $this->database->prepare('SELECT iv,`key`,note,display,knowns.id,accounts.id as uid FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $this->twig->render('home-user', [

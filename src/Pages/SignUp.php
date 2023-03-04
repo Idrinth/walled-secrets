@@ -55,13 +55,14 @@ class SignUp
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`) VALUES (:owner,:target,:comment,:iv,:key)')
+            ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
             ->execute([
                 ':comment' => $shared->encrypt($comment),
                 ':iv' => $public->encrypt($iv),
                 ':key' => $public->encrypt($key),
                 ':owner' => $user,
                 ':target' => $known,
+                ':id' => Uuid::uuid1()->toString(),
             ]);
     }
     public function post(array $post, string $id, string $pass): string

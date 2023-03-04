@@ -31,7 +31,7 @@
 <h2>Known Users</h2>
 <ul>
     {% for known in knowns %}
-        <li title="{{ known.note }}">{{ known.display }} ({{ known.id }})</li>
+        <li><a href="/knowns/{{ known.id }}">{{ known.display }} ({{ known.uid }})</a></li>
     {% endfor %}
 </ul>
 <h3>Invite New</h3>
