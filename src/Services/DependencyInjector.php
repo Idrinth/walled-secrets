@@ -1,6 +1,6 @@
 <?php
 
-namespace De\Idrinth\WalledSecrets;
+namespace De\Idrinth\WalledSecrets\Services;
 
 use ReflectionClass;
 use ReflectionMethod;
@@ -26,7 +26,6 @@ class DependencyInjector
     }
     public function init(ReflectionClass $class): object
     {
-        error_log('Building ' . $class->getName());
         if (!isset($this->singletons[$class->getName()])) {
             $args = [];
             $constructor = $class->getConstructor();

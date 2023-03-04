@@ -29,7 +29,7 @@ class ShareFolderWithOrganisation
         $this->blowfish->setKey($env->getString('PASSWORD_BLOWFISH_KEY'));
         $this->blowfish->setIV($env->getString('PASSWORD_BLOWFISH_IV'));
         $this->database = $database;
-        $this->user = $_SESSION['id'];
+        $this->user = intval($_SESSION['id'] ?? 0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $this->private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
         register_shutdown_function([$this, 'share']);
@@ -87,6 +87,9 @@ class ShareFolderWithOrganisation
     }
     private function share()
     {
+        if ($this->organisation === 0 || $this->user === 0) {
+            return;
+        }
         $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
         $stmt->execute([':org' => $this->organisation]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);

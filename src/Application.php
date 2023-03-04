@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets;
 
 use De\Idrinth\WalledSecrets\Services\Cookie;
+use De\Idrinth\WalledSecrets\Services\DependencyInjector;
 use De\Idrinth\WalledSecrets\Services\SessionHandler;
 use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
