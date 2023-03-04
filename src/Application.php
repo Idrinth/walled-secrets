@@ -23,6 +23,9 @@ class Application
         $handler = new SessionHandler();
         session_set_save_handler($handler);
         ini_set('session.use_cookies', '0');
+        if (isset($_COOKIE[session_name()])) {
+            $_GET[session_name()] = $_COOKIE[session_name()];
+        }
         session_start();
         Cookie::set(session_name(), session_id(), intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
         $_SESSION['_last'] = time();
