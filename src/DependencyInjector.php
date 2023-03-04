@@ -35,6 +35,9 @@ class DependencyInjector
                     if ($parameter->isOptional()) {
                         break;
                     }
+                    if (null === $parameter->getClass()) {
+                        throw new UnexpectedValueException("Parameter {$parameter->name} is not an object.");
+                    }
                     $args[] = $this->init($parameter->getClass());
                 }
             }
