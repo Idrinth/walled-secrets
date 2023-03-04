@@ -3,11 +3,11 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
-use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 
 class Logins
@@ -17,8 +17,9 @@ class Logins
     private AES $aes;
     private Blowfish $blowfish;
     private ENV $env;
+    private ShareWithOrganisation $share;
 
-    public function __construct(PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env)
+    public function __construct(PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
         $this->database = $database;
         $this->twig = $twig;
@@ -31,33 +32,7 @@ class Logins
         $this->blowfish->setKeyLength(448);
         $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
         $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
-    }
-
-    private function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note, string $publicIdentifier)
-    {
-        $public = RSA::loadPublicKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $uuid . '/public'));
-        $this->database
-            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
-            ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
-        $iv = Random::string(16);
-        $key = Random::string(32);
-        $shared = new AES('ctr');
-        $shared->setKeyLength(256);
-        $shared->setKey($key);
-        $shared->setIV($iv);
-        $this->database
-            ->prepare('UPDATE logins SET public=:public,pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
-            ->execute([
-                ':owner' => $_SESSION['id'],
-                ':id' => $id,
-                ':pass' => $public->encrypt($password),
-                ':domain' => $public->encrypt($domain),
-                ':public' => $publicIdentifier,
-                ':login' => $public->encrypt($login),
-                ':key' => $public->encrypt($key),
-                ':iv' => $public->encrypt($iv),
-                ':note' => $shared->encrypt($note),
-            ]);
+        $this->share = $share;
     }
 
     public function post(array $post, string $id): string
@@ -79,9 +54,20 @@ class Logins
             $role = $stmt->fetchColumn();
             $mayEdit = in_array($role, ['Administrator', 'Owner', 'Member'], true);
         }
-        if ($mayEdit) {
-            $this->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['login'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
+        if (!$mayEdit) {
+            header ('Location: /', true, 303);
+            return '';
         }
+        if ($folder === 'organisation') {
+            $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
+            $stmt->execute();
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
+                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['login'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
+            }
+            header ('Location: /', true, 303);
+            return '';
+        }
+        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['login'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
         header ('Location: /', true, 303);
         return '';
     }

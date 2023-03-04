@@ -1,0 +1,8 @@
+{% include 'header.twig' %}
+<h1>{{ known.display }}</h1>
+<form method="post">
+    <label for="note">Your Note</label>
+    <textarea name="note" id="note">{{ known.note }}</textarea>
+    <button type="submit">Modify</button>
+</form>
+{% include 'footer.twig' %}

@@ -1,0 +1,10 @@
+{% include 'header.twig' %}
+<h1>{{ note.public }}</h1>
+<form method="post">
+    <label for="identifier">Public Identifier</label>
+    <input type="text" name="identifier" value="{{ note.public }}" id="identifier"/>
+    <label for="content">Content</label>
+    <textarea name="content" id="content">{{ note.content }}</textarea>
+    <button type="submit">Modify</button>
+</form>
+{% include 'footer.twig' %}
