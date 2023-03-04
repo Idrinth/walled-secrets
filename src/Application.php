@@ -24,7 +24,7 @@ class Application
         session_set_save_handler($handler);
         ini_set('session.use_cookies', '0');
         session_start();
-        Cookie::set(session_name(), session_id, intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
+        Cookie::set(session_name(), session_id(), intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
         $_SESSION['_last'] = time();
         $this->di = new DependencyInjector();
     }
