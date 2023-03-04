@@ -148,7 +148,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         $organisations = [];
         if (!$isOrganisation) {
             $stmt = $this->database->prepare('SELECT name,id FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE memberships.`account`=:user AND memberships.`role`<>"Proposed"');
-            $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
+            $stmt->execute([':user' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         return $this->twig->render('folder', [
