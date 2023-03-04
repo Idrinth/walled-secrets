@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use PDO;
 
@@ -24,14 +25,10 @@ class Login
             if (strtotime($user['since']) + $this->env->getInt('SYSTEM_SESSION_DURATION') > time()) {
                 $_SESSION['id'] = $user['aid'];
                 $_SESSION['uuid'] = $id;
-                setcookie(
+                Cookie::set(
                     $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE'),
                     sha1($this->env->getString('SYSTEM_SALT') . $user['mail']),
-                    time() + $this->env->getString('SYSTEM_QUICK_LOGIN_DURATION'),
-                    '/',
-                    $this->env->getString('SYSTEM_HOSTNAME'),
-                    true,
-                    true
+                    $this->env->getInt('SYSTEM_QUICK_LOGIN_DURATION')
                 );
             }
         }

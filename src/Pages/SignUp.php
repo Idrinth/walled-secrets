@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
@@ -99,14 +100,10 @@ class SignUp
         $stmt->execute([':aid' => $invite['inviter']]);
         $this->addKnown($invite['inviter'], $new, $stmt->fetchColumn(), 'Invited them.');
         header ('Location: /', true, 303);
-        setcookie(
+        Cookie::set(
             $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE'),
-            sha1($this->env->getString('SYSTEM_SALT') . $post['email']),
-            time() + $this->env->getString('SYSTEM_QUICK_LOGIN_DURATION'),
-            '/',
-            $this->env->getString('SYSTEM_HOSTNAME'),
-            true,
-            true
+            sha1($this->env->getString('SYSTEM_SALT') . $post['mail']),
+            $this->env->getInt('SYSTEM_QUICK_LOGIN_DURATION')
         );
         $this->database
             ->prepare('INSERT INTO folders (id,`owner`,`name`) VALUES (:id,:owner,"unsorted")')

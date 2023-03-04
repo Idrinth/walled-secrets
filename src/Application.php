@@ -2,11 +2,12 @@
 
 namespace De\Idrinth\WalledSecrets;
 
+use De\Idrinth\WalledSecrets\Services\Cookie;
+use De\Idrinth\WalledSecrets\Services\SessionHandler;
 use Dotenv\Dotenv;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use ReflectionClass;
-use De\Idrinth\WalledSecrets\Services\SessionHandler;
 use Throwable;
 use function FastRoute\simpleDispatcher;
 
@@ -18,29 +19,8 @@ class Application
     {
         Dotenv::createImmutable(dirname(__DIR__))->load();
         date_default_timezone_set('UTC');
-        if (isset($_COOKIE[$_ENV['SYSTEM_QUICK_LOGIN_COOKIE']])) {
-            setcookie(
-                $_ENV['SYSTEM_QUICK_LOGIN_COOKIE'],
-                $_COOKIE[$_ENV['SYSTEM_QUICK_LOGIN_COOKIE']],
-                time() + intval($_ENV['SYSTEM_QUICK_LOGIN_DURATION'], 10),
-                '/',
-                $_ENV['SYSTEM_HOSTNAME'],
-                true,
-                true
-            );
-        }
-        $sessionName = session_name();
-        if (isset($_COOKIE[$sessionName])) {
-            setcookie(
-                $sessionName,
-                $_COOKIE[$sessionName],
-                time() + intval($_ENV['SYSTEM_SESSION_DURATION'], 10),
-                '/',
-                $_ENV['SYSTEM_HOSTNAME'],
-                true,
-                true
-            );
-        }
+        Cookie::setIfExists($_ENV['SYSTEM_QUICK_LOGIN_COOKIE'], intval($_ENV['SYSTEM_QUICK_LOGIN_DURATION'], 10));
+        Cookie::setIfExists(session_name(), intval($_ENV['SYSTEM_SESSION_DURATION'], 10));
         $handler = new SessionHandler();
         session_set_save_handler($handler);
         session_set_cookie_params(intval($_ENV['SYSTEM_SESSION_DURATION'], 10), '/', $_ENV['SYSTEM_HOSTNAME'], true, true);
