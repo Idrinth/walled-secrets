@@ -12,7 +12,7 @@ class ShareFolderWithOrganisation
 {
     private PDO $database;
     private int $organisation = 0;
-    private int $user;
+    private int $user = 0;
     private array $folders = [];
     private PrivateKey $private;
     private ShareWithOrganisation $share;
@@ -29,10 +29,12 @@ class ShareFolderWithOrganisation
         $this->blowfish->setKey($env->getString('PASSWORD_BLOWFISH_KEY'));
         $this->blowfish->setIV($env->getString('PASSWORD_BLOWFISH_IV'));
         $this->database = $database;
-        $this->user = intval($_SESSION['id'] ?? 0);
-        $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $this->private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
-        register_shutdown_function([$this, 'share']);
+        if (isset($_SESSION['id']) && isset($_SESSION['uuid'])) {
+            $this->user = $_SESSION['id'];
+            $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
+            $this->private = RSA::loadPrivateKey(file_get_contents(dirname(__DIR__, 2) . '/keys/' . $_SESSION['uuid'] . '/private'), $master);
+            register_shutdown_function([$this, 'share']);
+        }
     }
 
     public function setFolder(int $folder)
