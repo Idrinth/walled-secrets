@@ -18,6 +18,29 @@ class Application
     {
         Dotenv::createImmutable(dirname(__DIR__))->load();
         date_default_timezone_set('UTC');
+        if (isset($_COOKIE[$_ENV['SYSTEM_QUICK_LOGIN_COOKIE']])) {
+            setcookie(
+                $_ENV['SYSTEM_QUICK_LOGIN_COOKIE'],
+                $_COOKIE[$_ENV['SYSTEM_QUICK_LOGIN_COOKIE']],
+                time() + intval($_ENV['SYSTEM_QUICK_LOGIN_DURATION'], 10),
+                '/',
+                $_ENV['SYSTEM_HOSTNAME'],
+                true,
+                true
+            );
+        }
+        $sessionName = session_name();
+        if (isset($_COOKIE[$sessionName])) {
+            setcookie(
+                $sessionName,
+                $_COOKIE[$sessionName],
+                time() + intval($_ENV['SYSTEM_SESSION_DURATION'], 10),
+                '/',
+                $_ENV['SYSTEM_HOSTNAME'],
+                true,
+                true
+            );
+        }
         $handler = new SessionHandler();
         session_set_save_handler($handler);
         session_set_cookie_params(intval($_ENV['SYSTEM_SESSION_DURATION'], 10), '/', $_ENV['SYSTEM_HOSTNAME'], true, true);
