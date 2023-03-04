@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
@@ -15,12 +16,14 @@ class Folder
     private PDO $database;
     private Twig $twig;
     private ENV $env;
+    private ShareFolderWithOrganisation $share;
 
-    public function __construct(PDO $database, Twig $twig, ENV $env)
+    public function __construct(PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $share)
     {
         $this->database = $database;
         $this->env = $env;
         $this->twig = $twig;
+        $this->share = $share;
     }
 
     private function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content)
@@ -103,6 +106,38 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             header ('Location: /', true, 303);
             return '';            
         }
+        if (isset($post['organisation'])) {
+            $this->database
+                ->prepare('UPDATE folders SET `owner`=:owner AND `type`="Organisation" WHERE aid=:id')
+                ->execute([':aid' => $folder['aid'], ':owner' => $post['organisation']]);
+            $this->share->setFolder($folder['aid']);
+            header ('Location: /folder/' . $id, true, 303);
+            return '';
+        }
+        if (isset($post['name'])) {
+            if (in_array($folder['role'], ['Administrator', 'Owner'], true)) {
+                $this->database
+                    ->prepare('UPDATE folders SET `name`=:name WHERE id=:id')
+                    ->execute([':name' => $post['name'], ':id' => $post['id']]);
+            }
+            header ('Location: /folder/' . $id, true, 303);
+            return '';
+        }
+        if (isset($post['delete'])) {
+            if (in_array($folder['role'], ['Administrator', 'Owner'], true)) {
+                $this->database
+                    ->prepare('DELETE FROM logins WHERE folder=:id')
+                    ->execute([':id' => $folder['aid']]);
+                $this->database
+                    ->prepare('DELETE FROM notes WHERE folder=:id')
+                    ->execute([':id' => $folder['aid']]);
+                $this->database
+                    ->prepare('DELETE FROM folders WHERE aid=:id')
+                    ->execute([':id' => $folder['aid']]);
+            }
+            header ('Location: /', true, 303);
+            return '';
+        }
         if (!isset($post['id'])) {
             $post['id'] = Uuid::uuid1();
         }
@@ -139,7 +174,9 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         $stmt = $this->database->prepare('SELECT *, "Owner" as `role` FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
+        $isOrganisation = false;
         if (!$folder) {
+            $isOrganisation = true;
             $stmt = $this->database->prepare('SELECT folders.*,memberships.`role`
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
@@ -153,21 +190,23 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         }
         $stmt = $this->database->prepare('SELECT public,id FROM logins WHERE account=:user AND folder=:id');
         $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
-        $logins = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $logins[] = $row;
-        }
+        $logins = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->database->prepare('SELECT public,id FROM notes WHERE account=:user AND folder=:id');
         $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
-        $notes = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $notes[] = $row;
+        $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $organisations = [];
+        if (!$isOrganisation) {
+            $stmt = $this->database->prepare('SELECT name,id FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE memberships.`account`=:user AND memberships.`role`<>"Proposed"');
+            $stmt->execute([':id' => $folder['aid'], ':user' => $_SESSION['id']]);
+            $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         return $this->twig->render('folder', [
             'notes' => $notes,
             'logins' => $logins,
             'folder' => $folder,
             'title' => $folder['name'],
+            'isOrganisation' => $isOrganisation,
+            'organisations' => $organisations,
         ]);
     }
 }

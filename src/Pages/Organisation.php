@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
@@ -13,11 +14,13 @@ class Organisation
 {
     private PDO $database;
     private Twig $twig;
+    private ShareFolderWithOrganisation $share;
 
-    public function __construct(PDO $database, Twig $twig)
+    public function __construct(PDO $database, Twig $twig, ShareFolderWithOrganisation $share)
     {
         $this->database = $database;
         $this->twig = $twig;
+        $this->share = $share;
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {
@@ -68,7 +71,27 @@ class Organisation
                     header ('Location: /organisation/'.$id, true, 303);
                     return '';
                 }
-                //@todo
+                if ($organisation['role'] === 'Owner') {
+                    $this->database
+                        ->prepare('UPDATE memberships SET `role`=:role WHERE organisation=:org AND `account`=:id')
+                        ->execute([':role' => $post['role'], ':id' => $user['aid'], ':org' => $organisation['aid']]);
+                    if ($post['role'] === 'Owner') {
+                        $this->database
+                            ->prepare('UPDATE memberships SET `role`=:role WHERE organisation=:org AND `account`=:id')
+                            ->execute([':role' => 'Administrator', ':id' => $_SESSION['id'], ':org' => $organisation['aid']]);
+                    }
+                } elseif ($organisation['role'] === 'Administrator' && in_array($user['role'], ['Member', 'Reader', 'Proposed']) && in_array($post['role'], ['Member', 'Reader', 'Proposed'])) {
+                    $this->database
+                        ->prepare('UPDATE memberships SET `role`=:role WHERE organisation=:org AND `account`=:id')
+                        ->execute([':role' => $post['role'], ':id' => $user['aid'], ':org' => $organisation['aid']]);
+                    if ($post['role'] !== 'Proposed' && $user['role'] !== 'Proposed') {
+                        $stmt = $this->prepare('SELECT aid FROM folders WHERE `owner`=:org AND `type`="Organisation"');
+                        $stmt->execute([':org' => $organisation['aid']]);
+                        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                            $this->share->setFolder($row['aid']);
+                        }
+                    }
+                }
             }
         }
         if (isset($post['known'])) {
