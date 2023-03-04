@@ -9,7 +9,13 @@ class Search
 {
     private PDO $database;
     private Twig $twig;
-    
+
+    public function __construct(PDO $database, Twig $twig)
+    {
+        $this->database = $database;
+        $this->twig = $twig;
+    }
+
     public function get()
     {
         if (!isset($_SESSION['id'])) {
