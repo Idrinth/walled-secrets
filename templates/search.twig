@@ -2,7 +2,7 @@
 <h1>Search</h1>
 <form method="post">
     <label for="term">Search Term</label>
-    <input type="text" name="term" id="term"/>
+    <input type="text" name="term" id="term" value="{{ term }}"/>
     <button type="submit">Add</button>
 </form>
 {% if logins.length > 0 %}
