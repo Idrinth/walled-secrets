@@ -5,7 +5,11 @@
         <meta charset="utf-8"/>
         <base href="/"/>
         {% if not disableRefresh %}
-            <meta http-equiv="refresh" content="{{ session_duration }}"/>
+            <noscript>
+                <meta http-equiv="refresh" content="{{ session_duration }}"/>
+            </noscript>
+            <script src="/ping.js"></script>
+            <script>startPing({{ session_duration }});</script>
         {% endif %}
         <link href="styles.css" rel="stylesheet"/>
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">

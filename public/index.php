@@ -1,5 +1,6 @@
 <?php
 
+use De\Idrinth\WalledSecrets\API\Ping;
 use De\Idrinth\WalledSecrets\Application;
 use De\Idrinth\WalledSecrets\Pages\Folder;
 use De\Idrinth\WalledSecrets\Pages\Home;
@@ -26,6 +27,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->register(new Blowfish('ctr'))
     ->get('/', Home::class)
     ->post('/', Home::class)
+    ->get('/api/ping', Ping::class)
     ->get('/imprint', Imprint::class)
     ->get('/master', Master::class)
     ->post('/master', Master::class)
