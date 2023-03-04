@@ -5,7 +5,7 @@
     <input type="text" name="term" id="term" value="{{ term }}"/>
     <button type="submit">Add</button>
 </form>
-{% if logins.length > 0 %}
+{% if logins is not empty %}
     <h2>Logins</h2>
     <ul>
     {% for login in logins %}
@@ -13,7 +13,7 @@
     {% endfor %}
     </ul>
 {% endif %}
-{% if notes.length > 0 %}
+{% if notes is not empty %}
     <h2>Notes</h2>
     <ul>
     {% for note in notes %}
