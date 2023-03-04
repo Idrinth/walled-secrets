@@ -50,7 +50,7 @@ html {
 #navigation a,#footer a {
   color: #fff;
 }
-form {
+#content form {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
