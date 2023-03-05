@@ -15,6 +15,9 @@ class ListSecrets
 
     public function post(array $post)
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type');
         if (!isset($post['email']) || !isset($post['apikey'])) {
             header('Content-Type: application/json', true, 403);
             return '{"error":"email and apikey must be set."}';
