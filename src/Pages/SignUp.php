@@ -5,6 +5,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
@@ -87,8 +88,13 @@ class SignUp
         file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('OpenSSH'));
         file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('OpenSSH'));
         $this->database
-            ->prepare('INSERT INTO accounts (id,display,mail) VALUES (:id,:display,:mail)')
-            ->execute([':display' => $post['name'], ':id' => $uuid, ':mail' => $post['email']]);
+            ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
+            ->execute([
+                ':display' => $post['name'],
+                ':id' => $uuid,
+                ':mail' => $post['email'],
+                ':apikey' => PasswordGenerator::make(),
+            ]);
         $new = $this->database->lastInsertId();
         $_SESSION['id'] = $new;
         $_SESSION['uuid'] = $uuid;

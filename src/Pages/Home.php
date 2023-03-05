@@ -5,6 +5,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
+use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
 use Exception;
 use PDO;
@@ -68,15 +69,6 @@ class Home
             'disableRefresh' => true
         ]);
     }
-    function makePass(): string
-    {
-        $chars = str_split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
-        $out = '';
-        while (strlen($out) < 255) {
-            $out .= $chars[rand(0, 61)];
-        }
-        return $out;
-    }
     public function post(array $post): string
     {
         if (isset($_SESSION['id'])) {
@@ -84,7 +76,7 @@ class Home
                 $stmt = $this->database
                     ->prepare('UPDATE `accounts` SET `apikey`=:ak WHERE `aid`=:id');
                 $stmt->bindValue(':id', $_SESSION['id']);
-                $stmt->bindValue(':ak', $this->makePass());
+                $stmt->bindValue(':ak', PasswordGenerator::make());
                 $stmt->execute();
             } elseif (isset($post['folder'])) {
                 $this->database
@@ -104,7 +96,7 @@ class Home
                     header('Location: /', true, 303);
                     return '';
                 }
-                $id = $this->makePass();
+                $id = PasswordGenerator::make();
                 $uuid = Uuid::uuid1()->toString();
                 $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:id');
                 $stmt->execute([':id' => $_SESSION['id']]);
