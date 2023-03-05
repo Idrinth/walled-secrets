@@ -85,7 +85,7 @@ class Home
                     ->prepare('UPDATE `accounts` SET `apikey`=:ak WHERE `aid`=:id');
                 $stmt->bindValue(':id', $_SESSION['id']);
                 $stmt->bindValue(':ak', $this->makePass());
-                $stmt->debugDumpParams();
+                $stmt->debugDumpParams();exit;
                 #    ->execute([':ak' => $this->makePass(), ':id ' => $_SESSION['id']]);
             } elseif (isset($post['folder'])) {
                 $this->database
