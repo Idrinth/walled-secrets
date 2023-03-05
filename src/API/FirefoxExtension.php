@@ -7,7 +7,7 @@ class FirefoxExtension
     public function get(): string
     {
         header('Content-Type: application/x-xpinstall', true, 200);
-        header('Content-Disposition: attachment; filename="idrinths-walled-secrets.xpi"');
+        #header('Content-Disposition: attachment; filename="idrinths-walled-secrets.xpi"');
         $name = tempnam(sys_get_temp_dir(), 'mozilla-');
         $zip = new \ZipArchive();
         $zip->open($name, ZipArchive::CREATE|ZipArchive::OVERWRITE);
