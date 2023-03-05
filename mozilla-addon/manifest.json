@@ -16,7 +16,7 @@
     },
     "background": {
         "scripts": [
-            "libs/esequal.js",
+            "libs/esequals.js",
             "background/background.js"
         ]
     },
