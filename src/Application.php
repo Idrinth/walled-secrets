@@ -60,9 +60,7 @@ class Application
     }
     private function result(string $data): void
     {
-        if (!headers_sent()) {
-            header('Content-Length: '.strlen($data));
-        }
+        header('Content-Length: '.strlen($data));
         die($data);
     }
     public function run(): void
