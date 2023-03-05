@@ -81,6 +81,8 @@ class Home
     {
         if (isset($_SESSION['id'])) {
             if (isset($post['regenerate'])) {
+                var_dump([':apikey' => $this->makeOneTimePass(), ':aid ' => $_SESSION['id']]);
+                exit;
                 $this->database
                     ->prepare('UPDATE accounts SET apikey=:apikey WHERE aid=:aid')
                     ->execute([':apikey' => $this->makeOneTimePass(), ':aid ' => $_SESSION['id']]);
