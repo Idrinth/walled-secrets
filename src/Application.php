@@ -58,6 +58,13 @@ class Application
         $this->routes[$path][$method] = $class;
         return $this;
     }
+    private function result(string $data): void
+    {
+        if (!headers_sent()) {
+            header('Content-Length: '.strlen($data));
+        }
+        die($data);
+    }
     public function run(): void
     {
         $dispatcher = simpleDispatcher(function(RouteCollector $r) {
@@ -88,13 +95,13 @@ class Application
                 try {
                     switch ($httpMethod) {
                         case 'GET':
-                            die($obj->get(...array_values($vars)));
+                            $this->result($obj->get(...array_values($vars)));
                         case 'POST':
-                            die($obj->post($_POST, ...array_values($vars)));
+                            $this->result($obj->post($_POST, ...array_values($vars)));
                         case 'PUT':
-                            die($obj->put($_POST, ...array_values($vars)));
+                            $this->result($obj->put($_POST, ...array_values($vars)));
                         case 'DELETE':
-                            die($obj->delete(...array_values($vars)));
+                            $this->result($obj->delete(...array_values($vars)));
                     }
                 } catch (Throwable $t) {
                     header('', true, 500);
