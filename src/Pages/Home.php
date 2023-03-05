@@ -83,7 +83,9 @@ class Home
             if (isset($post['regenerate'])) {
                 $this->database
                     ->prepare('UPDATE accounts SET apikey=:apikey WHERE aid=:aid')
-                    ->execute([':apikey' => $this->makeOneTimePass(), ':aid ' => $_SESSION['id']]);
+                    ->debugDumpParams();
+                    #->execute([':apikey' => $this->makeOneTimePass(), ':aid ' => $_SESSION['id']]);
+                exit;
             } elseif (isset($post['folder'])) {
                 $this->database
                     ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)')
