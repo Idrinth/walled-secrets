@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Walled Secrets</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body > form {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            input:invalid{
+                color:red;
+              }
+        </style>
+        <script src="browser-polyfill.js"></script>
+    </head>
+    <body>
+        <h1>Walled Secrets</h1>
+        <form>
+            <label for="apikey">API-Key</label>
+            <input type="text" pattern="[A-Za-z0-9]{255}" value="" required id="apikey" oninput="this.reportValidity()"/>
+            <label for="email">eMail</label>
+            <input type="email" required value="" id="email" oninput="this.reportValidity()"/>
+            <label for="url">Server-URL</label>
+            <input type="url" required value="" id="url" oninput="this.reportValidity()"/>
+            <button type="button">Update</button>
+        </form>
+        <script src="login.js"></script>
+    </body>
+</html>
