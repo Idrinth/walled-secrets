@@ -55,6 +55,13 @@ html {
   grid-template-columns: 1fr 1fr;
 }
 #header strong {
-  font-size: 150%;
-  padding: 2em;
+  font-size: 120%;
+  padding: 1.5em;
+  width: 60%;
+}
+#header form {
+  width: 20%;
+}
+#header img {
+  width: 20%;
 }
