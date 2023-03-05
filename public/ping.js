@@ -4,10 +4,10 @@ function startPing(sessionDuration)
     window.setInterval(() => {
         if (Date.now() - last > sessionDuration * 1000) {
             window.location.reload();
-        } else if (Date.now() - last < 1500) {
+        } else if (Date.now() - last < 5500) {
             fetch('/api/ping');
         }
-    }, 1000);
+    }, 5000);
     window.onkeypress = () => {last = Date.now();};
     window.onclick = () => {last = Date.now();};
     window.onmousemove = () => {last = Date.now();};
