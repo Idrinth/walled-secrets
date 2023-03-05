@@ -80,7 +80,11 @@ class Home
     public function post(array $post): string
     {
         if (isset($_SESSION['id'])) {
-            if (isset($post['folder'])) {
+            if (isset($post['regenerate'])) {
+                $this->database
+                    ->prepare('UPDATE accounts SET `api-key`=:key WHERE aid=:aid')
+                    ->execute([':key' => $this->makeOneTimePass(), ':aid ' => $_SESSION['id']]);
+            } elseif (isset($post['folder'])) {
                 $this->database
                     ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)')
                     ->execute([':name' => $post['folder'], ':owner ' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);

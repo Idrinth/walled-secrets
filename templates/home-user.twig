@@ -1,5 +1,12 @@
 {% include 'header.twig' %}
 <h1>Welcome {{ user.name }}</h1>
+<h2>Settings</h2>
+<form>
+    <label for="api-key">Your API-Key</label>
+    <input type="text" value="{{ user['api-key'] }}"/>
+    <input type="hidden" value="1" name="regenerate"/>
+    <button type="submit">Regenerate Key</button>
+</form>
 <h2>Folders</h2>
 <p>These store your passwords and secret notes</p>
 <ul>
