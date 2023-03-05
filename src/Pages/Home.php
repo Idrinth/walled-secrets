@@ -68,7 +68,7 @@ class Home
             'disableRefresh' => true
         ]);
     }
-    function makeOneTimePass(): string
+    function makePass(): string
     {
         $chars = str_split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
         $out = '';
@@ -83,7 +83,7 @@ class Home
             if (isset($post['regenerate'])) {
                 $this->database
                     ->prepare('UPDATE `accounts` SET `apikey`=:ak WHERE `aid`=:id')
-                    ->execute([':ak' => $this->makeOneTimePass(), ':id ' => $_SESSION['id']]);
+                    ->execute([':ak' => $this->makePass(), ':id ' => $_SESSION['id']]);
             } elseif (isset($post['folder'])) {
                 $this->database
                     ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)')
@@ -102,7 +102,7 @@ class Home
                     header('Location: /', true, 303);
                     return '';
                 }
-                $id = $this->makeOneTimePass();
+                $id = $this->makePass();
                 $uuid = Uuid::uuid1()->toString();
                 $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:id');
                 $stmt->execute([':id' => $_SESSION['id']]);
