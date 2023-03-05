@@ -1,6 +1,7 @@
 {% include 'header.twig' %}
 <h1>Welcome {{ user.name }}</h1>
 <h2>Folders</h2>
+<p>These store your passwords and secret notes</p>
 <ul>
     {% for folder in folders %}
         <li><a href="/folder/{{ folder.id }}">{{ folder.name }} ({{ folder.type }})</a></li>
@@ -13,6 +14,7 @@
     <button type="submit">Create</button>
 </form>
 <h2>Organisations</h2>
+<p>These allow you to share passwords and secret notes.</p>
 <ul>
     {% for organisation in organisations %}
         {% if organisation.role == 'Proposed' %}
@@ -29,6 +31,7 @@
     <button type="submit">Create</button>
 </form>
 <h2>Known Users</h2>
+<p>These are the people you already know on this platform.</p>
 <ul>
     {% for known in knowns %}
         <li><a href="/knowns/{{ known.id }}">{{ known.display }} ({{ known.uid }})</a></li>

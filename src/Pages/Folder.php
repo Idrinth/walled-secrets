@@ -4,11 +4,9 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
+use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
 use Ramsey\Uuid\Uuid;
 
 class Folder
@@ -17,9 +15,9 @@ class Folder
     private Twig $twig;
     private ENV $env;
     private ShareFolderWithOrganisation $bigShare;
-    private \De\Idrinth\WalledSecrets\Services\ShareWithOrganisation $smallShare;
+    private ShareWithOrganisation $smallShare;
 
-    public function __construct(PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, \De\Idrinth\WalledSecrets\Services\ShareWithOrganisation $smallShare)
+    public function __construct(PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, ShareWithOrganisation $smallShare)
     {
         $this->database = $database;
         $this->env = $env;
