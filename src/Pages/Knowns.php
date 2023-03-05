@@ -48,7 +48,7 @@ class Knowns
             header ('Location: /', true, 303);
             return '';            
         }
-        $stmt = $this->database->prepare('SELECT knowns.*,accounts.display
+        $stmt = $this->database->prepare('SELECT knowns.*
 FROM knowns
 WHERE knowns.id=:id AND knowns.`owner`=:account');
         $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
