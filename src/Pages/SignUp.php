@@ -76,7 +76,7 @@ class SignUp
         $stmt = $this->database->prepare('SELECT aid,inviter FROM invites WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
         $stmt->execute([':id' => $id, ':secret' => $pass, ':mail' => $post['email']]);
         $invite = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$id) {
+        if (!$invite) {
             header ('Location: /', true, 303);
             return '';
         }
