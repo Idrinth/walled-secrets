@@ -54,3 +54,7 @@ html {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
+#header strong {
+  font-size: 150%;
+  padding: 2em;
+}
