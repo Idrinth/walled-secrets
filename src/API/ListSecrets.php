@@ -41,7 +41,7 @@ class ListSecrets
                 'logins' => $stmt3->fetchAll(PDO::FETCH_ASSOC),
             ];
         }
-        header('Content-Type: application/json', true, 403);
+        header('Content-Type: application/json', true, 200);
         return json_encode($data);
     }
 }

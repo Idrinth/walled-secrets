@@ -14,6 +14,11 @@
         "192": "icons/192x192.png",
         "512": "icons/512x512.png"
     },
+    "background": {
+        "scripts": [
+            "background/background.js"
+        ]
+    },
     "browser_action": {
         "browser_style": true,
         "default_icon": {
