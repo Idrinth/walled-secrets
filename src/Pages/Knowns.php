@@ -74,6 +74,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
                 ':note' => $shared->encrypt($post['note']),
             ]);
         header ('Location: /knowns/'.$id, true, 303);
+        return '';
     }
     public function get(string $id): string
     {
