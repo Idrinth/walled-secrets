@@ -1,7 +1,7 @@
 {% include 'header.twig' %}
 <h1>Welcome {{ user.name }}</h1>
 <h2>Settings</h2>
-<form>
+<form method="post">
     <label for="api-key">Your API-Key</label>
     <input id="api-key" type="text" disabled value="{{ user['api-key'] }}"/>
     <input type="hidden" value="1" name="regenerate"/>
