@@ -16,6 +16,7 @@
     },
     "background": {
         "scripts": [
+            "libs/esequal.js",
             "background/background.js"
         ]
     },
@@ -49,7 +50,7 @@
             "512": "icons/512x512.png"
         },
         "default_title": "Walled Secrets",
-        "default_panel": "sidebar/sidebar.html",
+        "default_panel": "sidebar/folderlist.html",
         "open_at_install": true
     },
     "permissions": [
