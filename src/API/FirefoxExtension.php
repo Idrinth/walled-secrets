@@ -2,6 +2,8 @@
 
 namespace De\Idrinth\WalledSecrets\API;
 
+use phpseclib3\Crypt\RSA;
+use Swoole\MySQL\Exception;
 use ZipArchive;
 
 class FirefoxExtension
@@ -15,6 +17,13 @@ class FirefoxExtension
         $zip->addGlob(dirname(__DIR__, 2) . '/mozilla-addon/*/*', 0, ['remove_path' => dirname(__DIR__, 2) . '/mozilla-addon']);
         $zip->addFromString('manifest.json', str_replace('##HOSTNAME##', $_ENV['SYSTEM_HOSTNAME'], file_exists(dirname(__DIR__, 2) . '/mozilla-addon/manifest.json')));
         $zip->close();
+        try {
+            $key = RSA::loadPrivateKey(file_get_contents($ENV['SYSTEM_PRIVATE_KEY']));
+            return $key->sign(file_get_contents($name));
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            error_log($e->getTraceAsString());
+        }
         return file_get_contents($name);
     }
 }
