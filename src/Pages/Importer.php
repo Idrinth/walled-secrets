@@ -49,7 +49,7 @@ class Importer
                     ':id' => Uuid::uuid1()->toString()
                 ]);
             $folder = $this->database->lastInsertId();
-            for ($j = 0; $j < $group->childElementCount; $j++) {
+            for ($j = 0; $j < $group->childNodes->length; $j++) {
                 $secret = $group->childNodes->item($j);
                 var_dump($secret);
                 if ($secret->localName === 'Entry') {
@@ -58,7 +58,7 @@ class Importer
                     $login = '';
                     $domain = '';
                     $publicIdentifier = '';
-                    for ($k = 0; $k < $secret->childElementCount; $k++) {
+                    for ($k = 0; $k < $secret->childNodes->length; $k++) {
                         $data = $secret->childNodes->item($k);
                         if ($data->localName === 'String') {
                             switch ($data->getElementsByTagName('Key')->item(0)->nodeValue) {
