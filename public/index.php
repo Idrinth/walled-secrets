@@ -2,6 +2,8 @@
 
 use De\Idrinth\WalledSecrets\API\FirefoxExtension;
 use De\Idrinth\WalledSecrets\API\ListSecrets;
+use De\Idrinth\WalledSecrets\API\Login as Login2;
+use De\Idrinth\WalledSecrets\API\Note;
 use De\Idrinth\WalledSecrets\API\Ping;
 use De\Idrinth\WalledSecrets\Application;
 use De\Idrinth\WalledSecrets\Pages\Folder;
@@ -40,8 +42,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/search', Search::class)
     ->get('/logins/{id}', Logins::class)
     ->post('/logins/{id}', Logins::class)
+    ->post('/api/logins/{id}', Login2::class)
     ->get('/notes/{id}', Notes::class)
     ->post('/notes/{id}', Notes::class)
+    ->post('/api/notes/{id}', Note::class)
     ->get('/knowns/{id}', Knowns::class)
     ->post('/knowns/{id}', Knowns::class)
     ->get('/login/{id}/{pass}', Login::class)
