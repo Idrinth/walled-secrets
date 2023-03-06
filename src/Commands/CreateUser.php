@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Commands;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use PDO;
 use phpseclib3\Crypt\RSA;
 use Ramsey\Uuid\Uuid;
@@ -37,8 +38,8 @@ class CreateUser
         file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('OpenSSH'));
         echo "Keys written to filesystem.\n";
         $this->database
-            ->prepare('INSERT INTO accounts (id,display,mail) VALUES (:id,:display,:mail)')
-            ->execute([':display' => $display, ':id' => $uuid, ':mail' => $email]);
+            ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
+            ->execute([':display' => $display, ':id' => $uuid, ':mail' => $email, ':apikey' => PasswordGenerator::make()]);
         echo "User added to database.\n";
     }
 }
