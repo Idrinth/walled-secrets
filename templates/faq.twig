@@ -1,0 +1,15 @@
+{% include 'header.twig' %}
+<h1>Frequently Asked Questions(FAQ)</h1>
+<h2>How secure is my data?</h2>
+<p>We encrypt everything not explicitly labeled public. For longer texts(like notes) we use AES backed by RSA encrypting IV and Key. For shorter texts we directly use RSA. Your master password is stored encrypted(by AES and blowfish) in a Session if you log in via the website. With their secrets split between database and environment that should keep them pretty save.</p>
+<h2>Are you making a profit?</h2>
+<p>While I accept gifts via paypal, there are no and will not be any payed for features.</p>
+<h2>Why is this invite only?</h2>
+<p>I don't want to pay for the whole internet using this. Feel free to host your own instance if you don't know anyone using this instance. All the code is at github and the license is MIT - so very open.</p>
+<h2>Why is Feature X missing?</h2>
+<p>I'm coding this in my free time, so it is either a ticket already or you can open one and I'll get to it.</p>
+<h2>From what password managers can you import?</h2>
+<p>Right now only from bitwarden's unencrypted json. More options are on the way. Next up is the Keepass XML.</p>
+<h2>Why does it take so long to retrieve encrypted data?</h2>
+<p>We unencrypt the data on the fly. The duration is based on the security of the private key used.</p>
+{% include 'footer.twig' %}

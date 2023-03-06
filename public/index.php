@@ -6,6 +6,7 @@ use De\Idrinth\WalledSecrets\API\Note;
 use De\Idrinth\WalledSecrets\API\Ping;
 use De\Idrinth\WalledSecrets\Application;
 use De\Idrinth\WalledSecrets\Pages\Eula;
+use De\Idrinth\WalledSecrets\Pages\FAQ;
 use De\Idrinth\WalledSecrets\Pages\Folder;
 use De\Idrinth\WalledSecrets\Pages\Home;
 use De\Idrinth\WalledSecrets\Pages\Importer;
@@ -36,6 +37,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->get('/privacy', PrivacyPolicy::class)
     ->get('/api/ping', Ping::class)
     ->get('/imprint', Imprint::class)
+    ->get('/faq', FAQ::class)
     ->get('/eula', Eula::class)
     ->get('/master', Master::class)
     ->post('/master', Master::class)
