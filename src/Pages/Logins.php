@@ -62,12 +62,12 @@ class Logins
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute();
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
-                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['login'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
+                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
             }
             header ('Location: /', true, 303);
             return '';
         }
-        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['login'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
+        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
         header ('Location: /', true, 303);
         return '';
     }

@@ -5,7 +5,6 @@ namespace De\Idrinth\WalledSecrets\Services;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
 
 class ShareWithOrganisation
 {
