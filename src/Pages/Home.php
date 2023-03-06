@@ -73,6 +73,7 @@ class Home
     {
         if (isset($_SESSION['id'])) {
             if (isset($post['haveibeenpwned'])) {
+                var_dump($post['haveibeenpwned']);
                 $stmt = $this->database
                     ->prepare('UPDATE `accounts` SET `haveibeenpwned`=:haveibeenpwned WHERE `aid`=:id');
                 $stmt->bindValue(':id', $_SESSION['id']);
