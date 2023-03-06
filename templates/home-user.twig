@@ -9,7 +9,7 @@
 </form>
 <form method="post">
     <label for="haveibeenpwned">Enable HaveIBeenPwned Check</label>
-    <input type="hidden" value="1" name="haveibeenpwned"/>
+    <input type="hidden" value="0" name="haveibeenpwned"/>
     <input id="haveibeenpwned" name="haveibeenpwned" type="checkbox"{% if user.haveibeenpwned==1 %} checked{% endif %} value="1"/>
     <button type="submit">Submit</button>
 </form>
