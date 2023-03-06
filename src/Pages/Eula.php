@@ -2,6 +2,8 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Twig;
+
 class Eula
 {
     private Twig $twig;
