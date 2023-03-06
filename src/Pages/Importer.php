@@ -3,12 +3,10 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
-use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
+use DOMDocument;
 use PDO;
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Random;
 use Ramsey\Uuid\Uuid;
 
 class Importer
@@ -36,7 +34,7 @@ class Importer
     }
     private function importKeypass(string $file): string
     {
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         if (!$dom->load($file)) {
             return '';
         }
@@ -53,7 +51,7 @@ class Importer
             $folder = $this->database->lastInsertId();
             for ($j = 0; $j < $group->childElementCount; $j++) {
                 $secret = $group->childNodes->item($j);
-                if ($secret->tagName === 'Entry') {
+                if ($secret->localName === 'Entry') {
                     $note = '';
                     $password = '';
                     $login = '';
@@ -61,7 +59,7 @@ class Importer
                     $publicIdentifier = '';
                     for ($k = 0; $k < $secret->childElementCount; $k++) {
                         $data = $secret->childNodes->item($k);
-                        if ($data->tagName === 'String') {
+                        if ($data->localName === 'String') {
                             switch ($data->getElementsByTagName('Key')->item(0)->nodeValue) {
                                 case 'Title':
                                     $publicIdentifier .= ' ' . $data->getElementsByTagName('Value')->item(0)->nodeValue;
