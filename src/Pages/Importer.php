@@ -51,6 +51,7 @@ class Importer
             $folder = $this->database->lastInsertId();
             for ($j = 0; $j < $group->childElementCount; $j++) {
                 $secret = $group->childNodes->item($j);
+                var_dump($secret);
                 if ($secret->localName === 'Entry') {
                     $note = '';
                     $password = '';
@@ -94,6 +95,7 @@ class Importer
                 }
             }
         }
+        exit;
         return '';        
     }
     private function importBitwarden(string $file): string
