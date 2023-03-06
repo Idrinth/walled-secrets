@@ -6,7 +6,7 @@ document.getElementsByTagName('button')[0].onclick = async () => {
     const url = (await browser.storage.local.get('url')).url || '';
     const master = document.getElementById('master').value;
     try {
-        const result = await fetch(url + '/api/logins/'+location.hash.replace('#',''), {
+        const response = await fetch(url + '/api/logins/'+location.hash.replace('#',''), {
             method: 'POST',
             mode: 'cors',
             headers: {
