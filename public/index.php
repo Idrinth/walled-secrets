@@ -32,7 +32,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->register(new Blowfish('ctr'))
     ->get('/', Home::class)
     ->post('/', Home::class)
-    ->post('/privacy', PrivacyPolicy::class)
+    ->get('/privacy', PrivacyPolicy::class)
     ->get('/api/ping', Ping::class)
     ->get('/imprint', Imprint::class)
     ->get('/master', Master::class)
