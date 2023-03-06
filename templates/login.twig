@@ -8,9 +8,10 @@
     <label for="domain">Domain</label>
     <input type="text" name="domain" id="domain" value="{{ login.domain }}"/>
     <label for="password">Password</label>
-    <input type="password" name="password" id="password" value="{{ login.pass }}"/>
+    <input type="text" name="password" id="password" value="{{ login.pass }}"/>
     <label for="note">Note for the password</label>
     <textarea name="note" id="note">{{ login.note }}</textarea>
     <button type="submit">Modify</button>
 </form>
+<script src="copy.js"></script>
 {% include 'footer.twig' %}

@@ -33,13 +33,13 @@
             <label for="domain">Domain</label>
             <input type="text" disabled id="domain"/>
             <label for="password">Password</label>
-            <input type="password" disabled id="password"/>
+            <input type="text" disabled id="password"/>
             <label for="note">Note</label>
             <textarea disabled id="note"></textarea>
         </form>
         <div>
             <a href="folderlist.html">Back to folder list</a>
-            <form onsubmit="return false">
+            <form>
                 <label for="master">Master-Password</label>
                 <input type="password" id="master"/>
                 <button type="button">Decrypt</button>
@@ -47,5 +47,7 @@
             <p>Decrypting the data is not quick, give it a bit of time.</p>
         </div>
         <script src="login.js"></script>
+        <script src="copy.js"></script>
+        <script src="no-form-submit.js"></script>
     </body>
 </html>

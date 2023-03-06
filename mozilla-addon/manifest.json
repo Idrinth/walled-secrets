@@ -55,6 +55,7 @@
         "unlimitedStorage",
         "webRequest",
         "storage",
-        "alarms"
+        "alarms",
+        "clipboardWrite"
     ]
 }
