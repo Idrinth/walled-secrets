@@ -134,7 +134,7 @@ class Logins
                     $curl = new Curl();
                     $curl->setHeader('hibp-api-key', $this->env->getString('HAVEIBEENPWNED_API_KEY'));
                     $curl->setUserAgent('idrinth/walled-secrets@' . $this->env->getString('SYSTEM_HOSTNAME'));
-                    $curl->get('https://haveibeenpwned.com/api/v3/breachedaccount/' . urlencode($login['$login']));
+                    $curl->get('https://haveibeenpwned.com/api/v3/breachedaccount/' . urlencode($login['login']));
                     if ($curl->httpStatusCode===200) {
                         $login['pwned'] = true;
                         $this->database
