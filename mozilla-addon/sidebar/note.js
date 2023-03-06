@@ -22,7 +22,7 @@ document.getElementsByTagName('button')[0].onclick = async () => {
         document.getElementById('id').value = data.id;
         document.getElementById('name').value = data.name;
         document.getElementById('content').value = data.content;
-        document.getElementsByTagName('h1').innerHTML = data.public;
+        document.getElementsByTagName('h1')[0].innerHTML = data.public;
         document.getElementsByTagName('div')[0].setAttribute('style', 'display:none');
     } catch (e) {
         alert(e);

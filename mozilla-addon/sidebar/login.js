@@ -24,7 +24,7 @@ document.getElementsByTagName('button')[0].onclick = async () => {
         document.getElementById('domain').value = data.domain;
         document.getElementById('note').value = data.note;
         document.getElementById('password').value = data.password;
-        document.getElementsByTagName('h1').innerHTML = data.public;
+        document.getElementsByTagName('h1')[0].innerHTML = data.public;
         document.getElementsByTagName('div')[0].setAttribute('style', 'display:none');
     } catch (e) {
         alert(e);
