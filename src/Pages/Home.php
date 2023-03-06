@@ -72,7 +72,6 @@ class Home
     public function post(array $post): string
     {
         if (isset($_SESSION['id'])) {
-                var_dump($post['haveibeenpwned']);exit;
             if (isset($post['haveibeenpwned'])) {
                 $stmt = $this->database
                     ->prepare('UPDATE `accounts` SET `haveibeenpwned`=:haveibeenpwned WHERE `aid`=:id');
