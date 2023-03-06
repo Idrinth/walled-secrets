@@ -41,5 +41,9 @@ class CreateUser
             ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
             ->execute([':display' => $display, ':id' => $uuid, ':mail' => $email, ':apikey' => PasswordGenerator::make()]);
         echo "User added to database.\n";
+        $this->database
+            ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,"unsorted",:owner)')
+            ->execute([':id' => Uuid::uuid1()->toString(), ':owner' => $this->database->lastInsertId()]);
+        echo "User added to database.\n";
     }
 }
