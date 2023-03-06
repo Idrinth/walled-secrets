@@ -24,7 +24,11 @@ document.getElementsByTagName('button')[0].onclick = async () => {
         document.getElementById('domain').value = data.domain;
         document.getElementById('note').value = data.note;
         document.getElementById('password').value = data.password;
-        document.getElementsByTagName('h1')[0].innerHTML = data.public;
+        const h1 = document.getElementsByTagName('h1')[0];
+        while (h1.firstChild) {
+            h1.removeChild(h1.firstChild);
+        }
+        h1.appendChild(document.createTextNode(data.public));
         document.getElementsByTagName('div')[0].setAttribute('style', 'display:none');
     } catch (e) {
         alert(e);
