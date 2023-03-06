@@ -43,17 +43,17 @@
             const ul = list.lastChild.lastChild;
             for (const login of folders[folder].logins) {
                 ul.appendChild(document.createElement('li'));
-                ul.lastChild.appendChild(document.createTextNode(login.public));
-                ul.lastChild.setAttribute('data-id', login.id);
-                ul.lastChild.setAttribute('data-type', 'login');
                 ul.lastChild.setAttribute('class', 'login');
+                ul.lastChild.appendChild(document.createElement('a'));
+                ul.lastChild.lastChild.appendChild(document.createTextNode(login.public));
+                ul.lastChild.lastChild.setAttribute('href', 'login.html#' + login.id);
             }
             for (const note of folders[folder].notes) {
                 ul.appendChild(document.createElement('li'));
-                ul.lastChild.appendChild(document.createTextNode(note.public));
-                ul.lastChild.setAttribute('data-id', note.id);
-                ul.lastChild.setAttribute('data-type', 'note');
                 ul.lastChild.setAttribute('class', 'note');
+                ul.lastChild.appendChild(document.createElement('a'));
+                ul.lastChild.lastChild.appendChild(document.createTextNode(note.public));
+                ul.lastChild.lastChild.setAttribute('href', 'note.html#' + note.id);
             }
         }
         search();

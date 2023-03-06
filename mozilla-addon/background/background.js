@@ -23,7 +23,7 @@
                     }
                     lastDownloaded = Date.now();
                     const previous = (await browser.storage.local.get('folders')).folders || {};
-                    if (equal(previous, data)) {
+                    if (!equal(previous, data)) {
                         browser.storage.local.set({
                             folders: data,
                             lastModified: Date.now(),
