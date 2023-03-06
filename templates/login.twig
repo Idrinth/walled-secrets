@@ -5,6 +5,7 @@
     <input type="text" name="identifier" value="{{ login.public }}" id="identifier"/>
     <label for="user">Username</label>
     <input type="text" name="user" id="user" value="{{ login.login }}"/>
+    {% if login.pwned==1 %}<p>This account was pwned according to <a href="https://haveibeenpwned.com/" target="_blank">haveibeenpwned</a>.{% endif %}
     <label for="domain">Domain</label>
     <input type="text" name="domain" id="domain" value="{{ login.domain }}"/>
     <label for="password">Password</label>

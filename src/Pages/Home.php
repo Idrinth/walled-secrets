@@ -72,7 +72,13 @@ class Home
     public function post(array $post): string
     {
         if (isset($_SESSION['id'])) {
-            if (isset($post['regenerate'])) {
+            if (isset($post['haveibeenpwned'])) {
+                $stmt = $this->database
+                    ->prepare('UPDATE `accounts` SET `haveibeenpwned`=:haveibeenpwned WHERE `aid`=:id');
+                $stmt->bindValue(':id', $_SESSION['id']);
+                $stmt->bindValue(':haveibeenpwned', $post['haveibeenpwned']);
+                $stmt->execute();
+            } elseif (isset($post['regenerate'])) {
                 $stmt = $this->database
                     ->prepare('UPDATE `accounts` SET `apikey`=:ak WHERE `aid`=:id');
                 $stmt->bindValue(':id', $_SESSION['id']);

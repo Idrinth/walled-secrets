@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use Curl\Curl;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
@@ -117,6 +118,36 @@ class Logins
             $shared->setKeyLength(256);
             $shared->setKey($login['key']);
             $login['note'] = $shared->decrypt($login['note']);
+        }
+        $login['pwned'] = 0;
+        if ($this->env->getString('HAVEIBEENPWNED_API_KEY')) {
+            $stmt = $this->database->prepare('SELECT haveibeenpwned FROM accounts WHERE aid=:id');
+            $stmt->execute([':id' => $_SESSION['id']]);
+            $haveibeenpwned = $stmt->fetchColumn() === '1';
+            if ($haveibeenpwned) {
+                $stmt = $this->database->query('SELECT checked,pwned FROM waspwned WHERE id=:id');
+                $stmt->execute([':id' => $id]);
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($data && $data['pwned'] === '1') {
+                    $login['pwned'] = 1;
+                } elseif (!$data || strtotime($data['checked']) < time() - 3600) {
+                    $curl = new Curl();
+                    $curl->setHeader('hibp-api-key', $this->env->getString('HAVEIBEENPWNED_API_KEY'));
+                    $curl->setUserAgent('idrinth/walled-secrets@' . $this->env->getString('SYSTEM_HOSTNAME'));
+                    $curl->get('https://haveibeenpwned.com/api/v3/breachedaccount/' . urlencode($login['$login']));
+                    if ($curl->httpStatusCode===200) {
+                        $login['pwned'] = true;
+                        $this->database
+                            ->prepare('INSERT INTO waspwned (id,pwned) VALUES (:id,1) ON DUPLICATE KEY UPDATE pwned=1')
+                            ->execute([':id' => $id]);
+                    } elseif ($curl->httpStatusCode===429) {
+                        error_log('Rate Limit exceeded.');
+                    }
+                    $this->database
+                        ->prepare('INSERT INTO waspwned (id,checked) VALUES (:id,Now()) ON DUPLICATE KEY UPDATE checked=Now()')
+                        ->execute([':id' => $id]);
+                }
+            }
         }
         return $this->twig->render('login', [
             'title' => $login['public'],
