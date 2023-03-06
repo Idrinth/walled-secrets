@@ -125,7 +125,7 @@ class Logins
             $stmt->execute([':id' => $_SESSION['id']]);
             $haveibeenpwned = $stmt->fetchColumn() === '1';
             if ($haveibeenpwned) {
-                $stmt = $this->database->query('SELECT checked,pwned FROM waspwned WHERE id=:id');
+                $stmt = $this->database->prepare('SELECT checked,pwned FROM waspwned WHERE id=:id');
                 $stmt->execute([':id' => $id]);
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($data && $data['pwned'] === '1') {
