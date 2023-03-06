@@ -136,7 +136,7 @@ class Importer
             header ('Location: /', true, 303);
             return '';
         }
-        header ('Location: /', true, 303);
+        #header ('Location: /', true, 303);
         switch ($post['source']) {
             case '0':
                 return $this->importKeypass($_FILES['file']['tmp_name']);
