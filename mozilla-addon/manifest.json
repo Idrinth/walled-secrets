@@ -6,9 +6,9 @@
     "homepage_url": "https://github.com/idrinth/walled-secrets",
     "description": "A small open source password manager.",
     "browser_specific_settings": {
-      "gecko": {
-        "id": "secrets@idrinth.de"
-      }
+        "gecko": {
+            "id": "secrets@idrinth.de"
+        }
     },
     "icons": {
         "16": "icons/16x16.png",
@@ -20,9 +20,19 @@
         "scripts": [
             "libs/esequals.js",
             "libs/webextension-polyfill.min.js",
-            "background/background.js"
+            "background/background.js",
+            "background/context.js"
         ]
     },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": [
+                "libs/webextension-polyfill.min.js",
+                "content/content.js"
+            ]
+        }
+    ],
     "options_ui": {
         "browser_style": true,
         "page": "config/login.html"
@@ -39,10 +49,12 @@
         "open_at_install": true
     },
     "permissions": [
+        "tabs",
         "activeTab",
         "contextMenus",
         "unlimitedStorage",
         "webRequest",
-        "storage"
+        "storage",
+        "alarms"
     ]
 }
