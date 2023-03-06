@@ -44,7 +44,7 @@ class ShareWithOrganisation
     {
         $public = KeyLoader::public($uuid);
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,id,iv,`key`,`note`,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,iv,`key`,`note`,id,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);

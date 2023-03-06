@@ -55,7 +55,7 @@ class Logins
             $mayEdit = in_array($role, ['Administrator', 'Owner', 'Member'], true);
         }
         if (!$mayEdit) {
-            header ('Location: /', true, 303);
+            header ('Location: /logins/' . $id, true, 303);
             return '';
         }
         if ($folder === 'organisation') {
@@ -64,11 +64,11 @@ class Logins
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
                 $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
             }
-            header ('Location: /', true, 303);
+            header ('Location: /logins/' . $id, true, 303);
             return '';
         }
         $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
-        header ('Location: /', true, 303);
+        header ('Location: /logins/' . $id, true, 303);
         return '';
     }
     public function get(string $id): string
