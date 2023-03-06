@@ -1,6 +1,5 @@
 <?php
 
-use De\Idrinth\WalledSecrets\API\FirefoxExtension;
 use De\Idrinth\WalledSecrets\API\ListSecrets;
 use De\Idrinth\WalledSecrets\API\Login as Login2;
 use De\Idrinth\WalledSecrets\API\Note;
@@ -16,6 +15,7 @@ use De\Idrinth\WalledSecrets\Pages\Logins;
 use De\Idrinth\WalledSecrets\Pages\Master;
 use De\Idrinth\WalledSecrets\Pages\Notes;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
+use De\Idrinth\WalledSecrets\Pages\PrivacyPolicy;
 use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
 use De\Idrinth\WalledSecrets\Services\Database;
@@ -32,6 +32,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->register(new Blowfish('ctr'))
     ->get('/', Home::class)
     ->post('/', Home::class)
+    ->post('/privacy', PrivacyPolicy::class)
     ->get('/api/ping', Ping::class)
     ->get('/imprint', Imprint::class)
     ->get('/master', Master::class)
@@ -55,6 +56,5 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/folder/{id}', Folder::class)
     ->get('/organisation/{id}', Organisation::class)
     ->post('/organisation/{id}', Organisation::class)
-    ->get('/extension.xpi', FirefoxExtension::class)
     ->post('/api/list-secrets', ListSecrets::class)
     ->run();
