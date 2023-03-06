@@ -18,7 +18,7 @@ class FirefoxExtension
         $zip->addFromString('manifest.json', str_replace('##HOSTNAME##', $_ENV['SYSTEM_HOSTNAME'], file_exists(dirname(__DIR__, 2) . '/mozilla-addon/manifest.json')));
         $zip->close();
         try {
-            $key = RSA::loadPrivateKey(file_get_contents($ENV['SYSTEM_PRIVATE_KEY']));
+            $key = RSA::loadPrivateKey(file_get_contents($_ENV['SYSTEM_PRIVATE_KEY']));
             return $key->sign(file_get_contents($name));
         } catch (Exception $e) {
             error_log($e->getMessage());
