@@ -56,6 +56,8 @@ class Note
             $note['content'] = $shared->decrypt($note['content']);
         }
         return json_encode([
+            'public' => $note['public'],
+            'id' => $note['id'],
             'name' => $note['name'],
             'content' => $note['content'],
         ]);

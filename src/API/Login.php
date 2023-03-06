@@ -58,6 +58,8 @@ class Login
             $login['note'] = $shared->decrypt($login['note']);
         }
         return json_encode([
+            'public' => $login['public'],
+            'id' => $login['id'],
             'login' => $login['login'],
             'pass' => $login['pass'],
             'domain' => $login['domain'],
