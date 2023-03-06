@@ -3,6 +3,7 @@
 use De\Idrinth\WalledSecrets\API\ListSecrets;
 use De\Idrinth\WalledSecrets\API\Login as Login2;
 use De\Idrinth\WalledSecrets\API\Note;
+use De\Idrinth\WalledSecrets\API\OpenApi;
 use De\Idrinth\WalledSecrets\API\Ping;
 use De\Idrinth\WalledSecrets\Application;
 use De\Idrinth\WalledSecrets\Pages\Eula;
@@ -61,4 +62,5 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->get('/organisation/{id}', Organisation::class)
     ->post('/organisation/{id}', Organisation::class)
     ->post('/api/list-secrets', ListSecrets::class)
+    ->get('/api/open-api.json', OpenApi::class)
     ->run();
