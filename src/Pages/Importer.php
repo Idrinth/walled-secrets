@@ -4,6 +4,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
@@ -15,12 +16,14 @@ class Importer
     private Twig $twig;
     private ENV $env;
     private PDO $database;
+    private ShareWithOrganisation $share;
 
-    public function __construct(Twig $twig, ENV $env, PDO $database)
+    public function __construct(Twig $twig, ENV $env, PDO $database, ShareWithOrganisation $share)
     {
         $this->twig = $twig;
         $this->env = $env;
         $this->database = $database;
+        $this->share = $share;
     }
 
     public function get(): string
@@ -31,35 +34,68 @@ class Importer
         }
         return $this->twig->render('import', ['title' => 'Import']);
     }
-
-    private function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note)
-    {
-        $public = KeyLoader::public($uuid);
-        $this->database
-            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,iv,`key`,`note`,id,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
-            ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
-        $iv = Random::string(16);
-        $key = Random::string(32);
-        $shared = new AES('ctr');
-        $shared->setKeyLength(256);
-        $shared->setKey($key);
-        $shared->setIV($iv);
-        $this->database
-            ->prepare('UPDATE logins SET public=:public,pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
-            ->execute([
-                ':owner' => $owner,
-                ':id' => $id,
-                ':public' => $domain,
-                ':pass' => $public->encrypt($password),
-                ':domain' => $public->encrypt($domain),
-                ':login' => $public->encrypt($login),
-                ':key' => $public->encrypt($key),
-                ':iv' => $public->encrypt($iv),
-                ':note' => $shared->encrypt($note),
-            ]);
-    }
     private function importKeypass(string $file): string
     {
+        $dom = new \DOMDocument();
+        if (!$dom->load($file)) {
+            return '';
+        }
+        $groups = $dom->getElementsByTagName('Group');
+        for ($i = 0; $i < $groups->count(); $i++) {
+            $group = $groups->item($i);
+            $this->database
+                ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
+                ->execute([
+                    ':name' => $group->getElementsByTagName('Name')->item(0)->nodeValue,
+                    ':owner' => $_SESSION['id'],
+                    ':id' => Uuid::uuid1()->toString()
+                ]);
+            $folder = $this->database->lastInsertId();
+            for ($j = 0; $j < $group->childElementCount; $j++) {
+                $secret = $group->childNodes->item($j);
+                if ($secret->tagName === 'Entry') {
+                    $note = '';
+                    $password = '';
+                    $login = '';
+                    $domain = '';
+                    $publicIdentifier = '';
+                    for ($k = 0; $k < $secret->childElementCount; $k++) {
+                        $data = $secret->childNodes->item($k);
+                        if ($data->tagName === 'String') {
+                            switch ($data->getElementsByTagName('Key')->item(0)->nodeValue) {
+                                case 'Title':
+                                    $publicIdentifier .= ' ' . $data->getElementsByTagName('Value')->item(0)->nodeValue;
+                                    break;
+                                case 'UserName':
+                                    $login = $data->getElementsByTagName('Value')->item(0)->nodeValue;
+                                    break;
+                                case 'Password':
+                                    $password = $data->getElementsByTagName('Value')->item(0)->nodeValue;
+                                    break;
+                                case 'URL':
+                                    $domain = preg_replace('/http?s:\/\/(.+?)($|\/.*$)/', '$1', $data->getElementsByTagName('Value')->item(0)->nodeValue);
+                                    $publicIdentifier .= ' ' . $domain;
+                                    break;
+                                case 'Notes':
+                                    $note = $data->getElementsByTagName('Value')->item(0)->nodeValue;
+                                    break;
+                            }
+                        }
+                    }
+                    $this->share->updateLogin(
+                        $_SESSION['id'],
+                        $_SESSION['uuid'],
+                        $folder,
+                        Uuid::uuid1()->toString(),
+                        $login,
+                        $password,
+                        $domain,
+                        $note,
+                        trim($publicIdentifier)
+                    );
+                }
+            }
+        }
         return '';        
     }
     private function importBitwarden(string $file): string
@@ -79,15 +115,16 @@ class Importer
         }
         foreach ($data['items'] as $item) {
             if ($item['type'] === 1) {
-                $this->updateLogin(
+                $this->share->updateLogin(
                     $_SESSION['id'],
                     $_SESSION['uuid'],
                     $folders[$item['folderId']],
                     Uuid::uuid1()->toString(),
                     $item['login']['username'] ?? '',
                     $item['login']['password'] ?? '',
+                    '',
+                    '',
                     $item['name'],
-                    ''
                 );
             }
         }

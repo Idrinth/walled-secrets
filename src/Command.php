@@ -37,7 +37,7 @@ class Command
         array_shift($arguments);
         $route = array_shift($arguments);
         if (!isset($this->routes[$route])) {
-            echo "$route is unknown.";
+            echo "$route is unknown.\n";
             die(1);
         }
         $obj = $this->di->init(new ReflectionClass($this->routes[$route]));
