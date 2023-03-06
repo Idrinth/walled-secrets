@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets;
 
+use De\Idrinth\WalledSecrets\Services\DependencyInjector;
 use Dotenv\Dotenv;
 use ReflectionClass;
 use Throwable;
