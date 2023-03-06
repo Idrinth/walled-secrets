@@ -51,7 +51,6 @@ class Importer
             $folder = $this->database->lastInsertId();
             for ($j = 0; $j < $group->childNodes->length; $j++) {
                 $secret = $group->childNodes->item($j);
-                var_dump($secret);
                 if ($secret->localName === 'Entry') {
                     $note = '';
                     $password = '';
@@ -95,7 +94,6 @@ class Importer
                 }
             }
         }
-        exit;
         return '';        
     }
     private function importBitwarden(string $file): string
@@ -136,7 +134,7 @@ class Importer
             header ('Location: /', true, 303);
             return '';
         }
-        #header ('Location: /', true, 303);
+        header ('Location: /', true, 303);
         switch ($post['source']) {
             case '0':
                 return $this->importKeypass($_FILES['file']['tmp_name']);
