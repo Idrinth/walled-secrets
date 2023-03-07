@@ -1,0 +1,15 @@
+FROM php:7.4-apache
+
+LABEL "de.idrinth.maintainer"="Björn 'Idrinth' Büttner"
+
+COPY src /var/www/src
+COPY public /var/www/html
+COPY resources /var/www/resources
+COPY templates /var/www/templates
+COPY vendor /var/www/vendor
+COPY sessions /var/www/sessions
+
+VOLUME /var/www/keys
+CMD chmod -R www-data:www-data /var/www
+
+CMD ["apache2-foreground"]
