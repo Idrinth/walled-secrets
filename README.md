@@ -1,5 +1,5 @@
 # walled-secrets
-A small password manager website, supporting proper sharing.
+A small password manager website, supporting proper sharing. Want to discuss the project or ask Questions? Just join the [Discord](https://discord.gg/6KmbM2r8Tx).
 
 ## Installation
 
