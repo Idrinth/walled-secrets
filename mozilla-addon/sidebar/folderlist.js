@@ -37,10 +37,14 @@
         lastUpdated = Date.now();
         for (const folder of Object.keys(folders)) {
             list.appendChild(document.createElement('li'));
-            list.lastChild.appendChild(document.createTextNode(folders[folder].name));
+            list.lastChild.appendChild(document.createTextNode(folders[folder].name + ' (' + folders[folder].type + ')'));
             list.lastChild.setAttribute('data-id', folder);
             list.lastChild.appendChild(document.createElement('ul'));
             const ul = list.lastChild.lastChild;
+            ul.setAttribute('class', 'inactive');
+            list.lastChild.onclick = () => {
+                ul.classList.toggle('inactive');
+            };
             for (const login of folders[folder].logins) {
                 ul.appendChild(document.createElement('li'));
                 ul.lastChild.setAttribute('class', 'login');
