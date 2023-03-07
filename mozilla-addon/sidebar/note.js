@@ -3,7 +3,7 @@ document.getElementsByTagName('button')[0].onclick = async () => {
     document.getElementById('master').disabled = true;
     const master = document.getElementById('master').value;
     try {
-        const data = await requestFromAPI('notes', master, location.hash.replace('#',''));
+        const data = await requestFromAPI('notes', master, location.hash.replace('#', ''));
         document.getElementById('id').value = data.id;
         document.getElementById('name').value = data.name;
         document.getElementById('content').value = data.content;

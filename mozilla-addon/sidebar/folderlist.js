@@ -1,5 +1,5 @@
 (async () => {
-    const windowInfo = await browser.windows.getCurrent({ populate: true });    
+    const windowInfo = await browser.windows.getCurrent({populate: true});
     const input = document.getElementsByTagName('input')[0];
     for (const tab in windowInfo.tabs) {
         if (tab.active) {
@@ -30,7 +30,7 @@
         if (lastModified < lastUpdated) {
             return;
         }
-        while(list.firstChild) {
+        while (list.firstChild) {
             list.removeChild(list.firstChild);
         }
         const folders = (await browser.storage.local.get('folders')).folders || {};

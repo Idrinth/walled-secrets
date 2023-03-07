@@ -2,7 +2,7 @@ const requestFromAPI = async (type, master, id) => {
     const email = (await browser.storage.local.get('email')).email || '';
     const apikey = (await browser.storage.local.get('apikey')).apikey || '';
     const url = (await browser.storage.local.get('url')).url || '';
-    const response = await fetch(url + '/api/' + type + '/'+id, {
+    const response = await fetch(url + '/api/' + type + '/' + id, {
         method: 'POST',
         mode: 'cors',
         headers: {

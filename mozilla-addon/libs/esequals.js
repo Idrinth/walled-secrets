@@ -3,31 +3,31 @@
 (function (root) {
     "use strict";
 
-    var MAP_SUPPORT         = typeof Map !== 'undefined' &&         // Check Map support
-                              Map.prototype.keys &&
-                              Map.prototype.values;
-    var SET_SUPPORT         = typeof Set !== 'undefined' &&         // Check Set support
-                              Map.prototype.values;
+    var MAP_SUPPORT = typeof Map !== 'undefined' && // Check Map support
+            Map.prototype.keys &&
+            Map.prototype.values;
+    var SET_SUPPORT = typeof Set !== 'undefined' && // Check Set support
+            Map.prototype.values;
     var ARRAYBUFFER_SUPPORT = typeof ArrayBuffer !== 'undefined';   // Check ArrayBuffer support
-    var DATAVIEW_SUPPORT    = typeof DataView !== 'undefined';      // Check DataView support
+    var DATAVIEW_SUPPORT = typeof DataView !== 'undefined';      // Check DataView support
 
-    var NOT_EQUAL           = 0;                                    // Return values
-    var VALUE               = 1;
-    var VALUE_AND_TYPE      = 2;
-    var PROPERTIES          = 3;
+    var NOT_EQUAL = 0;                                    // Return values
+    var VALUE = 1;
+    var VALUE_AND_TYPE = 2;
+    var PROPERTIES = 3;
     var PROPERTIES_AND_TYPE = 4;
-    var OBJECT              = 5;
-    var FUNCTION            = 6;
+    var OBJECT = 5;
+    var FUNCTION = 6;
 
     function equal(a, b, options) {
-        var aStack = [],                                            // Stack array
-            bStack = [];
+        var aStack = [], // Stack array
+                bStack = [];
         options || (options = {});                                  // Optional parameter
         return (function check(a, b) {
-            var aValue, bValue, aKeys, bKeys, key, i,               // Define variables
-                aDescriptor, bDescriptor,
-                aType = typeof a,                                   // Get value types
-                bType = typeof b;
+            var aValue, bValue, aKeys, bKeys, key, i, // Define variables
+                    aDescriptor, bDescriptor,
+                    aType = typeof a, // Get value types
+                    bType = typeof b;
             if (a === b) {                                          // Strict comparison
                 if (aType === 'object' && a !== null) {
                     return OBJECT;                                  // Equal object
@@ -41,22 +41,22 @@
                 return VALUE;                                       // Equal value (different type)
             }
             /* jshint +W116 */
-            if (aType === 'undefined' ||                            // undefined and null are always different
-                bType === 'undefined' ||
-                a === null ||
-                b === null)
+            if (aType === 'undefined' || // undefined and null are always different
+                    bType === 'undefined' ||
+                    a === null ||
+                    b === null)
             {
                 return NOT_EQUAL;
             }
-            if (aType === 'number' &&                               // Special case: Not is a Number (NaN !== NaN)
-                bType === 'number' &&
-                isNaN(a) &&
-                isNaN(b))
+            if (aType === 'number' && // Special case: Not is a Number (NaN !== NaN)
+                    bType === 'number' &&
+                    isNaN(a) &&
+                    isNaN(b))
             {
                 return VALUE_AND_TYPE;
             }
-            if (typeof a.valueOf === 'function' &&                  // valueOf() is a function in both values
-                typeof b.valueOf === 'function')
+            if (typeof a.valueOf === 'function' && // valueOf() is a function in both values
+                    typeof b.valueOf === 'function')
             {
                 aValue = a.valueOf();                               // Get valueOf()
                 bValue = b.valueOf();
@@ -71,8 +71,8 @@
                         return NOT_EQUAL;                           // Strict comparison
                     }
                     /* jshint -W116 */
-                    if (options.nonStrict &&                        // Non strict comparison (optional)
-                        aValue == bValue)
+                    if (options.nonStrict && // Non strict comparison (optional)
+                            aValue == bValue)
                     {
                         return VALUE;                               // Equal value (different type)
                     }
@@ -83,11 +83,11 @@
             if (aType !== bType) {                                  // Different type is a not equal value from this point
                 return NOT_EQUAL;
             }
-            if (aType === 'object' ||                               // Objects
-                aType === 'function')                               // and functions
+            if (aType === 'object' || // Objects
+                    aType === 'function')                               // and functions
             {
-                if (aStack.indexOf(a) > -1 &&                       // Check if the object has been previously processed
-                    bStack.indexOf(b) > -1)
+                if (aStack.indexOf(a) > -1 && // Check if the object has been previously processed
+                        bStack.indexOf(b) > -1)
                 {
                     return OBJECT;
                 }
@@ -112,24 +112,24 @@
                                 continue;
                             }
                             if (aDescriptor.enumerable !== bDescriptor.enumerable ||
-                                aDescriptor.writable !== bDescriptor.writable ||
-                                aDescriptor.configurable !== bDescriptor.configurable) {
+                                    aDescriptor.writable !== bDescriptor.writable ||
+                                    aDescriptor.configurable !== bDescriptor.configurable) {
                                 return NOT_EQUAL;
                             }
                         }
                     }
                 }
-                if (( a instanceof RegExp && b instanceof RegExp ) ||   // RegExp and Error family objects
-                    ( a instanceof Error && b instanceof Error  ))
+                if ((a instanceof RegExp && b instanceof RegExp) || // RegExp and Error family objects
+                        (a instanceof Error && b instanceof Error))
                 {
                     if (a.toString() !== b.toString()) {
                         return NOT_EQUAL;
                     }
                 } else if (
-                    (MAP_SUPPORT &&
-                        a instanceof Map && b instanceof Map) ||    // Map
-                    (SET_SUPPORT &&
-                        a instanceof Set && b instanceof Set))      // Set
+                        (MAP_SUPPORT &&
+                                a instanceof Map && b instanceof Map) || // Map
+                        (SET_SUPPORT &&
+                                a instanceof Set && b instanceof Set))      // Set
                 {
                     if (a.size !== b.size) {                        // Check size
                         return NOT_EQUAL;
@@ -141,7 +141,7 @@
                             bKeys = Array.from(b.keys());
                             while (i--) {
                                 if (bKeys.indexOf(aKeys[i]) === -1 ||
-                                    !check(a.get(aKeys[i]), b.get(aKeys[i])))
+                                        !check(a.get(aKeys[i]), b.get(aKeys[i])))
                                 {
                                     return NOT_EQUAL;
                                 }
@@ -153,9 +153,9 @@
                         }
                         return NOT_EQUAL;
                     }
-                } else if (ARRAYBUFFER_SUPPORT && DATAVIEW_SUPPORT &&   // ArrayBuffer
-                    (a instanceof ArrayBuffer || a instanceof DataView) &&
-                    (b instanceof ArrayBuffer || b instanceof DataView))
+                } else if (ARRAYBUFFER_SUPPORT && DATAVIEW_SUPPORT && // ArrayBuffer
+                        (a instanceof ArrayBuffer || a instanceof DataView) &&
+                        (b instanceof ArrayBuffer || b instanceof DataView))
                 {
                     aValue = a instanceof ArrayBuffer ? new DataView(a) : a;
                     bValue = b instanceof ArrayBuffer ? new DataView(b) : b;
@@ -185,43 +185,43 @@
         })(a, b);
     }
 
-    equal.NOT_EQUAL           = NOT_EQUAL           ;               // Public return values
-    equal.VALUE               = VALUE               ;
-    equal.VALUE_AND_TYPE      = VALUE_AND_TYPE      ;
-    equal.PROPERTIES          = PROPERTIES          ;
-    equal.PROPERTIES_AND_TYPE = PROPERTIES_AND_TYPE ;
-    equal.OBJECT              = OBJECT              ;
-    equal.FUNCTION            = FUNCTION            ;
+    equal.NOT_EQUAL = NOT_EQUAL;               // Public return values
+    equal.VALUE = VALUE;
+    equal.VALUE_AND_TYPE = VALUE_AND_TYPE;
+    equal.PROPERTIES = PROPERTIES;
+    equal.PROPERTIES_AND_TYPE = PROPERTIES_AND_TYPE;
+    equal.OBJECT = OBJECT;
+    equal.FUNCTION = FUNCTION;
 
     // get object properties with different scope
     function getProperties(obj, options) {
         var result = [], tmp = [], prop, i;
-        if (!options.nonEnumerableProperties &&                     // General case, own enumerable properties
-            !options.allProperties)
+        if (!options.nonEnumerableProperties && // General case, own enumerable properties
+                !options.allProperties)
         {
             for (prop in obj) {
                 if (Object.prototype.hasOwnProperty.call(obj, prop) &&
-                    !(prop[0] === '_' && !options.privateProperties))
+                        !(prop[0] === '_' && !options.privateProperties))
                 {
                     result.push(prop);
                 }
             }
             return result;
         }
-        tmp = options.allProperties  ?                              // All properties
-            (function getAllProp(obj) {
-                var proto = Object.getPrototypeOf(obj);
-                return (
-                    typeof proto === 'object' && proto !== null ?
-                        getAllProp(proto) :
-                        []
-                ).concat( Object.getOwnPropertyNames(obj) );
-            })(obj) :
-            Object.getOwnPropertyNames(obj);                        // All own properties (enumerable and nonenumerable)
+        tmp = options.allProperties ? // All properties
+                (function getAllProp(obj) {
+                    var proto = Object.getPrototypeOf(obj);
+                    return (
+                            typeof proto === 'object' && proto !== null ?
+                            getAllProp(proto) :
+                            []
+                            ).concat(Object.getOwnPropertyNames(obj));
+                })(obj) :
+                Object.getOwnPropertyNames(obj);                        // All own properties (enumerable and nonenumerable)
         for (i = 0; i < tmp.length; i++) {
             prop = tmp[i];
             if ((prop[0] !== '_' || options.privateProperties) &&
-                (!options.allProperties || tmp.indexOf(prop) === i))
+                    (!options.allProperties || tmp.indexOf(prop) === i))
             {
                 result.push(prop);                                  // Filter private properties (_)
             }

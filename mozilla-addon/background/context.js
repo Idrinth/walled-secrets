@@ -1,20 +1,20 @@
 (() => {
     function onCreated() {
-      if (browser.runtime.lastError) {
-        console.log(`Error: ${browser.runtime.lastError}`);
-      }
+        if (browser.runtime.lastError) {
+            console.log(`Error: ${browser.runtime.lastError}`);
+        }
     }
     browser.contextMenus.create(
-      {
-        id: 'walled-secrets-selection',
-        title: 'Walled Secrets',
-        contexts: ['all'],
-      },
-      onCreated
-    );
+            {
+                id: 'walled-secrets-selection',
+                title: 'Walled Secrets',
+                contexts: ['all'],
+            },
+            onCreated
+            );
     const items = [];
     browser.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-        if (request.type==='master') {
+        if (request.type === 'master') {
             sendResponse('');
             const tab = (await browser.storage.local.get('tab')).tab;
             if (!request.master) {
@@ -25,7 +25,7 @@
             try {
                 const data = await requestFromAPI('logins', request.master, id);
                 browser.tabs.sendMessage(tab, {type: 'fill', pass: data.pass, user: data.login});
-            } catch(e) {
+            } catch (e) {
                 browser.tabs.sendMessage(tab, {type: 'error', error: e});
             }
         }
@@ -41,7 +41,9 @@
         for (const id of items) {
             browser.contextMenus.remove(id);
         }
-        while(items.pop()) {};
+        while (items.pop()) {
+        }
+        ;
         if (url) {
             const domain = url.replace(/^http?s:\/\/(.+?)(\/.*$|$)/, '$1');
             const folders = (await browser.storage.local.get('folders')).folders || {};
@@ -50,21 +52,21 @@
                 if (folders[folder].logins) {
                     for (const login of folders[folder].logins) {
                         if (reg.test(login.public)) {
-                            items.push('walled-secrets-'+login.id);
+                            items.push('walled-secrets-' + login.id);
                             browser.contextMenus.create(
-                              {
-                                id: 'walled-secrets-'+login.id,
-                                title: login.public + ' (' +folders[folder].name + ')',
-                                parentId: 'walled-secrets-selection',
-                              },
-                              onCreated
-                            );
+                                    {
+                                        id: 'walled-secrets-' + login.id,
+                                        title: login.public + ' (' + folders[folder].name + ')',
+                                        parentId: 'walled-secrets-selection',
+                                    },
+                                    onCreated
+                                    );
                         }
                     }
                 }
             }
             const top = domain.split('.');
-            const toplevel = top[top.length-2] + '.' + top[top.length - 1];
+            const toplevel = top[top.length - 2] + '.' + top[top.length - 1];
             if (toplevel === domain) {
                 return;
             }
@@ -72,16 +74,16 @@
             for (const folder of Object.keys(folders)) {
                 if (folders[folder].logins) {
                     for (const login of folders[folder].logins) {
-                        if (reg2.test(login.public) && !items.includes('walled-secrets-'+login.id)) {
-                            items.push('walled-secrets-'+login.id);
+                        if (reg2.test(login.public) && !items.includes('walled-secrets-' + login.id)) {
+                            items.push('walled-secrets-' + login.id);
                             browser.contextMenus.create(
-                              {
-                                id: 'walled-secrets-'+login.id,
-                                title: login.public + ' (' +folders[folder].name + ')',
-                                parentId: 'walled-secrets-selection',
-                              },
-                              onCreated
-                            );
+                                    {
+                                        id: 'walled-secrets-' + login.id,
+                                        title: login.public + ' (' + folders[folder].name + ')',
+                                        parentId: 'walled-secrets-selection',
+                                    },
+                                    onCreated
+                                    );
                         }
                     }
                 }
