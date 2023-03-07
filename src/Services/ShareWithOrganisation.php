@@ -30,7 +30,7 @@ class ShareWithOrganisation
         $this->database
             ->prepare('UPDATE notes SET public=:public,content=:content, name=:name, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
             ->execute([
-                ':owner' => $_SESSION['id'],
+                ':owner' => $owner,
                 ':id' => $id,
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
@@ -55,7 +55,7 @@ class ShareWithOrganisation
         $this->database
             ->prepare('UPDATE logins SET public=:public,pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
             ->execute([
-                ':owner' => $_SESSION['id'],
+                ':owner' => $owner,
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
                 ':domain' => $public->encrypt($domain),
