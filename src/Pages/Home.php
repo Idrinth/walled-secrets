@@ -80,6 +80,13 @@ class Home
                 $this->database
                     ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)')
                     ->execute([':name' => $post['folder'], ':owner ' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
+            } elseif (isset($post['default'])) {
+                $this->database
+                    ->prepare('UPDATE folders SET `default`=0 WHERE `owner`=:owner')
+                    ->execute([':owner ' => $_SESSION['id']]);
+                $this->database
+                    ->prepare('UPDATE folders SET `default`=1 WHERE `type`="Account" AND `owner`=:owner AND id=:id')
+                    ->execute([':owner ' => $_SESSION['id'], ':id' => $post['default']]);
             }
         }
         if (!isset($post['email'])) {

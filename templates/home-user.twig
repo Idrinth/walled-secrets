@@ -17,6 +17,19 @@
     <input id="haveibeenpwned" name="haveibeenpwned" type="checkbox"{% if user.haveibeenpwned==1 %} checked{% endif %} value="1"/>
     <button type="submit">Submit</button>
 </form>
+<h3>Default Folder</h3>
+<p>This is the folder your contacts can send you passwords to.</p>
+<form method="post">
+    <label for="default">Your default folder, where unsorted logins and notes go.</label>
+    <select name="default" id="default">
+        {% for folder in folders %}
+            {% if folder.type=='Account' %}
+                <option value="{{ folder.id }}"{% if folder.default==1 %} selected{% endif %}>{{ folder.name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <button type="submit">Submit</button>
+</form>
 <h2>Folders</h2>
 <p>These store your passwords and secret notes</p>
 <ul>
