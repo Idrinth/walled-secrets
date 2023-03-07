@@ -80,7 +80,7 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
                 $post['note'],
                 $post['identifier']
             );
-            header ('Location: /', true, 303);
+            header ('Location: /socials', true, 303);
             return '';
         } elseif (isset($post['content']) && isset($post['name'])) {
             $stmt = $this->database->prepare('SELECT accounts.id,accounts.aid,folders.aid as folder
@@ -98,7 +98,7 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
                 $post['name'],
                 $post['content']
             );
-            header ('Location: /', true, 303);
+            header ('Location: /socials', true, 303);
             return '';
         }
         $public = KeyLoader::public($_SESSION['uuid']);
