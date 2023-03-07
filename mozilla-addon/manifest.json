@@ -18,6 +18,7 @@
     },
     "background": {
         "scripts": [
+            "shared/api-request.js",
             "libs/esequals.js",
             "libs/webextension-polyfill.min.js",
             "background/background.js",

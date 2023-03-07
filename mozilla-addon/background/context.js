@@ -21,25 +21,9 @@
                 browser.tabs.sendMessage(tab, {type: 'error', error: 'No master password given.'});
                 return;
             }
-            const email = (await browser.storage.local.get('email')).email || '';
-            const apikey = (await browser.storage.local.get('apikey')).apikey || '';
-            const url = (await browser.storage.local.get('url')).url || '';
             const id = (await browser.storage.local.get('id')).id;
             try {
-                const response = await fetch(url + '/api/logins/'+id, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    referrerPolicy: "no-referrer",
-                    body: `apikey=${apikey}&email=${encodeURIComponent(email)}&master=${encodeURIComponent(request.master)}`,
-                });
-                const data = await response.json();
-                if (data.error) {
-                    browser.tabs.sendMessage(tab, {type: 'destroy', error: data.error});
-                    return;
-                }
+                const data = await requestFromAPI('logins', request.master, id);
                 browser.tabs.sendMessage(tab, {type: 'fill', pass: data.pass, user: data.login});
             } catch(e) {
                 browser.tabs.sendMessage(tab, {type: 'error', error: e});
@@ -106,7 +90,9 @@
     };
     browser.tabs.onActivated.addListener(async (activeInfo) => {
         const tab = await browser.tabs.getCurrent();
-        buildPublic(tab.url);
+        if (tab && tab.url) {
+            buildPublic(tab.url);
+        }
     });
     browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         buildPublic(tab.url);
