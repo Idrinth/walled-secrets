@@ -59,7 +59,14 @@ class Logins
             header ('Location: /logins/' . $id, true, 303);
             return '';
         }
-        if ($folder === 'organisation') {
+        if (isset($post['delete'])) {
+            $this->database
+                ->prepare('DELETE FROM logins WHERE id=:id')
+                ->execute([':id' => $id]);
+            header ('Location: /', true, 303);
+            return '';
+        }
+        if ($folder === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute();
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {

@@ -3,12 +3,12 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
-use phpseclib3\Crypt\RSA;
 
 class Notes
 {
@@ -58,7 +58,14 @@ class Notes
             header ('Location: /', true, 303);
             return '';
         }
-        if ($folder === 'organisation') {
+        if (isset($post['delete'])) {
+            $this->database
+                ->prepare('DELETE FROM notes WHERE id=:id')
+                ->execute([':id' => $id]);
+            header ('Location: /', true, 303);
+            return '';
+        }
+        if ($folder === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute();
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
@@ -116,9 +123,16 @@ class Notes
             $shared->setKey($note['key']);
             $note['content'] = $shared->decrypt($note['content']);
         }
+        $knowns = [];
+        if ($folder === 'Account') {
+            $stmt = $this->database->prepare('SELECT target FROM knowns WHERE owner=:id');
+            $stmt->execute([':id' => $_SESSION['id']]);
+            $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         return $this->twig->render('note', [
             'note' => $note,
-            'title' => $note['public']
+            'title' => $note['public'],
+            'knows' => $knowns,
         ]);
     }
 }

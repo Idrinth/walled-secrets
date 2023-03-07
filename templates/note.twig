@@ -7,5 +7,12 @@
     <textarea name="content" id="content">{{ note.content }}</textarea>
     <button type="submit">Modify</button>
 </form>
+{% if knowns is not empty %}
+<h2>Delete</h2>
+<form method="post">
+    <input type="hidden" name="delete" value="1">
+    <button type="submit">Delete</button>
+</form>
+{% endif %}
 <script src="copy.js"></script>
 {% include 'footer.twig' %}
