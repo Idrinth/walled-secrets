@@ -37,6 +37,26 @@ class Socials
             'knowns' => $knowns,
         ]);
     }
+    private function addKnown(int $user, int $known, string $uuid, string $comment): void
+    {
+        $public = KeyLoader::public($uuid);
+        $iv = Random::string(16);
+        $key = Random::string(32);
+        $shared = new AES('ctr');
+        $shared->setKeyLength(256);
+        $shared->setKey($key);
+        $shared->setIV($iv);
+        $this->database
+            ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
+            ->execute([
+                ':comment' => $shared->encrypt($comment),
+                ':iv' => $public->encrypt($iv),
+                ':key' => $public->encrypt($key),
+                ':owner' => $user,
+                ':target' => $known,
+                ':id' => Uuid::uuid1()->toString(),
+            ]);
+    }
     public function post(array $post): string
     {
         if (!isset($_SESSION['id'])) {
@@ -93,7 +113,20 @@ class Socials
                 ->prepare('INSERT INTO invites (id,mail,secret,inviter) VALUES (:id,:mail,:secret,:inviter)')
                 ->execute([':id' => $uuid, ':mail' => $post['email'], ':secret' => $id, ':inviter' => $_SESSION['id']]);
         } elseif (isset($post['id']) && isset($post['code'])) {
-            
+            $stmt = $this->database->prepare('SELECT aid,inviter FROM invites WHERE id=:id AND secret=:secret AND ISNULL(invitee)');
+            $stmt->execute([':id' => $post['id'], ':secret' => $post['code']]);
+            $invite = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$invite) {
+                header ('Location: /socials', true, 303);
+                return '';
+            }
+            $this->database
+                ->prepare('UPDATE invitations SET invitee=:invitee WHERE aid=:invite')
+                ->execute([':id' => $invite['aid'], ':invitee' => $_SESSION['id']]);
+            $this->addKnown($_SESSION['id'], $invite['inviter'], $_SESSION['uuid'], 'Was invited by them.');
+            $stmt = $this->database->prepare('SELECT id FROM accounts WHERE aid=:aid');
+            $stmt->execute([':aid' => $invite['inviter']]);
+            $this->addKnown($invite['inviter'], $_SESSION['id'], $stmt->fetchColumn(), 'Invited them.');
         }
         header('Location: /socials', true, 303);
         return '';
