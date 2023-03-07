@@ -23,6 +23,10 @@ The website should work fine with any browser once deployed. If you find issues,
 
 The Firefox addon is currently in review.
 
+## Contributing
+
+Contributions are welcome. Please remember that any contribution done are final and may not be withdrawn at a later date. All contributions are made available under the MITlicence. Got to [the repository](https://github.com/Idrinth/walled-secrets) to contribute.
+
 ## FAQ
 
 ### How secure is my data?
