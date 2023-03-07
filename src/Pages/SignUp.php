@@ -113,7 +113,7 @@ class SignUp
             $this->env->getInt('SYSTEM_QUICK_LOGIN_DURATION')
         );
         $this->database
-            ->prepare('INSERT INTO folders (id,`owner`,`name`) VALUES (:id,:owner,"unsorted")')
+            ->prepare('INSERT INTO folders (id,`owner`,`name`,`default`) VALUES (:id,:owner,"unsorted",1)')
             ->execute([':id' => Uuid::uuid1()->toString(), ':owner' => $new]);
         return '';
     }
