@@ -96,7 +96,8 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
                 $data['folder'],
                 Uuid::uuid1()->toString(),
                 $post['name'],
-                $post['content']
+                $post['content'],
+                $post['public']
             );
             header ('Location: /socials', true, 303);
             return '';

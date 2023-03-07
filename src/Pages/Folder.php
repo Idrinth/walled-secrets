@@ -105,10 +105,10 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->smallShare->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['name'], $post['content']);
+                    $this->smallShare->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['name'], $post['content'], $post['public']);
                 }
             } else {
-                $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['name'], $post['content']);
+                $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['name'], $post['content'], $post['public']);
             }
         }
         header ('Location: /folder/' . $id, true, 303);

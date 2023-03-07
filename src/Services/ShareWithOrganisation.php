@@ -15,7 +15,7 @@ class ShareWithOrganisation
         $this->database = $database;
     }
 
-    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content)
+    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content, string $publicIdentifier)
     {
         $public = KeyLoader::public($uuid);
         $this->database
@@ -35,7 +35,7 @@ class ShareWithOrganisation
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
                 ':name' => $shared->encrypt($name),
-                ':public' => $name,
+                ':public' => $publicIdentifier,
                 ':content' => $shared->encrypt($content),
             ]);
     }

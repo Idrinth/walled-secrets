@@ -60,7 +60,7 @@ class ShareFolderWithOrganisation
                 $note['content'] = $shared->decrypt($note['content']);
             }
             foreach ($members as $row) {
-                $this->share->updateNote($row['aid'], $row['id'], $folder, $note['id'], $note['name'], $note['content']);
+                $this->share->updateNote($row['aid'], $row['id'], $folder, $note['id'], $note['name'], $note['content'], $note['public']);
             }
         }
     }
