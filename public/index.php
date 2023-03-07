@@ -22,7 +22,6 @@ use De\Idrinth\WalledSecrets\Pages\PrivacyPolicy;
 use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
 use De\Idrinth\WalledSecrets\Pages\Socials;
-use De\Idrinth\WalledSecrets\Services\Database;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
 use Twig\Loader\FilesystemLoader;
@@ -30,7 +29,12 @@ use Twig\Loader\FilesystemLoader;
 require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Application())
-    ->register(new Database())
+    ->register(new PDO(
+        'mysql:host=' . $_ENV['DATABASE_HOST'] . ';dbname=' . $_ENV['DATABASE_DATABASE'],
+        $_ENV['DATABASE_USER'],
+        $_ENV['DATABASE_PASSWORD'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING]
+    ))
     ->register(new FilesystemLoader(__DIR__ . '/../templates'))
     ->register(new AES('ctr'))
     ->register(new Blowfish('ctr'))

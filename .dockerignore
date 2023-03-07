@@ -1,0 +1,10 @@
+/vendor/**/test
+/vendor/**/tests
+/vendor/**/example
+/vendor/**/exampled
+/vendor/**/doc
+/vendor/bin
+/vendor/**/*.md
+/vendor/**/.*
+/vendor/**/phpunit.xml
+/vendor/**/psalm.xml

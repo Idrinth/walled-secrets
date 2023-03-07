@@ -4,8 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4db66cf98e299843a7629d264558bf48",
+    "content-hash": "22c5e2a4cf818071596f921db85a237b",
     "packages": [
+        {
+            "name": "alejoluc/lazypdo",
+            "version": "0.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alejoluc/LazyPDO.git",
+                "reference": "23422756c2f3b9c2de8229953b9c00913f360702"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alejoluc/LazyPDO/zipball/23422756c2f3b9c2de8229953b9c00913f360702",
+                "reference": "23422756c2f3b9c2de8229953b9c00913f360702",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "alejoluc\\LazyPDO\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alejo Lucangeli",
+                    "email": "alejolucangeli@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PDO Drop-in replacement that only makes a connection when needed",
+            "homepage": "https://github.com/alejoluc/LazyPDO",
+            "keywords": [
+                "database",
+                "lazy",
+                "pdo"
+            ],
+            "support": {
+                "issues": "https://github.com/alejoluc/LazyPDO/issues",
+                "source": "https://github.com/alejoluc/LazyPDO/tree/v0.2.6"
+            },
+            "time": "2018-06-25T11:46:13+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.9.3",
