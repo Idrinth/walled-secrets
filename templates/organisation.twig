@@ -19,16 +19,18 @@
         {% endif %}
     </form>
 {% endfor %}
-<h2>Propose a friend</h2>
-<form method="post">
-    <label for="known">User</label>
-    <select name="known" id="known">
-        {% for known in knows %}
-            <option value="{{ known.id }}">{{ known.display }} ({{ known.id }})</option>
-        {% endfor %}
-    </select>
-    <button type="submit">Propose</button>
-</form>
+{% if knowns is not empty %}
+    <h2>Propose a friend</h2>
+    <form method="post">
+        <label for="known">User</label>
+        <select name="known" id="known">
+            {% for known in knows %}
+                <option value="{{ known.id }}">{{ known.display }} ({{ known.id }})</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Propose</button>
+    </form>
+{% endif %}
 <h2>Folders</h2>
 <ul>
     {% for folder in folders %}

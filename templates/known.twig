@@ -5,4 +5,25 @@
     <textarea name="note" id="note">{{ known.note }}</textarea>
     <button type="submit">Modify</button>
 </form>
+<h2>New Login</h2>
+<form method="post">
+    <label for="identifier">Public Identifier</label>
+    <input type="text" name="identifier" id="identifier"/>
+    <label for="user">Username</label>
+    <input type="text" name="user" id="user"/>
+    <label for="domain">Domain</label>
+    <input type="text" name="domain" id="domain"/>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password"/>
+    <label for="note">Note for the password</label>
+    <textarea name="note" id="note"></textarea>
+    <button type="submit">Send</button>
+</form>
+<h2>New Note</h2>
+<form method="post">
+    <label for="name">Name</label>
+    <input type="text" name="name" id="name"/>
+    <textarea name="content"></textarea>
+    <button type="submit">Send</button>
+</form>
 {% include 'footer.twig' %}
