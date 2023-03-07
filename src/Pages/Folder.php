@@ -98,7 +98,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                     $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
                 }
             } else {
-                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['identifier']);
+                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note'], $post['identifier']);
             }
         } elseif (isset($post['content']) && isset($post['name'])) {
             if ($isOrganisation) {
