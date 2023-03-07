@@ -29,6 +29,7 @@ class Socials
             header('Location: /', true, 303);
             return '';
         }
+        $stmt = $this->database->prepare('SELECT display,knowns.id,accounts.id as uid FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
         $stmt->execute([':id' => $_SESSION['id']]);
         $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $this->twig->render('socials', [
