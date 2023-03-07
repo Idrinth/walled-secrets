@@ -3,10 +3,13 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Random;
 use Ramsey\Uuid\Uuid;
 
 class Socials
@@ -32,9 +35,13 @@ class Socials
         $stmt = $this->database->prepare('SELECT display,knowns.id,accounts.id as uid FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
         $stmt->execute([':id' => $_SESSION['id']]);
         $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
+        $stmt->execute([':id' => $_SESSION['id']]);
+        $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $this->twig->render('socials', [
             'title' => 'Home',
             'knowns' => $knowns,
+            'organisations' => $organisations,
         ]);
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
@@ -127,7 +134,14 @@ class Socials
             $stmt = $this->database->prepare('SELECT id FROM accounts WHERE aid=:aid');
             $stmt->execute([':aid' => $invite['inviter']]);
             $this->addKnown($invite['inviter'], $_SESSION['id'], $stmt->fetchColumn(), 'Invited them.');
-        }
+        } elseif (isset($post['organisation'])) {
+                $this->database
+                    ->prepare('INSERT INTO organisations (`name`,id) VALUES (:name,:uuid)')
+                    ->execute([':name' => $post['organisation'], ':uuid' => Uuid::uuid1()->toString()]);
+                $this->database
+                    ->prepare('INSERT INTO memberships (organisation,account,role) VALUES (:organisation,:account,"Owner")')
+                    ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
+            }
         header('Location: /socials', true, 303);
         return '';
     }

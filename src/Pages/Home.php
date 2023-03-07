@@ -46,14 +46,10 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM folders WHERE (`owner`=:id AND `type`="Account") OR (`type`="Organisation" AND `owner` IN (SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id))');
             $stmt->execute([':id' => $_SESSION['id']]);
             $folders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
-            $stmt->execute([':id' => $_SESSION['id']]);
-            $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $this->twig->render('home-user', [
                 'title' => 'Home',
                 'user' => $user,
                 'folders' => $folders,
-                'organisations' => $organisations,
             ]);
         }
         if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
@@ -84,13 +80,6 @@ class Home
                 $this->database
                     ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)')
                     ->execute([':name' => $post['folder'], ':owner ' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
-            } elseif (isset($post['organisation'])) {
-                $this->database
-                    ->prepare('INSERT INTO organisations (`name`,id) VALUES (:name,:uuid)')
-                    ->execute([':name' => $post['organisation'], ':uuid' => Uuid::uuid1()->toString()]);
-                $this->database
-                    ->prepare('INSERT INTO memberships (organisation,account,role) VALUES (:organisation,:account,"Owner")')
-                    ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
             }
         }
         if (!isset($post['email'])) {

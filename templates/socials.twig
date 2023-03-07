@@ -1,5 +1,23 @@
 {% include 'header.twig' %}
-<h1>Known Users</h1>
+<h1>Socials</h1>
+<h2>Organisations</h2>
+<p>These allow you to share passwords and secret notes.</p>
+<ul>
+    {% for organisation in organisations %}
+        {% if organisation.role == 'Proposed' %}
+            <li>{{ organisation.name }} ({{ organisation.role }})</li>
+        {% else %}
+            <li><a href="/organisation/{{ organisation.id }}">{{ organisation.name }} ({{ organisation.role }})</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
+<h3>New</h3>
+<form method="post">
+    <label for="organisation">Your Organisation's name</label>
+    <input type="text" placeholder="League of Evil" id="organisation" name="organisation" required/>
+    <button type="submit">Create</button>
+</form>
+<h2>Known Users</h2>
 <p>These are the people you already know on this platform.</p>
 <ul>
     {% for known in knowns %}
