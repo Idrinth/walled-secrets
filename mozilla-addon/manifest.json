@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "version": "1.1.0",
+    "version": "1.2.0",
     "name": "idrinth/walled-secrets",
     "author": "Björn 'Idrinth' Büttner",
     "homepage_url": "https://github.com/idrinth/walled-secrets",
@@ -33,6 +33,28 @@
             ]
         }
     ],
+    "browser_action": {
+        "browser_style": true,
+        "default_icon": {
+            "16": "icons/16x16.png",
+            "32": "icons/32x32.png",
+            "192": "icons/192x192.png",
+            "512": "icons/512x512.png"
+        },
+        "default_title": "Walled Secrets",
+        "default_popup": "popup/login.html",
+        "theme_icons": [
+            {
+                "light": "icons/16x16.png",
+                "dark": "icons/16x16.png",
+                "size": 16
+            }, {
+                "light": "icons/32x32.png",
+                "dark": "icons/32x32.png",
+                "size": 32
+            }
+        ]
+    },
     "options_ui": {
         "browser_style": true,
         "page": "config/login.html"

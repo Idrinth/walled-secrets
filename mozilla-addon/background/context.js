@@ -2,8 +2,6 @@
     function onCreated() {
       if (browser.runtime.lastError) {
         console.log(`Error: ${browser.runtime.lastError}`);
-      } else {
-        console.log("Item created successfully");
       }
     }
     browser.contextMenus.create(
@@ -16,17 +14,19 @@
     );
     const items = [];
     browser.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-        sendResponse('');
         if (request.type==='master') {
+            sendResponse('');
+            const tab = (await browser.storage.local.get('tab')).tab;
             if (!request.master) {
-                browser.tabs.sendMessage(request.tab, {type: 'destroy', error: 'No master password given.'});
+                browser.tabs.sendMessage(tab, {type: 'error', error: 'No master password given.'});
                 return;
             }
             const email = (await browser.storage.local.get('email')).email || '';
             const apikey = (await browser.storage.local.get('apikey')).apikey || '';
             const url = (await browser.storage.local.get('url')).url || '';
+            const id = (await browser.storage.local.get('id')).id;
             try {
-                const response = await fetch(url + '/api/logins/'+request.id, {
+                const response = await fetch(url + '/api/logins/'+id, {
                     method: 'POST',
                     mode: 'cors',
                     headers: {
@@ -37,21 +37,20 @@
                 });
                 const data = await response.json();
                 if (data.error) {
-                    browser.tabs.sendMessage(request.tab, {type: 'destroy', error: data.error});
+                    browser.tabs.sendMessage(tab, {type: 'destroy', error: data.error});
                     return;
                 }
-                browser.tabs.sendMessage(request.tab, {type: 'fill', pass: data.pass, user: data.login});
+                browser.tabs.sendMessage(tab, {type: 'fill', pass: data.pass, user: data.login});
             } catch(e) {
-                browser.tabs.sendMessage(request.tab, {type: 'destroy', error: e});
+                browser.tabs.sendMessage(tab, {type: 'error', error: e});
             }
         }
+        return false;
     });
     browser.contextMenus.onClicked.addListener(async (info, tab) => {
         if (info.menuItemId !== 'walled-secrets-selection') {
-            browser.tabs.sendMessage(
-                tab.id,
-                {type: 'master', tab: tab.id, id: info.menuItemId.replace(/^walled-secrets-/, '')}
-            );
+            browser.storage.local.set({tab: tab.id, id: info.menuItemId.replace(/^walled-secrets-/, '')});
+            browser.browserAction.openPopup();
         }
     });
     const buildPublic = async (url) => {
