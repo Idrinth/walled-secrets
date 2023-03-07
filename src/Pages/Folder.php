@@ -73,7 +73,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             return '';
         }
         if (isset($post['delete'])) {
-            if (in_array($folder['role'], ['Administrator', 'Owner'], true)) {
+            if ($folder['default'] === '0' && in_array($folder['role'], ['Administrator', 'Owner'], true)) {
                 $this->database
                     ->prepare('DELETE FROM logins WHERE folder=:id')
                     ->execute([':id' => $folder['aid']]);

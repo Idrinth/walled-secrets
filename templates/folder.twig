@@ -6,10 +6,12 @@
         <input type="text" name="folder" id="foldername" value="{{ folder.name }}"/>
         <button type="submit">Modify</button>
     </form>
-    <form method="post">
-        <input type="hidden" name="delete" value="1"/>
-        <button type="submit">Delete</button>
-    </form>
+    {% if folder.default==0 %}
+        <form method="post">
+            <input type="hidden" name="delete" value="1"/>
+            <button type="submit">Delete</button>
+        </form>
+    {% endif %}
     {% if not isOrganisation and organisations is not empty %}
         <form method="post">
             <label for="organisation">Organisation</label>
