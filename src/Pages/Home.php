@@ -77,9 +77,11 @@ class Home
                 $stmt->bindValue(':ak', PasswordGenerator::make());
                 $stmt->execute();
             } elseif (isset($post['folder'])) {
-                $this->database
-                    ->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)')
-                    ->execute([':name' => $post['folder'], ':owner ' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
+                $stmt = $this->database->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)');
+                $stmt->bindValue(':name', $post['folder']);
+                $stmt->bindValue(':owner', $_SESSION['id']);
+                $stmt->bindValue(':id', Uuid::uuid1()->toString());
+                $stmt->execute();
             } elseif (isset($post['default'])) {
                 $this->database
                     ->prepare('UPDATE folders SET `default`=0 WHERE `owner`=:owner')
