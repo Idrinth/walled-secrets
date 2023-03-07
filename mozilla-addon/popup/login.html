@@ -1,22 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Walled Secrets</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            form {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-            }
-        </style>
+        <link rel="stylesheet" href="../shared/base-styles.css"/>
         <script src="../libs/webextension-polyfill.min.js"></script>
     </head>
     <body>
-        <form>
+        <form class="browser-style">
             <label for="master">Master-Password</label>
             <input type="password" id="master"/>
-            <button type="button">Decrypt</button>
+            <button class="browser-style" type="button">Decrypt</button>
         </form>
         <p>Decrypting the data is not quick, give it a bit of time.</p>
         <script src="login.js"></script>

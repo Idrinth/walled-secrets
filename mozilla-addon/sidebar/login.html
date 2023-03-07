@@ -1,31 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Walled Secrets</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            form {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-            }
-            div {
-                position: absolute;
-                background: #eee;
-                top:0;
-                bottom:0;
-                left:0;
-                right: 0;
-                width: 100%;
-                height: 100%;
-            }
-        </style>
+        <link rel="stylesheet" href="../shared/base-styles.css"/>
         <script src="../libs/webextension-polyfill.min.js"></script>
     </head>
     <body>
         <a href="folderlist.html">Back to folder list</a>
         <h1></h1>
-        <form>
+        <form class="browser-style">
             <label for="id">Secret-ID</label>
             <input type="text" disabled id="id"/>
             <label for="username">Username</label>
@@ -35,14 +20,14 @@
             <label for="password">Password</label>
             <input type="text" disabled id="password"/>
             <label for="note">Note</label>
-            <textarea disabled id="note"></textarea>
+            <textarea class="browser-style" disabled id="note"></textarea>
         </form>
-        <div>
+        <div class="modal">
             <a href="folderlist.html">Back to folder list</a>
-            <form>
+            <form class="browser-style">
                 <label for="master">Master-Password</label>
                 <input type="password" id="master"/>
-                <button type="button">Decrypt</button>
+                <button class="browser-style" type="button">Decrypt</button>
             </form>
             <p>Decrypting the data is not quick, give it a bit of time.</p>
         </div>

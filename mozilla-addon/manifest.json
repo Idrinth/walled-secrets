@@ -36,6 +36,7 @@
     ],
     "browser_action": {
         "browser_style": true,
+        "chrome_style": true,
         "default_icon": {
             "16": "icons/16x16.png",
             "32": "icons/32x32.png",
@@ -58,9 +59,12 @@
     },
     "options_ui": {
         "browser_style": true,
+        "chrome_style": true,
         "page": "config/login.html"
     },
     "sidebar_action": {
+        "chrome_style": true,
+        "browser_style": true,
         "default_icon": {
             "16": "icons/16x16.png",
             "32": "icons/32x32.png",
