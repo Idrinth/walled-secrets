@@ -1,0 +1,27 @@
+<!DOCTYLE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Friend Request at {{ hostname }}</title>
+    </head>
+    <body>
+        <h1>Friend Request at {{ hostname }}</h1>
+        <p>Hello {{ name }}!</p>
+        <p>You were offered a connection by {{ sender }}.</p>
+        <p>If you aren't interested, just ignore the mail - repeated requests from {{ sender }} are not possibly.</p>
+        <p>To acceppt enter the following values at <a href="https://{{ hostname }}/socials">Socials</a>:</p>
+        <table>
+            <tr>
+                <th>ID</th>
+                <td>{{ uuid }}</td>
+            </tr>
+            <tr>
+                <th>Code</th>
+                <td>{{ password }}</td>
+            </tr>
+        </table>
+        <p>Have a great day,<br/>Your Walled Secrets Bot</p>
+        <br />
+        <p>The site {{ hostname }} is hosted and operated by Björn 'Idrinth' Büttner, see the <a href="https://{{ hostname }}/imprint">imprint</a> for more information.</p>
+    </body>
+</html>

@@ -1,0 +1,25 @@
+{% include 'header.twig' %}
+<h1>Known Users</h1>
+<p>These are the people you already know on this platform.</p>
+<ul>
+    {% for known in knowns %}
+        <li><a href="/knowns/{{ known.id }}">{{ known.display }} ({{ known.uid }})</a></li>
+    {% endfor %}
+</ul>
+<h3>Accept invite</h3>
+<form method="post">
+    <label for="id">The invite ID</label>
+    <input type="text" id="id" name="id" required/>
+    <label for="code">The invite code</label>
+    <input type="text" id="code" name="code" required/>
+    <button type="submit">Accept</button>
+</form>
+<h3>Invite New</h3>
+<form method="post">
+    <label for="name">Your Friend's name</label>
+    <input type="text" placeholder="Max Mustermann" id="name" name="name" required/>
+    <label for="email">Your Friend's eMail</label>
+    <input type="email" id="email" name="email" required/>
+    <button type="submit">Invite</button>
+</form>
+{% include 'footer.twig' %}

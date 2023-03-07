@@ -49,15 +49,11 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
             $stmt->execute([':id' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt = $this->database->prepare('SELECT iv,`key`,note,display,knowns.id,accounts.id as uid FROM accounts INNER JOIN knowns ON knowns.target=accounts.aid WHERE knowns.owner=:id');
-            $stmt->execute([':id' => $_SESSION['id']]);
-            $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $this->twig->render('home-user', [
                 'title' => 'Home',
                 'user' => $user,
                 'folders' => $folders,
                 'organisations' => $organisations,
-                'knowns' => $knowns,
             ]);
         }
         if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
@@ -95,38 +91,7 @@ class Home
                 $this->database
                     ->prepare('INSERT INTO memberships (organisation,account,role) VALUES (:organisation,:account,"Owner")')
                     ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
-            } elseif (isset($post['email']) && isset($post['name'])) {
-                $stmt = $this->database->prepare('SELECT aid FROM invites WHERE mail=:mail AND inviter=:id');
-                $stmt->execute([':id' => $_SESSION['id'], ':mail' => $post['email']]);
-                if ($stmt->fetchColumn() !== false) {
-                    header('Location: /', true, 303);
-                    return '';
-                }
-                $id = PasswordGenerator::make();
-                $uuid = Uuid::uuid1()->toString();
-                $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:id');
-                $stmt->execute([':id' => $_SESSION['id']]);
-                $sender = $stmt->fetchColumn();
-                $this->mailer->send(
-                    0,
-                    'invite',
-                    [
-                        'hostname' => $this->env->getString('SYSTEM_HOSTNAME'),
-                        'password' => $id,
-                        'uuid' => $uuid,
-                        'name' => $post['name'],
-                        'sender' => $sender,
-                    ],
-                    'Invite to ' . $this->env->getString('SYSTEM_HOSTNAME'),
-                    $post['email'],
-                    $post['name']
-                 );
-                $this->database
-                    ->prepare('INSERT INTO invites (id,mail,secret,inviter) VALUES (:id,:mail,:secret,:inviter)')
-                    ->execute([':id' => $uuid, ':mail' => $post['email'], ':secret' => $id, ':inviter' => $_SESSION['id']]);
             }
-            header('Location: /', true, 303);
-            return '';
         }
         if (!isset($post['email'])) {
             header('Location: /', true, 303);

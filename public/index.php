@@ -21,6 +21,7 @@ use De\Idrinth\WalledSecrets\Pages\Organisation;
 use De\Idrinth\WalledSecrets\Pages\PrivacyPolicy;
 use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
+use De\Idrinth\WalledSecrets\Pages\Socials;
 use De\Idrinth\WalledSecrets\Services\Database;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -40,6 +41,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->get('/imprint', Imprint::class)
     ->get('/faq', FAQ::class)
     ->get('/eula', Eula::class)
+    ->get('/socials', Socials::class)
+    ->post('/socials', Socials::class)
     ->get('/master', Master::class)
     ->post('/master', Master::class)
     ->get('/import', Importer::class)
