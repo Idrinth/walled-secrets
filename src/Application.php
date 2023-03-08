@@ -95,9 +95,9 @@ class Application
                         case 'GET':
                             $this->result($obj->get(...array_values($vars)));
                         case 'POST':
-                            $this->result($obj->post($_POST, ...array_values($vars)));
+                            $this->result($obj->post($this->filteredPost(), ...array_values($vars)));
                         case 'PUT':
-                            $this->result($obj->put($_POST, ...array_values($vars)));
+                            $this->result($obj->put($this->filteredPost(), ...array_values($vars)));
                         case 'DELETE':
                             $this->result($obj->delete(...array_values($vars)));
                     }
@@ -108,5 +108,15 @@ class Application
                 }
                 break;
         }
+    }
+    private function filteredPost(): array
+    {
+        $out = [];
+        foreach ($_POST as $key => $value) {
+            if (!empty($value)) {
+                $out[$key] = $value;
+            }
+        }
+        return $out;
     }
 }
