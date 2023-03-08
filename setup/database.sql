@@ -1,14 +1,17 @@
 CREATE TABLE IF NOT EXISTS `accounts` (
   `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'auto increment for in database use',
   `id` char(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL COMMENT 'uuid for external use',
+  `apikey` char(255) NOT NULL DEFAULT '',
   `mail` varchar(255) NOT NULL DEFAULT '' COMMENT 'account email',
   `display` varchar(255) NOT NULL COMMENT 'display name',
   `identifier` varchar(255) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL DEFAULT '' COMMENT 'temporary identifier for login',
   `since` datetime DEFAULT NULL COMMENT 'datetime until identifier is valid',
   `notify` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT 'if activated you will be notified of invites and messages',
+  `haveibeenpwned` tinyint(3) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`aid`),
   UNIQUE KEY `mail` (`mail`),
-  UNIQUE KEY `id` (`id`)
+  UNIQUE KEY `id` (`id`),
+  KEY `mail_apikey` (`mail`,`apikey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='your user accounts';
 
 CREATE TABLE IF NOT EXISTS `chats` (
@@ -42,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `folders` (
   `name` varchar(255) NOT NULL COMMENT 'foldername - unencrypted',
   `owner` bigint(20) unsigned NOT NULL COMMENT 'owner of the folder',
   `type` enum('Account','Organisation') NOT NULL DEFAULT 'Account' COMMENT 'What kind of owner it is',
+  `default` tinyint(3) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `name_owner` (`name`,`owner`),
@@ -74,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `knowns` (
   `note` longblob NOT NULL COMMENT 'an AES encrypted note about the target user',
   `iv` longblob NOT NULL COMMENT 'RSA encrypted iv for the AES encryption',
   `key` longblob NOT NULL COMMENT 'RSA encrypted key for the AES encryption',
+  `id` char(36) NOT NULL,
   PRIMARY KEY (`owner`,`target`) USING BTREE,
   KEY `FK_knownusers_accounts_2` (`target`) USING BTREE,
   CONSTRAINT `knowns_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `accounts` (`aid`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -172,3 +177,9 @@ CREATE TABLE IF NOT EXISTS `tag_note` (
   PRIMARY KEY (`tag`,`note`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE IF NOT EXISTS `waspwned` (
+  `id` char(36) NOT NULL,
+  `checked` datetime NOT NULL,
+  `pwned` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -4,6 +4,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\Mailer;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
@@ -20,9 +21,11 @@ class Knowns
     private Blowfish $blowfish;
     private ENV $env;
     private ShareWithOrganisation $share;
-
-    public function __construct(PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    private Mailer $mailer;
+    
+    public function __construct(Mailer $mailer, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->mailer = $mailer;
         $this->database = $database;
         $this->twig = $twig;
         $this->aes = $aes;
@@ -69,35 +72,67 @@ INNER JOIN folders ON knowns.target=folders.`owner` AND folders.`default` AND fo
 WHERE knowns.`owner`=:owner AND knowns.id=:id');
             $stmt->execute([':id' => $id, ':owner' => $_SESSION['id']]);
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            $login = Uuid::uuid1()->toString();
+            $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:aid');
+            $stmt->execute([':aid' => $_SESSION['aid']]);
+            $sender = $stmt->fetchColumn();
             $this->share->updateLogin(
                 $data['aid'],
                 $data['id'],
                 $data['folder'],
-                Uuid::uuid1()->toString(),
+                $login,
                 $post['user'],
                 $post['password'],
                 $post['domain'],
                 $post['note'],
                 $post['identifier']
             );
+            $this->mailer->send(
+                $data['aid'],
+                'new-login',
+                [
+                    'public' => $post['identifier'],
+                    'sender' => $sender,
+                    'id' => $login,
+                ],
+                'Login added at ' . $this->env->getString('SYSTEM_HOSTNAME'),
+                $data['email'],
+                $data['display']
+            );
             header ('Location: /socials', true, 303);
             return '';
         } elseif (isset($post['content']) && isset($post['name'])) {
-            $stmt = $this->database->prepare('SELECT accounts.id,accounts.aid,folders.aid as folder
+            $stmt = $this->database->prepare('SELECT accounts.display,accounts.mail,accounts.id,accounts.aid,folders.aid as folder
 FROM accounts
 INNER JOIN knowns ON knowns.target=accounts.aid
 INNER JOIN folders ON knowns.target=folders.`owner` AND folders.`default` AND folders.`type`="Account"
 WHERE knowns.`owner`=:owner AND knowns.id=:id');
             $stmt->execute([':id' => $id, ':owner' => $_SESSION['id']]);
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            $note = Uuid::uuid1()->toString();
+            $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:aid');
+            $stmt->execute([':aid' => $_SESSION['aid']]);
+            $sender = $stmt->fetchColumn();
             $this->share->updateNote(
                 $data['aid'],
                 $data['id'],
                 $data['folder'],
-                Uuid::uuid1()->toString(),
+                $note,
                 $post['name'],
                 $post['content'],
                 $post['public']
+            );
+            $this->mailer->send(
+                $data['aid'],
+                'new-note',
+                [
+                    'public' => $post['public'],
+                    'sender' => $sender,
+                    'id' => $note,
+                ],
+                'Note added at ' . $this->env->getString('SYSTEM_HOSTNAME'),
+                $data['email'],
+                $data['display']
             );
             header ('Location: /socials', true, 303);
             return '';

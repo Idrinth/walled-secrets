@@ -25,6 +25,8 @@ class Mailer
             error_log("$toMail is blacklisted");
             return false;
         }
+        $templateContext['hostname'] = $_ENV['SYSTEM_HOSTNAME'];
+        $templateContext['contact'] = $_ENV['SYSTEM_CONTACT_NAME'];
         $mailer = new PHPMailer();
         $mailer->setFrom($_ENV['MAIL_FROM_MAIL'], $_ENV['MAIL_FROM_NAME']);
         $mailer->addAddress($toMail, $toName);

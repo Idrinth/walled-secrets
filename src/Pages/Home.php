@@ -111,7 +111,7 @@ class Home
                 $this->mailer->send(
                     $user['aid'],
                     'login',
-                    ['hostname' => $this->env->getString('SYSTEM_HOSTNAME'), 'password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],
+                    ['password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],
                     'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
                     $post['email'],
                     $user['display']

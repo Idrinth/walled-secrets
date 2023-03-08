@@ -2,13 +2,13 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <title>{{ subject }}</title>
+        <title>Login added at {{ hostname }}</title>
     </head>
     <body>
-        <h1>{{ subject }}</h1>
+        <h1>Login added at {{ hostname }}</h1>
         <p>Hello {{ name }}!</p>
-        <p>Someone requested to login with your account. If that wasn't you, just ignore this mail.</p>
-        <p>To login please visit <a href="https://{{ hostname }}/login/{{ uuid }}/{{ password }}">here</a>.</p>
+        <p>You were given a login with the public name "{{ public }}" by {{ sender }}.</p>
+        <p>The login is available in your public folder or <a href="https://{{ hostname }}/logins/{{ id }}">directly.</p>
         <p>Have a great day,<br/>Your Walled Secrets Bot</p>
         <br />
         <p>The site {{ hostname }} is hosted and operated by {{ contact }}, see the <a href="https://{{ hostname }}/imprint">imprint</a> for more information.</p>

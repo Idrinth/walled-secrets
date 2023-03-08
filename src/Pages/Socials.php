@@ -90,7 +90,6 @@ class Socials
                     $reciever,
                     'friend-request',
                     [
-                        'hostname' => $this->env->getString('SYSTEM_HOSTNAME'),
                         'password' => $id,
                         'uuid' => $uuid,
                         'name' => $post['name'],
@@ -105,7 +104,6 @@ class Socials
                     0,
                     'invite',
                     [
-                        'hostname' => $this->env->getString('SYSTEM_HOSTNAME'),
                         'password' => $id,
                         'uuid' => $uuid,
                         'name' => $post['name'],
