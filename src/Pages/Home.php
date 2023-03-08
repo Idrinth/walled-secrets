@@ -110,7 +110,7 @@ class Home
             header('Location: /', true, 303);
             return '';
         }
-        if (!isset($user['since']) || strtotime($user['since']) < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')) {
+        if (strtotime($user['since'] ?? 'now') < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')) {
             $id = PasswordGenerator::make();
             $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
             $this->mailer->send(
@@ -129,7 +129,8 @@ class Home
         return $this->twig->render('home-mailed', [
             'title' => 'Login',
             'mail' => $post['email'],
-            'minutes' => ceil($this->env->getInt('SYSTEM_SESSION_DURATION')/60)
+            'minutes' => ceil($this->env->getInt('SYSTEM_SESSION_DURATION')/60),
+            'disableRefresh' => true
         ]);
     }
 }
