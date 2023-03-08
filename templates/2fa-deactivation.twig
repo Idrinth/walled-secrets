@@ -1,5 +1,5 @@
 {% include 'header.twig' %}
-<img src="{{ source }}" alt="QR-Code"/>
+<img src="data:image/svg+xml;base64,{{ source }}" alt="QR-Code"/>
 <form method="post">
     <label for="secret">Code</label>
     <input type="password" id="secret" name="secret"/>

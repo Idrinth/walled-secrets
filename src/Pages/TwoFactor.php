@@ -39,20 +39,20 @@ class TwoFactor
             $_SESSION['2fakey'] = $this->twoFactor->generateSecretKey($this->env->getInt('2FA_SECRET_LENGTH'));
             return $this->twig->render('2fa-activation', [
                 'title' => 'Activate 2FA',
-                'source' => $this->twoFactor->getQRCodeInline(
+                'source' => base64_encode($this->twoFactor->getQRCodeInline(
                     $this->env->getString('2FA_COMPANY_NAME'),
                     $this->env->getString('2FA_COMPANY_EMAIL'),
                     $_SESSION['2fakey']
-                ),
+                )),
             ]);
         }
         return $this->twig->render('2fa-deactivation', [
             'title' => 'Deactivate 2FA',
-            'source' => $this->twoFactor->getQRCodeInline(
+            'source' => base64_encode($this->twoFactor->getQRCodeInline(
                 $this->env->getString('2FA_COMPANY_NAME'),
                 $this->env->getString('2FA_COMPANY_EMAIL'),
                 $twofactor
-            ),
+            )),
         ]);
     }
     public function post(array $post): string
