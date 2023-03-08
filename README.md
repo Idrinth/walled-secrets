@@ -15,6 +15,12 @@ A small password manager, supporting proper sharing. Want to discuss the project
 - Folders
   - unlimited folders per user
   - organise your secrets by folder
+- Secrets
+  - Notes (name, public identifier, content)
+  - Logins (domain, username, password, public identifier, note)
+- Imports
+  - Keepass XML
+  - Bitwarden JSON
 
 ## Installation
 
