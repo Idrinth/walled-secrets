@@ -10,11 +10,21 @@ class Login
 {
     private PDO $database;
     private ENV $env;
+    private AES $aes;
+    private Blowfish $blowfish;
 
-    public function __construct(PDO $database, ENV $env)
+    public function __construct(PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
     {
         $this->database = $database;
         $this->env = $env;
+        $this->aes = $aes;
+        $this->blowfish = $blowfish;
+        $this->aes->setKeyLength(256);
+        $this->aes->setKey($this->env->getString('PASSWORD_KEY'));
+        $this->aes->setIV($this->env->getString('PASSWORD_IV'));
+        $this->blowfish->setKeyLength(448);
+        $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
+        $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
     public function get(string $id, string $password): string
     {
