@@ -40,7 +40,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
         }
         if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
             if (touch($this->getFile($id))) {
-                flock(fopen($this->getFile($id)), LOCK_EX);
+                flock(fopen($this->getFile($id), 'rw'), LOCK_EX);
             }
         }
         return '';
