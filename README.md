@@ -4,16 +4,16 @@ A small password manager, supporting proper sharing. Want to discuss the project
 ## Features
 
 - Organisations
- - shared passwords
- - shared notes
+  - shared passwords
+  - shared notes
 - Socials
- - notes on known members
- - create notes for a person
- - create login for a person (password reset etc.)
- - invite new person to join the app
+  - notes on known members
+  - create notes for a person
+  - create login for a person (password reset etc.)
+  - invite new person to join the app
 - Folders
- - unlimited folders per user
- - organise your secrets by folder
+  - unlimited folders per user
+  - organise your secrets by folder
 
 ## Installation
 
