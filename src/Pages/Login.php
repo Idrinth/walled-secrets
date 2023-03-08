@@ -22,6 +22,13 @@ class Login
         $stmt->execute([':id' => $id, ':password' => $password]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
+            try {
+                $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
+                KeyLoader::private($id, $master);
+            } catch (Exception $ex) {
+                header('Location: /', true, 303);
+                return '';
+            }
             if (strtotime($user['since']) + $this->env->getInt('SYSTEM_SESSION_DURATION') > time()) {
                 $_SESSION['id'] = $user['aid'];
                 $_SESSION['uuid'] = $id;
