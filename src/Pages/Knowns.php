@@ -64,7 +64,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
             header ('Location: /socials', true, 303);
             return '';
         }
-        if (isset($post['identifier']) && isset($post['user']) && isset($post['domain']) && isset($post['password']) && isset($post['note']) && isset($post['identifier'])) {
+        if (isset($post['identifier']) && isset($post['user']) && isset($post['domain']) && isset($post['password']) && isset($post['identifier'])) {
             $stmt = $this->database->prepare('SELECT accounts.id,accounts.aid,folders.aid as folder
 FROM accounts
 INNER JOIN knowns ON knowns.target=accounts.aid
@@ -84,7 +84,7 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
                 $post['user'],
                 $post['password'],
                 $post['domain'],
-                $post['note'],
+                $post['note'] ?? '',
                 $post['identifier']
             );
             $this->mailer->send(
