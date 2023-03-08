@@ -48,11 +48,6 @@ class TwoFactor
         }
         return $this->twig->render('2fa-deactivation', [
             'title' => 'Deactivate 2FA',
-            'source' => base64_encode($this->twoFactor->getQRCodeInline(
-                $this->env->getString('2FA_COMPANY_NAME'),
-                $this->env->getString('2FA_COMPANY_EMAIL'),
-                $twofactor
-            )),
         ]);
     }
     public function post(array $post): string
@@ -68,14 +63,14 @@ class TwoFactor
             if ($this->twoFactor->verifyKey($_SESSION['2fakey'], $post['secret'], 0)) {
                 $this->database
                     ->prepare('UPDATE accounts set `2fa`=:fa WHERE aid=:aid')
-                    ->execute($_SESSION['id']);
+                    ->execute([':aid' => $_SESSION['id'], ':fa' => $_SESSION['2fakey']]);
             }
             unset($_SESSION['2fakey']);
         } elseif ($twofactor && isset($post['secret'])) {
             if ($this->twoFactor->verify($post['secret'], $twofactor, 0)) {
                 $this->database
                     ->prepare('UPDATE accounts set `2fa`="" WHERE aid=:aid')
-                    ->execute($_SESSION['id']);
+                    ->execute([':aid' => $_SESSION['id']]);
             }
         }
         header('Location: /2fa', true, 303);
