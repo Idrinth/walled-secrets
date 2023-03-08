@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
@@ -16,14 +17,16 @@ class Folder
     private ENV $env;
     private ShareFolderWithOrganisation $bigShare;
     private ShareWithOrganisation $smallShare;
+    private May2F $twoFactor;
 
-    public function __construct(PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, ShareWithOrganisation $smallShare)
+    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, ShareWithOrganisation $smallShare)
     {
         $this->database = $database;
         $this->env = $env;
         $this->twig = $twig;
         $this->bigShare = $bigShare;
         $this->smallShare = $smallShare;
+        $this->twoFactor = $twoFactor;
     }
 
     public function post(array $post, string $id): string
@@ -52,6 +55,10 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         if (!isset($_SESSION['password'])) {
             session_destroy();
             header ('Location: /', true, 303);
+            return '';            
+        }
+        if (!$this->twoFactor->may($post['code'], $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+            header ('Location: /folder/' . $id, true, 303);
             return '';            
         }
         if (isset($post['organisation'])) {

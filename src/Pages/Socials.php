@@ -5,6 +5,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
+use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
@@ -18,9 +19,11 @@ class Socials
     private PDO $database;
     private Mailer $mailer;
     private ENV $env;
+    private May2F $twoFactor;
 
-    public function __construct(Twig $twig, PDO $database, Mailer $mailer, ENV $env)
+    public function __construct(May2F $twoFactor, Twig $twig, PDO $database, Mailer $mailer, ENV $env)
     {
+        $this->twoFactor = $twoFactor;
         $this->env = $env;
         $this->twig = $twig;
         $this->database = $database;
@@ -69,6 +72,10 @@ class Socials
         if (!isset($_SESSION['id'])) {
             header('Location: /', true, 303);
             return '';
+        }
+        if (!$this->twoFactor->may($post['auth'], $_SESSION['id'])) {
+            header ('Location: /socials', true, 303);
+            return '';            
         }
         if (isset($post['email']) && isset($post['name'])) {
             $stmt = $this->database->prepare('SELECT aid FROM invites WHERE mail=:mail AND inviter=:id');

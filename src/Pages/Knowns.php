@@ -5,6 +5,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
+use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
@@ -22,9 +23,11 @@ class Knowns
     private ENV $env;
     private ShareWithOrganisation $share;
     private Mailer $mailer;
+    private May2F $twoFactor;
     
-    public function __construct(Mailer $mailer, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    public function __construct(May2F $twoFactor, Mailer $mailer, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->twoFactor = $twoFactor;
         $this->mailer = $mailer;
         $this->database = $database;
         $this->twig = $twig;
@@ -62,6 +65,10 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
         $known = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$known) {
             header ('Location: /socials', true, 303);
+            return '';
+        }
+        if (!$this->twoFactor->may($post['code'], $_SESSION['id'])) {
+            header ('Location: /knowns/'.$id, true, 303);
             return '';
         }
         if (isset($post['identifier']) && isset($post['user']) && isset($post['domain']) && isset($post['password']) && isset($post['identifier'])) {

@@ -17,6 +17,10 @@
     <input type="password" name="password" id="password"/>
     <label for="note">Note for the password</label>
     <textarea name="note" id="note"></textarea>
+    {% if twoFactor %}
+        <label for="logincode">Auth-Code</label>
+        <input type="password" required name="code" id="logincode"/>
+    {% endif %}
     <button type="submit">Send</button>
 </form>
 <h2>New Note</h2>
@@ -25,7 +29,12 @@
     <input type="text" name="public" id="public"/>
     <label for="name">Name</label>
     <input type="text" name="name" id="name"/>
-    <textarea name="content"></textarea>
+    <label for="content">Content</label>
+    <textarea name="content" id="content"></textarea>
+    {% if twoFactor %}
+        <label for="notecode">Auth-Code</label>
+        <input type="password" required name="code" id="notecode"/>
+    {% endif %}
     <button type="submit">Send</button>
 </form>
 {% include 'footer.twig' %}

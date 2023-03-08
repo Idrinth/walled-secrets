@@ -18,9 +18,11 @@ class Notes
     private Blowfish $blowfish;
     private ENV $env;
     private ShareWithOrganisation $share;
+    private May2F $twoFactor;
 
-    public function __construct(PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->twoFactor = $twoFactor;
         $this->database = $database;
         $this->twig = $twig;
         $this->aes = $aes;
@@ -48,15 +50,21 @@ class Notes
         $stmt->execute([':aid' => $login['folder']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         $mayEdit = true;
+        $isOrganisation = false;
         if ($folder === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
             $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
             $role = $stmt->fetchColumn();
             $mayEdit = in_array($role, ['Administrator', 'Owner', 'Member'], true);
+            $isOrganisation = true;
         }
         if (!$mayEdit) {
             header ('Location: /', true, 303);
             return '';
+        }
+        if (!$this->twoFactor->may($post['code'], $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+            header ('Location: /logins/' . $id, true, 303);
+            return '';            
         }
         if (isset($post['delete'])) {
             $this->database

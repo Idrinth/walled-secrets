@@ -56,6 +56,10 @@ class Organisation
             header ('Location: /', true, 303);
             return '';
         }
+        if (!$this->twoFactor->may($post['code'], $_SESSION['id'], $organisation['aid'])) {
+            header ('Location: /organisation/'.$id, true, 303);
+            return '';            
+        }
         if (isset($post['folder']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
             $this->database
                 ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:id, "Organisation")')

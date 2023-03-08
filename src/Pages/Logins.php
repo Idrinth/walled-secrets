@@ -5,6 +5,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 use Curl\Curl;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
@@ -19,9 +20,11 @@ class Logins
     private Blowfish $blowfish;
     private ENV $env;
     private ShareWithOrganisation $share;
+    private May2F $twoFactor;
 
-    public function __construct(PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->twoFactor = $twoFactor;
         $this->database = $database;
         $this->twig = $twig;
         $this->aes = $aes;
@@ -49,15 +52,21 @@ class Logins
         $stmt->execute([':aid' => $login['folder']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         $mayEdit = true;
+        $isOrganisation = false;
         if ($folder === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
             $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
             $role = $stmt->fetchColumn();
             $mayEdit = in_array($role, ['Administrator', 'Owner', 'Member'], true);
+            $isOrganisation = true;
         }
         if (!$mayEdit) {
             header ('Location: /logins/' . $id, true, 303);
             return '';
+        }
+        if (!$this->twoFactor->may($post['code'], $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+            header ('Location: /logins/' . $id, true, 303);
+            return '';            
         }
         if (isset($post['delete'])) {
             $this->database

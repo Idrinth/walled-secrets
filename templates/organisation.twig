@@ -15,6 +15,10 @@
             <option{% if member.role == 'Owner' %} selected{% endif %}>Owner</option>
         </select>
         {% if organisation.role == 'Administrator' or organisation.role == 'Owner' %}
+            {% if twoFactor %}
+                <label for="rolecode">Auth-Code</label>
+                <input type="password" required name="code" id="rolecode"/>
+            {% endif %}
             <button type="submit">Modify</button>
         {% endif %}
     </form>
@@ -28,6 +32,10 @@
                 <option value="{{ known.id }}">{{ known.display }} ({{ known.id }})</option>
             {% endfor %}
         </select>
+        {% if twoFactor %}
+            <label for="invitecode">Auth-Code</label>
+            <input type="password" required name="code" id="invitecode"/>
+        {% endif %}
         <button type="submit">Propose</button>
     </form>
 {% endif %}
@@ -42,6 +50,10 @@
     <form method="post">
         <label for="folder">Your Folder's name</label>
         <input type="text" placeholder="home" id="folder" name="folder" required/>
+        {% if twoFactor %}
+            <label for="foldercode">Auth-Code</label>
+            <input type="password" required name="code" id="foldercode"/>
+        {% endif %}
         <button type="submit">Create</button>
     </form>
 {% endif %}

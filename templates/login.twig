@@ -12,11 +12,19 @@
     <input type="text" name="password" id="password" value="{{ login.pass }}"/>
     <label for="note">Note for the password</label>
     <textarea name="note" id="note">{{ login.note }}</textarea>
+    {% if twoFactor %}
+        <label for="modifycode">Auth-Code</label>
+        <input type="password" required name="code" id="modifycode"/>
+    {% endif %}
     <button type="submit">Modify</button>
 </form>
 {% if knowns is not empty %}
 <h2>Delete</h2>
 <form method="post">
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="password" required name="code" id="deletecode"/>
+    {% endif %}
     <input type="hidden" name="delete" value="1">
     <button type="submit">Delete</button>
 </form>

@@ -15,6 +15,10 @@
 <form method="post">
     <label for="organisation">Your Organisation's name</label>
     <input type="text" placeholder="League of Evil" id="organisation" name="organisation" required/>
+    {% if twoFactor %}
+        <label for="orgcode">Auth-Code</label>
+        <input type="password" required name="auth" id="orgcode"/>
+    {% endif %}
     <button type="submit">Create</button>
 </form>
 <h2>Known Users</h2>
@@ -30,6 +34,10 @@
     <input type="text" id="id" name="id" required/>
     <label for="code">The invite code</label>
     <input type="text" id="code" name="code" required/>
+    {% if twoFactor %}
+        <label for="acceptcode">Auth-Code</label>
+        <input type="password" required name="auth" id="acceptcode"/>
+    {% endif %}
     <button type="submit">Accept</button>
 </form>
 <h3>Invite New</h3>
@@ -38,6 +46,10 @@
     <input type="text" placeholder="Max Mustermann" id="name" name="name" required/>
     <label for="email">Your Friend's eMail</label>
     <input type="email" id="email" name="email" required/>
+    {% if twoFactor %}
+        <label for="invitecode">Auth-Code</label>
+        <input type="password" required name="auth" id="invitecode"/>
+    {% endif %}
     <button type="submit">Invite</button>
 </form>
 {% include 'footer.twig' %}

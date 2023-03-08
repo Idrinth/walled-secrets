@@ -4,10 +4,18 @@
     <form method="post">
         <label for="foldername">Name</label>
         <input type="text" name="folder" id="foldername" value="{{ folder.name }}"/>
+        {% if twoFactor %}
+            <label for="foldercode">Auth-Code</label>
+            <input type="password" required name="code" id="foldercode"/>
+        {% endif %}
         <button type="submit">Modify</button>
     </form>
     {% if folder.default==0 %}
         <form method="post">
+            {% if twoFactor %}
+                <label for="deletecode">Auth-Code</label>
+                <input type="password" required name="code" id="deletecode"/>
+            {% endif %}
             <input type="hidden" name="delete" value="1"/>
             <button type="submit">Delete</button>
         </form>
@@ -20,6 +28,10 @@
                     <option value="{{ organisation.id }}">{{ organisation.name }}</option>
                 {% endfor %}
             </select>
+            {% if twoFactor %}
+                <label for="orgcode">Auth-Code</label>
+                <input type="password" required name="code" id="orgcode"/>
+            {% endif %}
             <button type="submit">Move</button>
         </form>
     {% endif %}
@@ -43,6 +55,10 @@
         <input type="password" name="password" id="password"/>
         <label for="note">Note for the password</label>
         <textarea name="note" id="note"></textarea>
+        {% if twoFactor %}
+            <label for="logincode">Auth-Code</label>
+            <input type="password" required name="code" id="logincode"/>
+        {% endif %}
         <button type="submit">Add</button>
     </form>
 {% endif %}
@@ -59,7 +75,12 @@
         <input type="text" name="public" id="public"/>
         <label for="name">Name</label>
         <input type="text" name="name" id="name"/>
-        <textarea name="content"></textarea>
+        <label for="content">Content</label>
+        <textarea name="content" id="content"></textarea>
+        {% if twoFactor %}
+            <label for="notecode">Auth-Code</label>
+            <input type="password" required name="code" id="notecode"/>
+        {% endif %}
         <button type="submit">Add</button>
     </form>
 {% endif %}
