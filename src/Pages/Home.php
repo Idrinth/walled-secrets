@@ -90,8 +90,10 @@ class Home
                     ->prepare('UPDATE folders SET `default`=1 WHERE `type`="Account" AND `owner`=:owner AND id=:id')
                     ->execute([':owner' => $_SESSION['id'], ':id' => $post['default']]);
             }
+            header('Location: /', true, 303);
+            return '';
         }
-        if (!isset($post['email'])) {
+        if (!isset($post['email']) || !isset($post['password'])) {
             header('Location: /', true, 303);
             return '';
         }
