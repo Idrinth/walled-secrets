@@ -15,6 +15,7 @@ use De\Idrinth\WalledSecrets\Pages\Imprint;
 use De\Idrinth\WalledSecrets\Pages\Knowns;
 use De\Idrinth\WalledSecrets\Pages\Login;
 use De\Idrinth\WalledSecrets\Pages\Logins;
+use De\Idrinth\WalledSecrets\Pages\Mailed;
 use De\Idrinth\WalledSecrets\Pages\Master;
 use De\Idrinth\WalledSecrets\Pages\Notes;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
@@ -44,6 +45,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->get('/api/ping', Ping::class)
     ->get('/imprint', Imprint::class)
     ->get('/faq', FAQ::class)
+    ->get('/mailed', Mailed::class)
     ->get('/eula', Eula::class)
     ->get('/socials', Socials::class)
     ->post('/socials', Socials::class)
