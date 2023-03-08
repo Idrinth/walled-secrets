@@ -37,6 +37,7 @@ class Access
         }
         $blacklist = new IPSet($routes);
         if ($blacklist->match($ip)) {
+            error_log("$ip blocked by server blacklist.");
             return false;
         }
         if (!isset($_SESSION['id'])) {
@@ -51,6 +52,7 @@ class Access
         }
         $personalBlacklist = new IPSet($this->stringToList($ips['ip_blacklist']));
         if ($personalBlacklist->match($ip)) {
+            error_log("$ip blocked by user blacklist.");
             return false;
         }
         return true;
