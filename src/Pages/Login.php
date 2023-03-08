@@ -4,7 +4,11 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use PDO;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Blowfish;
+use Swoole\MySQL\Exception;
 
 class Login
 {
