@@ -106,7 +106,7 @@ class Home
                     header('Location: /', true, 303);
                     return '';
                 }
-                $id = $this->makeOneTimePass();
+                $id = PasswordGenerator::make();
                 $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
                 $this->mailer->send(
                     $user['aid'],
