@@ -10,7 +10,8 @@ A small password manager, supporting proper sharing. Want to discuss the project
   - notes on known members
   - create notes for a person
   - create login for a person (password reset etc.)
-  - invite new person to join the app
+  - invite new person to join the app by email
+  - invite new people to know them by email
 - Folders
   - unlimited folders per user
   - organise your secrets by folder
