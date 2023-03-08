@@ -91,7 +91,7 @@
         }
     };
     browser.tabs.onActivated.addListener(async (activeInfo) => {
-        const tab = await browser.tabs.getCurrent();
+        const tab = await browser.tabs.get(activeInfo.tabId);
         if (tab && tab.url) {
             buildPublic(tab.url);
         }
