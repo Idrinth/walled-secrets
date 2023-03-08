@@ -26,7 +26,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     }
     public function write($id, $data)
     {
-        flock(fopen($this->getFile($id)), LOCK_UN);
+        flock(fopen($this->getFile($id), 'rw'), LOCK_UN);
         if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
             return (bool) file_put_contents($this->getFile($id), $data);
         }
@@ -35,7 +35,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     public function read($id)
     {
         if ($this->exists($id)) {
-            flock(fopen($this->getFile($id)), LOCK_EX);
+            flock(fopen($this->getFile($id), 'rw'), LOCK_EX);
             return file_get_contents($this->getFile($id)) ?: '';
         }
         if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
@@ -48,7 +48,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     public function destroy($id)
     {
         if ($this->exists($id)) {
-            flock(fopen($this->getFile($id)), LOCK_UN);
+            flock(fopen($this->getFile($id), 'rw'), LOCK_UN);
             return unlink($this->getFile($id));
         }
         return false;
