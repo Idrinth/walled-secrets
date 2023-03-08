@@ -23,6 +23,7 @@ use De\Idrinth\WalledSecrets\Pages\PrivacyPolicy;
 use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
 use De\Idrinth\WalledSecrets\Pages\Socials;
+use De\Idrinth\WalledSecrets\Pages\TwoFactor;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
 use Twig\Loader\FilesystemLoader;
@@ -72,4 +73,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/organisation/{id}', Organisation::class)
     ->post('/api/list-secrets', ListSecrets::class)
     ->get('/api/open-api.json', OpenApi::class)
+    ->post('/2fa', TwoFactor::class)
+    ->get('/2fa', TwoFactor::class)
     ->run();
