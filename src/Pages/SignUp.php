@@ -46,7 +46,14 @@ class SignUp
             header ('Location: /', true, 303);
             return '';
         }
-        return $this->twig->render('register', ['title' => 'Registration', 'disableRefresh' => true]);
+        return $this->twig->render(
+            'register',
+            [
+                'title' => 'Registration',
+                'disableRefresh' => true,
+                'minPasswordLength' => $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')
+            ]
+        );
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {
@@ -71,6 +78,10 @@ class SignUp
     public function post(array $post, string $id, string $pass): string
     {
         if (!isset($post['name']) || !isset($post['email'])) {
+            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            return '';
+        }
+        if (!isset($post['password']) || strlen($post['password']) < $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')) {
             header ('Location: /register/'.$id.'/'.$pass, true, 303);
             return '';
         }

@@ -2,11 +2,11 @@
 <h1>Register</h1>
 <form method="post">
     <label for="email">eMail</label>
-    <input type="email" name="email" id="email"/>
+    <input type="email" required name="email" id="email"/>
     <label for="name">Displayed Name</label>
-    <input type="text" name="name" id="name"/>
+    <input type="text" required name="name" id="name"/>
     <label for="password">Master Password</label>
-    <input type="password" name="password" id="password"/>
+    <input type="password" required minlength="{{ minPasswordLength }}" name="password" id="password"/>
     <button type="submit">Register</button>
 </form>
 {% include 'footer.twig' %}
