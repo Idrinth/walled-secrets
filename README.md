@@ -42,7 +42,7 @@ The website should work fine with any browser once deployed. If you find issues,
 
 #### Firefox Browser Addon
 
-The Firefox addon is currently in review.
+The Firefox addon is available [here](https://addons.mozilla.org/en-US/firefox/addon/idrinth-walled-secrets/).
 
 ## Contributing
 
