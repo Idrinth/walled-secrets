@@ -126,11 +126,7 @@ class Home
                 ->execute([':id' => $id, ':aid' => $user['aid']]);
 
         }
-        return $this->twig->render('home-mailed', [
-            'title' => 'Login',
-            'mail' => $post['email'],
-            'minutes' => ceil($this->env->getInt('SYSTEM_SESSION_DURATION')/60),
-            'disableRefresh' => true
-        ]);
+        header('Location: /mailed', true, 303);
+        return '';
     }
 }
