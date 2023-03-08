@@ -45,7 +45,7 @@
         }
         ;
         if (url) {
-            const domain = url.replace(/^http?s:\/\/(.+?)(\/.*$|$)/, '$1');
+            const domain = url.replace(/^http?s:\/\/(.+?)(:[0-9]+)?(\/.*$|$)/, '$1');
             const folders = (await browser.storage.local.get('folders')).folders || {};
             const reg = new RegExp(domain, 'i');
             for (const folder of Object.keys(folders)) {
@@ -92,9 +92,7 @@
     };
     browser.tabs.onActivated.addListener(async (activeInfo) => {
         const tab = await browser.tabs.get(activeInfo.tabId);
-        if (tab && tab.url) {
-            buildPublic(tab.url);
-        }
+        buildPublic(tab && tab.url ? tab.url : '');
     });
     browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         buildPublic(tab.url);
