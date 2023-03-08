@@ -101,7 +101,7 @@ class Home
         if ($user) {
             if (!isset($user['since']) || strtotime($user['since']) < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')) {
                 try {
-                    KeyLoader::private($_SESSION['uuid'], $post['password']);
+                    KeyLoader::private($user['id'], $post['password']);
                 } catch (Exception $ex) {
                     header('Location: /', true, 303);
                     return '';
