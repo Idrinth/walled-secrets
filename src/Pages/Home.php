@@ -98,29 +98,31 @@ class Home
         $stmt = $this->database->prepare('SELECT id, display, since, aid FROM accounts WHERE mail=:mail');
         $stmt->execute([':mail' => $post['email']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($user) {
-            if (!isset($user['since']) || strtotime($user['since']) < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')) {
-                try {
-                    KeyLoader::private($user['id'], $post['password']);
-                } catch (Exception $ex) {
-                    header('Location: /', true, 303);
-                    return '';
-                }
-                $id = PasswordGenerator::make();
-                $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
-                $this->mailer->send(
-                    $user['aid'],
-                    'login',
-                    ['password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],
-                    'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
-                    $post['email'],
-                    $user['display']
-                 );
-                $this->database
-                    ->prepare('UPDATE accounts SET since=NOW(),identifier=:id WHERE aid=:aid')
-                    ->execute([':id' => $id, ':aid' => $user['aid']]);
-                
-            }
+        if (!$user) {
+            header('Location: /', true, 303);
+            return '';
+        }
+        try {
+            KeyLoader::private($user['id'], $post['password']);
+        } catch (Exception $ex) {
+            header('Location: /', true, 303);
+            return '';
+        }
+        if (!isset($user['since']) || strtotime($user['since']) < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')) {
+            $id = PasswordGenerator::make();
+            $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
+            $this->mailer->send(
+                $user['aid'],
+                'login',
+                ['password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],
+                'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
+                $post['email'],
+                $user['display']
+             );
+            $this->database
+                ->prepare('UPDATE accounts SET since=NOW(),identifier=:id WHERE aid=:aid')
+                ->execute([':id' => $id, ':aid' => $user['aid']]);
+
         }
         return $this->twig->render('home-mailed', [
             'title' => 'Login',
