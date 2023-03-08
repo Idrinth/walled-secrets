@@ -30,6 +30,8 @@
     </select>
     <button type="submit">Submit</button>
 </form>
+{% if twoFactor %}<h3>2FA</h3>
+<p>It is a good idea to setup <a href="/2fa">2 Factor Authentication</a>. It helps protect your data against modification and deletion.{% endif %}
 <h2>Folders</h2>
 <p>These store your passwords and secret notes</p>
 <ul>

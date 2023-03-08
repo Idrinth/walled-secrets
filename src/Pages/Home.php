@@ -50,6 +50,7 @@ class Home
                 'title' => 'Home',
                 'user' => $user,
                 'folders' => $folders,
+                'twoFactor' => $this->env->getInt('2FA_SECRET_LENGTH') !== 0
             ]);
         }
         if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {

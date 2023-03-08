@@ -56,6 +56,10 @@ class TwoFactor
             header('Location: /', true, 303);
             return '';
         }
+        if ($this->env->getInt('2FA_SECRET_LENGTH') === 0) {
+            header('Location: /', true, 303);
+            return '';
+        }
         $stmt = $this->database->prepare('SELECT `2fa` FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $_SESSION['id']]);
         $twofactor = $stmt->fetchColumn();
