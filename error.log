@@ -1,0 +1,4 @@
+[08-Mar-2023 21:54:31 UTC] PHP Fatal error:  Uncaught Error: Class 'Factory' not found in C:\NetBeansProjects\walled-secrets\bin\cron.php:11
+Stack trace:
+#0 {main}
+  thrown in C:\NetBeansProjects\walled-secrets\bin\cron.php on line 11

@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets;
 
+use De\Idrinth\WalledSecrets\Services\Access;
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\DependencyInjector;
 use De\Idrinth\WalledSecrets\Services\SessionHandler;
@@ -65,6 +66,11 @@ class Application
     }
     public function run(): void
     {
+        $access = $this->di->init(new ReflectionClass(Access::class));
+        if (!$access->may($_SERVER['REMOTE_ADDR'])) {
+            header('Content-Type: text/plain', true, 403);
+            die('IP not allowed.');
+        }
         $dispatcher = simpleDispatcher(function(RouteCollector $r) {
             foreach ($this->routes as $path => $data) {
                 foreach($data as $method => $func) {

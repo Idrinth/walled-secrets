@@ -23,6 +23,11 @@ class ENV
         }
         return $_ENV[$name] ?? '';
     }
+    public function getStringList(string $name): array
+    {
+        $data = explode(',', $this->getString($name));
+        return array_filter(array_map('trim', $data));
+    }
     public function getInt(string $name): int
     {
         if (isset($this->env[$name])) {
