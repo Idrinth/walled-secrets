@@ -32,6 +32,10 @@ class Login
     }
     public function get(string $id, string $password): string
     {
+        if (!isset($_SESSION['password'])) {
+            header('Location: /', true, 303);
+            return '';
+        }
         $stmt = $this->database->prepare('SELECT aid,since,mail FROM accounts WHERE id=:id AND identifier=:password');
         $stmt->execute([':id' => $id, ':password' => $password]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
