@@ -90,6 +90,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 header ('Location: /notes/' . $id, true, 303);
                 return '';
             }
+            set_time_limit(0);
             $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
             $private = KeyLoader::private($_SESSION['uuid'], $master);
             if ($note['content']) {
