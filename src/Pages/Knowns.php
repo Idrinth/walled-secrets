@@ -71,7 +71,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
             header ('Location: /knowns/'.$id, true, 303);
             return '';
         }
-        if (isset($post['identifier']) && isset($post['user']) && isset($post['domain']) && isset($post['password']) && isset($post['identifier'])) {
+        if (isset($post['identifier']) && isset($post['user']) && isset($post['password']) && isset($post['identifier'])) {
             $stmt = $this->database->prepare('SELECT accounts.id,accounts.aid,folders.aid as folder
 FROM accounts
 INNER JOIN knowns ON knowns.target=accounts.aid
@@ -90,7 +90,6 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
                 $login,
                 $post['user'],
                 $post['password'],
-                $post['domain'],
                 $post['note'] ?? '',
                 $post['identifier']
             );
@@ -108,7 +107,7 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
             );
             header ('Location: /socials', true, 303);
             return '';
-        } elseif (isset($post['content']) && isset($post['name'])) {
+        } elseif (isset($post['content']) && isset($post['public'])) {
             $stmt = $this->database->prepare('SELECT accounts.display,accounts.mail,accounts.id,accounts.aid,folders.aid as folder
 FROM accounts
 INNER JOIN knowns ON knowns.target=accounts.aid
@@ -125,7 +124,6 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id');
                 $data['id'],
                 $data['folder'],
                 $note,
-                $post['name'],
                 $post['content'],
                 $post['public']
             );

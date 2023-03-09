@@ -41,13 +41,13 @@ class Notes
     {
         $stmt = $this->database->prepare('SELECT * FROM logins WHERE id=:id AND `account`=:account');
         $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
-        $login = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$login) {
+        $note = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$note) {
             header ('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT `type`,`owner` FROM folders WHERE aid=:aid');
-        $stmt->execute([':aid' => $login['folder']]);
+        $stmt->execute([':aid' => $note['folder']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         $mayEdit = true;
         $isOrganisation = false;
@@ -90,17 +90,28 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 header ('Location: /notes/' . $id, true, 303);
                 return '';
             }
+            $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
+            $private = KeyLoader::private($_SESSION['uuid'], $master);
+            if ($note['content']) {
+                $note['iv'] = $private->decrypt($note['iv']);
+                $note['key'] = $private->decrypt($note['key']);
+                $shared = new AES('ctr');
+                $shared->setIV($note['iv']);
+                $shared->setKeyLength(256);
+                $shared->setKey($note['key']);
+                $post['content'] = $shared->decrypt($note['content']);
+            }
         }
         if ($isOrganisation) {
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute();
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
-                $this->share->updateNote($user['aid'], $user['id'], $login['folder'], $id, $post['name'], $post['content'], $post['identifier']);
+                $this->share->updateNote($user['aid'], $user['id'], $login['folder'], $id, $post['content'], $post['identifier']);
             }
             header ('Location: /notes/' . $id, true, 303);
             return '';
         }
-        $this->share->updateNote($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['name'], $post['content'], $post['identifier']);
+        $this->share->updateNote($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['content'], $post['identifier']);
         header ('Location:  /notes/' . $id, true, 303);
         return '';
     }

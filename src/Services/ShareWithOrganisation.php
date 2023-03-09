@@ -15,7 +15,7 @@ class ShareWithOrganisation
         $this->database = $database;
     }
 
-    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $name, string $content, string $publicIdentifier)
+    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $content, string $publicIdentifier)
     {
         $public = KeyLoader::public($uuid);
         $this->database
@@ -28,23 +28,22 @@ class ShareWithOrganisation
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE notes SET public=:public,content=:content, name=:name, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
+            ->prepare('UPDATE notes SET public=:public,content=:content, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
             ->execute([
                 ':owner' => $owner,
                 ':id' => $id,
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
-                ':name' => $shared->encrypt($name),
                 ':public' => $publicIdentifier,
                 ':content' => $shared->encrypt($content),
             ]);
     }
 
-    public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $domain, string $note, string $publicIdentifier)
+    public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $note, string $publicIdentifier)
     {
         $public = KeyLoader::public($uuid);
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (public,domain,pass,login,iv,`key`,`note`,id,`account`,folder) VALUES ("","","","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO logins (public,pass,login,iv,`key`,`note`,id,`account`,folder) VALUES ("","","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -53,12 +52,11 @@ class ShareWithOrganisation
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE logins SET public=:public,pass=:pass, domain=:domain, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
+            ->prepare('UPDATE logins SET public=:public,pass=:pass, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
             ->execute([
                 ':owner' => $owner,
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
-                ':domain' => $public->encrypt($domain),
                 ':public' => $publicIdentifier,
                 ':login' => $public->encrypt($login),
                 ':key' => $public->encrypt($key),

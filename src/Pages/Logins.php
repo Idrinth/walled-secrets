@@ -92,17 +92,30 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 header ('Location: /logins/' . $id, true, 303);
                 return '';
             }
+            $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
+            $private = KeyLoader::private($_SESSION['uuid'], $master);
+            $post['user'] = $private->decrypt($login['login']);
+            $post['password'] = $private->decrypt($login['pass']);
+            if ($login['note']) {
+                $login['iv'] = $private->decrypt($login['iv']);
+                $login['key'] = $private->decrypt($login['key']);
+                $shared = new AES('ctr');
+                $shared->setIV($login['iv']);
+                $shared->setKeyLength(256);
+                $shared->setKey($login['key']);
+                $post['note'] = $shared->decrypt($login['note']);
+            }
         }
         if ($isOrganisation) {
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute([':org' => $folder['owner']]);
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
-                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['domain'], $post['note']??'', $post['identifier']);
+                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['note']??'', $post['identifier']);
             }
             header ('Location: /logins/' . $id, true, 303);
             return '';
         }
-        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['domain'], $post['note']??'', $post['identifier']);
+        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['note']??'', $post['identifier']);
         header ('Location: /logins/' . $id, true, 303);
         return '';
     }
@@ -145,7 +158,6 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
         $private = KeyLoader::private($_SESSION['uuid'], $master);
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
-        $login['domain'] = $private->decrypt($login['domain']);
         if ($login['note']) {
             $login['iv'] = $private->decrypt($login['iv']);
             $login['key'] = $private->decrypt($login['key']);

@@ -49,7 +49,6 @@ class ShareFolderWithOrganisation
         $stmt = $this->database->prepare('SELECT * FROM notes WHERE folder=:folder AND `account`=:id');
         $stmt->execute([':folder' => $folder, ':id' => $this->user]);
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $note) {
-            $note['name'] = $this->private->decrypt($note['name']);
             if ($note['content']) {
                 $note['iv'] = $this->private->decrypt($note['iv']);
                 $note['key'] = $this->private->decrypt($note['key']);
@@ -60,7 +59,7 @@ class ShareFolderWithOrganisation
                 $note['content'] = $shared->decrypt($note['content']);
             }
             foreach ($members as $row) {
-                $this->share->updateNote($row['aid'], $row['id'], $folder, $note['id'], $note['name'], $note['content'], $note['public']);
+                $this->share->updateNote($row['aid'], $row['id'], $folder, $note['id'], $note['content'], $note['public']);
             }
         }
     }
@@ -71,7 +70,6 @@ class ShareFolderWithOrganisation
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $login) {
             $login['login'] = $this->private->decrypt($login['login']);
             $login['pass'] = $this->private->decrypt($login['pass']);
-            $login['domain'] = $this->private->decrypt($login['domain']);
             if ($login['note']) {
                 $login['iv'] = $this->private->decrypt($login['iv']);
                 $login['key'] = $this->private->decrypt($login['key']);
@@ -82,7 +80,7 @@ class ShareFolderWithOrganisation
                 $login['note'] = $shared->decrypt($login['note']);
             }
             foreach ($members as $row) {
-                $this->share->updateLogin($row['aid'], $row['id'], $folder, $login['id'], $login['user'], $login['password'], $login['domain'], $login['note'], $login['identifier']);
+                $this->share->updateLogin($row['aid'], $row['id'], $folder, $login['id'], $login['user'], $login['password'], $login['note'], $login['identifier']);
             }
         }
     }

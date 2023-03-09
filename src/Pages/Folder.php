@@ -97,25 +97,25 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         if (!isset($post['id'])) {
             $post['id'] = Uuid::uuid1();
         }
-        if (isset($post['domain']) && isset($post['password']) && isset($post['user']) && isset($post['identifier'])) {
+        if (isset($post['password']) && isset($post['user']) && isset($post['identifier'])) {
             if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note']??'', $post['identifier']);
+                    $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note']??'', $post['identifier']);
                 }
             } else {
-                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['domain'], $post['note']??'', $post['identifier']);
+                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note']??'', $post['identifier']);
             }
-        } elseif (isset($post['content']) && isset($post['name'])) {
+        } elseif (isset($post['content']) && isset($post['public'])) {
             if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->smallShare->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['name'], $post['content'], $post['public']);
+                    $this->smallShare->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['content'], $post['public']);
                 }
             } else {
-                $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['name'], $post['content'], $post['public']);
+                $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['content'], $post['public']);
             }
         }
         header ('Location: /folder/' . $id, true, 303);

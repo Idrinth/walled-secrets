@@ -47,7 +47,6 @@ class Login
         }
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
-        $login['domain'] = $private->decrypt($login['domain']);
         if ($login['note']) {
             $login['iv'] = $private->decrypt($login['iv']);
             $login['key'] = $private->decrypt($login['key']);
@@ -62,7 +61,6 @@ class Login
             'id' => $login['id'],
             'login' => $login['login'],
             'pass' => $login['pass'],
-            'domain' => $login['domain'],
             'note' => $login['note'],
         ]);
     }

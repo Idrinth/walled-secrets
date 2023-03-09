@@ -55,7 +55,6 @@ class Importer
                     $note = '';
                     $password = '';
                     $login = '';
-                    $domain = '';
                     $publicIdentifier = '';
                     for ($k = 0; $k < $secret->childNodes->length; $k++) {
                         $data = $secret->childNodes->item($k);
@@ -71,8 +70,7 @@ class Importer
                                     $password = $data->getElementsByTagName('Value')->item(0)->nodeValue;
                                     break;
                                 case 'URL':
-                                    $domain = preg_replace('/http?s:\/\/(.+?)($|\/.*$)/', '$1', $data->getElementsByTagName('Value')->item(0)->nodeValue);
-                                    $publicIdentifier .= ' ' . $domain;
+                                    $publicIdentifier .= ' ' . preg_replace('/http?s:\/\/(.+?)($|\/.*$)/', '$1', $data->getElementsByTagName('Value')->item(0)->nodeValue);
                                     break;
                                 case 'Notes':
                                     $note = $data->getElementsByTagName('Value')->item(0)->nodeValue;
@@ -87,7 +85,6 @@ class Importer
                         Uuid::uuid1()->toString(),
                         $login,
                         $password,
-                        $domain,
                         $note,
                         trim($publicIdentifier)
                     );
@@ -120,7 +117,6 @@ class Importer
                     Uuid::uuid1()->toString(),
                     $item['login']['username'] ?? '',
                     $item['login']['password'] ?? '',
-                    '',
                     '',
                     $item['name'],
                 );
