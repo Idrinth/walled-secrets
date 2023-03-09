@@ -53,7 +53,7 @@
         {% if folder.type=='Account' %}
             <li><a href="/folder/{{ folder.id }}">{{ folder.name }}</a></li>
         {% else %}
-            <li><a href="/folder/{{ folder.id }}">{{ folder.name }} ({{ prganisations[folder.owner] }})</a></li>
+            <li><a href="/folder/{{ folder.id }}">{{ folder.name }} ({{ organisations[folder.owner] }})</a></li>
         {% endif %}
     {% endfor %}
 </ul>
