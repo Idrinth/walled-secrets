@@ -105,7 +105,7 @@ class Organisation
         }
         if (isset($post['known'])) {
             $stmt = $this->database->prepare('SELECT accounts.aid,memberships.role FROM memberships INNER JOIN accounts ON memberships.account=accounts.aid WHERE accounts.id=:id AND memberships.organisation=:org');
-            $stmt->execute([':org' => $organisation['aid'], ':id' => $post['id']]);
+            $stmt->execute([':org' => $organisation['aid'], ':id' => $post['known']]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$user) {
                 header ('Location: /organisation/'.$id, true, 303);
