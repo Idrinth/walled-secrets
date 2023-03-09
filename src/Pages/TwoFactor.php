@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\ENV;
+use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use PragmaRX\Google2FAQRCode\Google2FA;
@@ -46,8 +47,11 @@ class TwoFactor
                 )),
             ]);
         }
+        $reset = $_SESSION['2fareset'] ?? '';
+        unset($_SESSION['2fareset']);
         return $this->twig->render('2fa-deactivation', [
             'title' => 'Deactivate 2FA',
+            'reset' => $reset,
         ]);
     }
     public function post(array $post): string
@@ -65,17 +69,22 @@ class TwoFactor
         $twofactor = $stmt->fetchColumn();
         if (!$twofactor && isset($_SESSION['2fakey']) && isset($post['secret'])) {
             if ($this->twoFactor->verifyKey($_SESSION['2fakey'], $post['secret'], 0)) {
+                $_SESSION['2fareset'] = PasswordGenerator::make();
                 $this->database
-                    ->prepare('UPDATE accounts set `2fa`=:fa WHERE aid=:aid')
-                    ->execute([':aid' => $_SESSION['id'], ':fa' => $_SESSION['2fakey']]);
+                    ->prepare('UPDATE accounts set `2fa`=:fa,`2fareset`=:reset WHERE aid=:aid')
+                    ->execute([':aid' => $_SESSION['id'], ':fa' => $_SESSION['2fakey'], ':reset' => $_SESSION['2fareset']]);
             }
             unset($_SESSION['2fakey']);
         } elseif ($twofactor && isset($post['secret'])) {
             if ($this->twoFactor->verify($post['secret'], $twofactor, 0)) {
                 $this->database
-                    ->prepare('UPDATE accounts set `2fa`="" WHERE aid=:aid')
+                    ->prepare('UPDATE accounts set `2fa`="",`2fareset`="" WHERE aid=:aid')
                     ->execute([':aid' => $_SESSION['id']]);
             }
+        } elseif ($twofactor && isset($post['reset'])) {
+            $this->database
+                ->prepare('UPDATE accounts set `2fa`="",`2fareset`="" WHERE aid=:aid AND `2fareset`=:reset')
+                ->execute([':aid' => $_SESSION['id'], ':reset' => $post['reset']]);
         }
         header('Location: /2fa', true, 303);
         return '';

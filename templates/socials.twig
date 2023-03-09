@@ -36,7 +36,7 @@
     <input type="text" id="code" name="code" required/>
     {% if twoFactor %}
         <label for="acceptcode">Auth-Code</label>
-        <input type="password" required name="auth" id="acceptcode"/>
+        <input type="text" required name="auth" id="acceptcode"/>
     {% endif %}
     <button type="submit">Accept</button>
 </form>
@@ -48,7 +48,7 @@
     <input type="email" id="email" name="email" required/>
     {% if twoFactor %}
         <label for="invitecode">Auth-Code</label>
-        <input type="password" required name="auth" id="invitecode"/>
+        <input type="text" required name="auth" id="invitecode"/>
     {% endif %}
     <button type="submit">Invite</button>
 </form>

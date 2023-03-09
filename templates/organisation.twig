@@ -17,7 +17,7 @@
         {% if organisation.role == 'Administrator' or organisation.role == 'Owner' %}
             {% if twoFactor %}
                 <label for="rolecode">Auth-Code</label>
-                <input type="password" required name="code" id="rolecode"/>
+                <input type="text" required name="code" id="rolecode"/>
             {% endif %}
             <button type="submit">Modify</button>
         {% endif %}
@@ -34,7 +34,7 @@
         </select>
         {% if twoFactor %}
             <label for="invitecode">Auth-Code</label>
-            <input type="password" required name="code" id="invitecode"/>
+            <input type="text" required name="code" id="invitecode"/>
         {% endif %}
         <button type="submit">Propose</button>
     </form>
@@ -52,7 +52,7 @@
         <input type="text" placeholder="home" id="folder" name="folder" required/>
         {% if twoFactor %}
             <label for="foldercode">Auth-Code</label>
-            <input type="password" required name="code" id="foldercode"/>
+            <input type="text" required name="code" id="foldercode"/>
         {% endif %}
         <button type="submit">Create</button>
     </form>

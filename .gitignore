@@ -3,3 +3,4 @@
 /keys/*/public
 /keys/*/private
 /.env
+*.zip

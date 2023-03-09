@@ -17,7 +17,7 @@
     <textarea name="note" id="note"></textarea>
     {% if twoFactor %}
         <label for="logincode">Auth-Code</label>
-        <input type="password" required name="code" id="logincode"/>
+        <input type="text" required name="code" id="logincode"/>
     {% endif %}
     <button type="submit">Send</button>
 </form>
@@ -29,7 +29,7 @@
     <textarea name="content" id="content"></textarea>
     {% if twoFactor %}
         <label for="notecode">Auth-Code</label>
-        <input type="password" required name="code" id="notecode"/>
+        <input type="text" required name="code" id="notecode"/>
     {% endif %}
     <button type="submit">Send</button>
 </form>

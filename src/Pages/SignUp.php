@@ -85,6 +85,14 @@ class SignUp
             header ('Location: /register/'.$id.'/'.$pass, true, 303);
             return '';
         }
+        if (!isset($post['password2']) || strlen($post['password2']) < $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')) {
+            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            return '';
+        }
+        if ($post['password2'] !== $post['password']) {
+            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            return '';
+        }
         $stmt = $this->database->prepare('SELECT aid,inviter FROM invites WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
         $stmt->execute([':id' => $id, ':secret' => $pass, ':mail' => $post['email']]);
         $invite = $stmt->fetch(PDO::FETCH_ASSOC);

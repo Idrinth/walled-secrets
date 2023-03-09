@@ -1,8 +1,16 @@
 {% include 'header.twig' %}
+{% if reset is not empty %}Your Reset-Code is: <code>{{ reset}}</code>. Save it in a secure place and don't forget it.{% endif %}
 <h1>Deactivate 2 factor authentication</h1>
+<h2>With Auth-Code</h2>
 <form method="post">
     <label for="secret">Code</label>
-    <input type="password" id="secret" name="secret"/>
-    <button type="submit">Activate</button>
+    <input type="text" id="secret" name="secret"/>
+    <button type="submit">Deactivate</button>
+</form>
+<h2>With Reset-Code</h2>
+<form method="post">
+    <label for="reset">Reset-Code</label>
+    <input type="password" id="reset" name="reset"/>
+    <button type="submit">Deactivate</button>
 </form>
 {% include 'footer.twig' %}

@@ -7,6 +7,8 @@
     <input type="text" required name="name" id="name"/>
     <label for="password">Master Password</label>
     <input type="password" required minlength="{{ minPasswordLength }}" name="password" id="password"/>
+    <label for="password2">Repeat Master Password</label>
+    <input type="password2" required minlength="{{ minPasswordLength }}" name="password2" id="password2"/>
     <button type="submit">Register</button>
 </form>
 {% include 'footer.twig' %}

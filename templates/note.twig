@@ -7,7 +7,7 @@
     <textarea name="content" id="content">{{ note.content }}</textarea>
     {% if twoFactor %}
         <label for="modifycode">Auth-Code</label>
-        <input type="password" required name="code" id="modifycode"/>
+        <input type="text" required name="code" id="modifycode"/>
     {% endif %}
     <button type="submit">Modify</button>
 </form>
@@ -15,7 +15,7 @@
 <form method="post">
     {% if twoFactor %}
         <label for="deletecode">Auth-Code</label>
-        <input type="password" required name="code" id="deletecode"/>
+        <input type="text" required name="code" id="deletecode"/>
     {% endif %}
     <input type="hidden" name="delete" value="1">
     <button type="submit">Delete</button>
@@ -25,7 +25,7 @@
     <form method="post">
         {% if twoFactor %}
             <label for="deletecode">Auth-Code</label>
-            <input type="password" required name="code" id="deletecode"/>
+            <input type="text" required name="code" id="deletecode"/>
         {% endif %}
         <label for="organisation">Organisation:Folder</label>
         <select id="organisation" name="organisation">
