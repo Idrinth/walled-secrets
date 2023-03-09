@@ -77,7 +77,6 @@ CREATE TABLE IF NOT EXISTS `knowns` (
 CREATE TABLE IF NOT EXISTS `logins` (
   `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'internal id',
   `id` char(36) NOT NULL COMMENT 'external id',
-  `domain` longblob NOT NULL COMMENT 'for mapping',
   `login` longblob NOT NULL COMMENT 'encrypted login name',
   `pass` longblob NOT NULL COMMENT 'encrypted password',
   `note` longblob NOT NULL COMMENT 'a note for the password',
@@ -122,7 +121,6 @@ CREATE TABLE IF NOT EXISTS `notes` (
   `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id for internal use',
   `id` char(36) NOT NULL COMMENT 'uuid for external use',
   `content` longblob NOT NULL COMMENT 'AES encrypted content',
-  `name` longblob NOT NULL COMMENT 'RSA encrypted name',
   `account` bigint(20) unsigned NOT NULL COMMENT 'account id of the owner',
   `folder` bigint(20) unsigned NOT NULL COMMENT 'folder the note belongs to',
   `iv` longblob NOT NULL COMMENT 'RSA encoded iv for decryption',
