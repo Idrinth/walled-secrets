@@ -8,25 +8,14 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   `since` datetime DEFAULT NULL COMMENT 'datetime until identifier is valid',
   `notify` tinyint(3) unsigned NOT NULL DEFAULT 1 COMMENT 'if activated you will be notified of invites and messages',
   `haveibeenpwned` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `2fa` char(32) NOT NULL DEFAULT '',
+  `ip_whitelist` text NOT NULL DEFAULT '',
+  `ip_blacklist` text NOT NULL DEFAULT '',
   PRIMARY KEY (`aid`),
   UNIQUE KEY `mail` (`mail`),
   UNIQUE KEY `id` (`id`),
   KEY `mail_apikey` (`mail`,`apikey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='your user accounts';
-
-CREATE TABLE IF NOT EXISTS `chats` (
-  `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'internal usage id',
-  `organisation` bigint(20) unsigned NOT NULL COMMENT 'organisation this was posted in',
-  `target` bigint(20) unsigned NOT NULL COMMENT 'user this is for',
-  `created` datetime NOT NULL DEFAULT current_timestamp() COMMENT 'when was this written - cleanup after 6h',
-  `creator` bigint(20) unsigned NOT NULL COMMENT 'who wrote this',
-  `content` longblob NOT NULL COMMENT 'AES encoded data',
-  `iv` longblob NOT NULL COMMENT 'RSA encoded vector for AES',
-  `key` longblob NOT NULL COMMENT 'RSA encoded key for AES',
-  PRIMARY KEY (`aid`),
-  KEY `organization_target` (`organisation`,`target`),
-  KEY `creator` (`creator`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `configurations` (
   `key` varchar(255) NOT NULL,
@@ -150,6 +139,7 @@ CREATE TABLE IF NOT EXISTS `organisations` (
   `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `id` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
+  `require2fa` tinyint(3) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='organizations share secrets among their members';
