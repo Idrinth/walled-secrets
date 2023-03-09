@@ -6,7 +6,7 @@
         <label for="user">Username</label>
         <input type="text" disabled id="user" value="{{ member.display }}"/>
         <label for="role">Role</label>
-        <select name="role"{% if member.role != 'Administrator' and member.role != 'Owner' %}disabled{% endif %}>
+        <select name="role"{% if organisation.role != 'Administrator' and organisation.role != 'Owner' %}disabled{% endif %}>
             <option>Removed</option>
             <option{% if member.role == 'Proposed' %} selected{% endif %}>Proposed</option>
             <option{% if member.role == 'Reader' %} selected{% endif %}>Reader</option>
