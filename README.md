@@ -21,6 +21,15 @@ A small password manager, supporting proper sharing. Want to discuss the project
 - Imports
   - Keepass XML
   - Bitwarden JSON
+- Security
+  - Server IP Whitelist
+  - Server IP Blacklist
+  - Server ASN Blacklist
+  - Account IP Whitelist
+  - Account IP Blacklist
+  - 2 Factor Authentication via Google Authenticator or similar
+  - IP-Locked Sessions
+  - Configurable Minimum Master-Password Length
 
 ## Installation
 
