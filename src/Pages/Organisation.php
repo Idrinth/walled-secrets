@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use PDO;
@@ -15,12 +16,14 @@ class Organisation
     private PDO $database;
     private Twig $twig;
     private ShareFolderWithOrganisation $share;
+    private May2F $twoFactor;
 
-    public function __construct(PDO $database, Twig $twig, ShareFolderWithOrganisation $share)
+    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, ShareFolderWithOrganisation $share)
     {
         $this->database = $database;
         $this->twig = $twig;
         $this->share = $share;
+        $this->twoFactor = $twoFactor;
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {
