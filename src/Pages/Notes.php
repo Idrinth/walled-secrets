@@ -135,7 +135,7 @@ class Notes
         }
         $organisations = [];
         if (!$isOrganisation) {
-            $stmt = $this->database->query('SELECT folders.id AS folder,folders.`name` AS folderName, organisations.`name`,organisations.id
+            $stmt = $this->database->prepare('SELECT folders.id AS folder,folders.`name` AS folderName, organisations.`name`,organisations.id
 FROM organisations
 INNER JOIN folders ON organisations.aid=folders.`owner` AND folders.`type`="Organisation"
 INNER JOIN memberships ON memberships.organisation=organisations.aid
