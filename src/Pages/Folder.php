@@ -57,7 +57,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             header ('Location: /', true, 303);
             return '';            
         }
-        if (!$this->twoFactor->may($post['code'], $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+        if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
             header ('Location: /folder/' . $id, true, 303);
             return '';            
         }

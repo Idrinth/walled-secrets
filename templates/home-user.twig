@@ -6,6 +6,10 @@
 <form method="post">
     <label for="api-key">Your API-Key</label>
     <input id="api-key" type="text" disabled value="{{ user.apikey }}"/>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="password" required name="code" id="deletecode"/>
+    {% endif %}
     <input type="hidden" value="1" name="regenerate"/>
     <button type="submit">Regenerate Key</button>
 </form>
@@ -15,6 +19,10 @@
     <label for="haveibeenpwned">Enable Check</label>
     <input type="hidden" value="0" name="haveibeenpwned"/>
     <input id="haveibeenpwned" name="haveibeenpwned" type="checkbox"{% if user.haveibeenpwned==1 %} checked{% endif %} value="1"/>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="password" required name="code" id="deletecode"/>
+    {% endif %}
     <button type="submit">Submit</button>
 </form>
 <h3>Default Folder</h3>
@@ -28,10 +36,28 @@
             {% endif %}
         {% endfor %}
     </select>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="password" required name="code" id="deletecode"/>
+    {% endif %}
     <button type="submit">Submit</button>
 </form>
 {% if twoFactor %}<h3>2FA</h3>
 <p>It is a good idea to setup <a href="/2fa">2 Factor Authentication</a>. It helps protect your data against modification and deletion.{% endif %}
+<h3>IP Lists</h3>
+<p>Whitelist will be checked before blacklist. Both can contain ranges and are comma separated lists. IPs may access, that are in the whitelist or not in the blacklist.</p>
+<form method="post">
+    <lable for="whitelist">Whitelist</label>
+    <textarea id="whitelist" name="whitelist">{{ user.ip_whitelist }}</textarea>
+    <lable for="whitelist">Blacklist</label>
+    <textarea id="blacklist" name="blacklist">{{ user.ip_blacklist }}</textarea>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="password" required name="code" id="deletecode"/>
+    {% endif %}
+    <input type="hidden" name="ip" value="1"/>
+    <button type="submit">Change</button>
+</form>
 <h2>Folders</h2>
 <p>These store your passwords and secret notes</p>
 <ul>
@@ -43,6 +69,10 @@
 <form method="post">
     <label for="folder">Your Folder's name</label>
     <input type="text" placeholder="home" id="folder" name="folder" required/>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="password" required name="code" id="deletecode"/>
+    {% endif %}
     <button type="submit">Create</button>
 </form>
 {% include 'footer.twig' %}

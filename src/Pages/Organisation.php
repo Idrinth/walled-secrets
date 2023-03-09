@@ -56,7 +56,7 @@ class Organisation
             header ('Location: /', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code'], $_SESSION['id'], $organisation['aid'])) {
+        if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'], $organisation['aid'])) {
             header ('Location: /organisation/'.$id, true, 303);
             return '';            
         }

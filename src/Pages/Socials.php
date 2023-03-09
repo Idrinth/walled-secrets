@@ -73,7 +73,7 @@ class Socials
             header('Location: /', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['auth'], $_SESSION['id'])) {
+        if (!$this->twoFactor->may($post['auth']??'', $_SESSION['id'])) {
             header ('Location: /socials', true, 303);
             return '';            
         }

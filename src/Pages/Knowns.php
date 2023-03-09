@@ -67,7 +67,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account');
             header ('Location: /socials', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code'], $_SESSION['id'])) {
+        if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'])) {
             header ('Location: /knowns/'.$id, true, 303);
             return '';
         }

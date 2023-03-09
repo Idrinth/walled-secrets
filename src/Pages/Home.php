@@ -5,6 +5,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
+use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
 use Exception;
@@ -21,9 +22,11 @@ class Home
     private AES $aes;
     private Blowfish $blowfish;
     private ENV $env;
+    private May2F $twoFactor;
 
-    public function __construct(Twig $twig, PDO $database, Mailer $mailer, AES $aes, Blowfish $blowfish, ENV $env)
+    public function __construct(May2F $twoFactor, Twig $twig, PDO $database, Mailer $mailer, AES $aes, Blowfish $blowfish, ENV $env)
     {
+        $this->twoFactor = $twoFactor;
         $this->env = $env;
         $this->blowfish = $blowfish;
         $this->twig = $twig;
@@ -65,6 +68,10 @@ class Home
     public function post(array $post): string
     {
         if (isset($_SESSION['id'])) {
+            if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'])) {
+                header('Location: /', true, 303);
+                return '';
+            }
             if (isset($post['haveibeenpwned'])) {
                 $stmt = $this->database
                     ->prepare('UPDATE `accounts` SET `haveibeenpwned`=:haveibeenpwned WHERE `aid`=:id');
@@ -90,6 +97,12 @@ class Home
                 $this->database
                     ->prepare('UPDATE folders SET `default`=1 WHERE `type`="Account" AND `owner`=:owner AND id=:id')
                     ->execute([':owner' => $_SESSION['id'], ':id' => $post['default']]);
+            } elseif (isset($post['ip'])) {
+                $stmt = $this->database->prepare('UPDATE `accounts` SET `ip_blacklist`=:ipbl,`ip_whitelist`=:ipwl WHERE `aid`=:id');
+                $stmt->bindValue(':id', $_SESSION['id']);
+                $stmt->bindValue(':ipwl', $post['whitelist'] ?? '');
+                $stmt->bindValue(':ipbl', $post['blacklist'] ?? '');
+                $stmt->execute();
             }
             header('Location: /', true, 303);
             return '';
