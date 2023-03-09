@@ -1,0 +1,27 @@
+{% include 'header.twig' %}
+<h1>IP-Settings</h1>
+<h2>Server-Settings</h2>
+<p>Whitelist will be checked before blacklist. Both can contain ranges and are comma separated lists. IPs may access, that are in the whitelist or not in the blacklist.</p>
+<form method="post">
+    <label for="server-whitelist">Server IP-Whitelist</label>
+    <textarea id="server-whitelist" disabled>{{ server.whitelist }}</textarea>
+    <label for="server-asn">Server ASN-Blacklist</label>
+    <textarea id="server-asn" disabled>{{ server.asn }}</textarea>
+    <label for="server-blacklist">Server IP-Blacklist</label>
+    <textarea id="server-blacklist" disabled>{{ server.blacklist }}</textarea>
+</form>
+<h2>Account-Settings</h2>
+<p>Whitelist will be checked before blacklist. Both can contain ranges and are comma separated lists. IPs may access, that are in the whitelist or not in the blacklist.</p>
+<form method="post">
+    <label for="account-whitelist">Account IP-Whitelist</label>
+    <textarea id="account-whitelist" name="whitelist">{{ account.whitelist }}</textarea>
+    <label for="account-blacklist">Account IP-Blacklist</label>
+    <textarea id="account-blacklist" name="blacklist">{{ account.blacklist }}</textarea>
+    {% if twoFactor %}
+        <label for="code">Auth-Code</label>
+        <input type="password" required name="code" id="code"/>
+    {% endif %}
+    <input type="hidden" value="1" name="ip"/>
+    <button type="submit">Change IP-Rules</button>
+</form>
+{% include 'footer.twig' %}

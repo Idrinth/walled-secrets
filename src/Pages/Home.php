@@ -53,7 +53,6 @@ class Home
                 'title' => 'Home',
                 'user' => $user,
                 'folders' => $folders,
-                'twoFactor' => $this->env->getInt('2FA_SECRET_LENGTH') !== 0
             ]);
         }
         if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
@@ -97,12 +96,6 @@ class Home
                 $this->database
                     ->prepare('UPDATE folders SET `default`=1 WHERE `type`="Account" AND `owner`=:owner AND id=:id')
                     ->execute([':owner' => $_SESSION['id'], ':id' => $post['default']]);
-            } elseif (isset($post['ip'])) {
-                $stmt = $this->database->prepare('UPDATE `accounts` SET `ip_blacklist`=:ipbl,`ip_whitelist`=:ipwl WHERE `aid`=:id');
-                $stmt->bindValue(':id', $_SESSION['id']);
-                $stmt->bindValue(':ipwl', $post['whitelist'] ?? '');
-                $stmt->bindValue(':ipbl', $post['blacklist'] ?? '');
-                $stmt->execute();
             }
             header('Location: /', true, 303);
             return '';

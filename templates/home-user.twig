@@ -45,19 +45,7 @@
 <h3>2FA</h3>
 <p>It is a good idea to setup <a href="/2fa">2 Factor Authentication</a>. It helps protect your data against modification and deletion.
 <h3>IP Lists</h3>
-<p>Whitelist will be checked before blacklist. Both can contain ranges and are comma separated lists. IPs may access, that are in the whitelist or not in the blacklist.</p>
-<form method="post">
-    <lable for="whitelist">Whitelist</label>
-    <textarea id="whitelist" name="whitelist">{{ user.ip_whitelist }}</textarea>
-    <lable for="whitelist">Blacklist</label>
-    <textarea id="blacklist" name="blacklist">{{ user.ip_blacklist }}</textarea>
-    {% if twoFactor %}
-        <label for="deletecode">Auth-Code</label>
-        <input type="password" required name="code" id="deletecode"/>
-    {% endif %}
-    <input type="hidden" name="ip" value="1"/>
-    <button type="submit">Change</button>
-</form>
+<p>For extra security you can setup IP-Rules for your account <a href="/ip">here</a>. These are used on top of server specific settings.</p>
 <h2>Folders</h2>
 <p>These store your passwords and secret notes</p>
 <ul>

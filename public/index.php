@@ -12,6 +12,7 @@ use De\Idrinth\WalledSecrets\Pages\Folder;
 use De\Idrinth\WalledSecrets\Pages\Home;
 use De\Idrinth\WalledSecrets\Pages\Importer;
 use De\Idrinth\WalledSecrets\Pages\Imprint;
+use De\Idrinth\WalledSecrets\Pages\IP;
 use De\Idrinth\WalledSecrets\Pages\Knowns;
 use De\Idrinth\WalledSecrets\Pages\Login;
 use De\Idrinth\WalledSecrets\Pages\Logins;
@@ -75,4 +76,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->get('/api/open-api.json', OpenApi::class)
     ->post('/2fa', TwoFactor::class)
     ->get('/2fa', TwoFactor::class)
+    ->post('/ip', IP::class)
+    ->get('/ip', IP::class)
     ->run();
