@@ -95,6 +95,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             set_time_limit(0);
             $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
             $private = KeyLoader::private($_SESSION['uuid'], $master);
+            $post['identifier'] = $login['public'];
             $post['user'] = $private->decrypt($login['login']);
             $post['password'] = $private->decrypt($login['pass']);
             if ($login['note']) {
