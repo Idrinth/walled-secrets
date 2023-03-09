@@ -66,7 +66,7 @@ class Organisation
         if (isset($post['folder']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
             $this->database
                 ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:id, "Organisation")')
-                ->execute([':name' => $post['folder'], ':owner ' => $organisation['aid'], ':id' => Uuid::uuid1()->toString()]);
+                ->execute([':name' => $post['folder'], ':owner' => $organisation['aid'], ':id' => Uuid::uuid1()->toString()]);
             header ('Location: /organisation/'.$id, true, 303);
             return '';
         }
