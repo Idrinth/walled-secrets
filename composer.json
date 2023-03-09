@@ -25,5 +25,16 @@
         "psr-4": {
             "De\\Idrinth\\WalledSecrets\\": "src"
         }
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "*",
+        "phan/phan": "*",
+        "php-parallel-lint/php-parallel-lint": "*"
+    },
+    "scripts": {
+        "test-standards": "vendor/bin/phpcs --standard=psr12 bin src public",
+        "test-static": "vendor/bin/phan --no-progress-bar",
+        "fix-standards": "vendor/bin/phpcbf --standard=psr12 bin src public",
+        "lint": "vendor/bin/parallel-lint src bin public"
     }
 }
