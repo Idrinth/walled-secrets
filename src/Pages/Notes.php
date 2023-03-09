@@ -51,7 +51,7 @@ class Notes
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         $mayEdit = true;
         $isOrganisation = false;
-        if ($folder === 'Organisation') {
+        if ($folder['type'] === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
             $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
             $role = $stmt->fetchColumn();
@@ -140,7 +140,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         $maySee = true;
         $isOrganisation = false;
-        if ($folder === 'Organisation') {
+        if ($folder['type'] === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
             $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
             $role = $stmt->fetchColumn();
