@@ -3,8 +3,8 @@
 use De\Idrinth\WalledSecrets\Command;
 use De\Idrinth\WalledSecrets\Commands\CreateUser;
 use De\Idrinth\WalledSecrets\Commands\DataCleanup;
+use De\Idrinth\WalledSecrets\Commands\IPCacheCleanup;
 use De\Idrinth\WalledSecrets\Commands\SessionCleanup;
-use Twig\Loader\FilesystemLoader;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -15,8 +15,8 @@ require dirname(__DIR__) . '/vendor/autoload.php';
         $_ENV['DATABASE_PASSWORD'],
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING]
     ))
-    ->register(new FilesystemLoader(dirname(__DIR__) . '/templates'))
     ->add('cleanup-session', SessionCleanup::class)
+    ->add('cleanup-ipcache', IPCacheCleanup::class)
     ->add('cleanup-database', DataCleanup::class)
     ->add('register', CreateUser::class)
     ->run(...$argv);
