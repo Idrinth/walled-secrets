@@ -4,18 +4,32 @@
     const search = () => {
         const notes = document.getElementsByClassName('note');
         const logins = document.getElementsByClassName('login');
+        const folders = document.getElementsByClassName('folder');
+        for (const folder of folders) {
+            folder.setAttribute('data-count', '0');
+        }
         const reg = new RegExp(input.value, 'i');
         for (const note of notes) {
             note.removeAttribute('style');
-            if (!reg.test(note.innerHTML)) {
+            if (!reg.test(note.children[0].innerHTML)) {
                 note.setAttribute('style', 'display:none');
+            } else {
+                const folder = note.parentElement.parentElement;
+                folder.setAttribute('data-count', Number.parseInt(folder.getAttribute('data-count')) + 1);
             }
         }
         for (const login of logins) {
             login.removeAttribute('style');
-            if (!reg.test(login.innerHTML)) {
+            if (!reg.test(login.children[0].innerHTML)) {
                 login.setAttribute('style', 'display:none');
+            } else {
+                const folder = login.parentElement.parentElement;
+                folder.setAttribute('data-count', Number.parseInt(folder.getAttribute('data-count')) + 1);
             }
+        }
+        for (const folder of folders) {
+            folder.children[0].removeChild(folder.children[0].firstChild);
+            folder.children[0].appendChild(document.createTextNode(`(${folder.getAttribute('data-count')})`));
         }
     };
     let lastUpdated = 0;
@@ -30,8 +44,11 @@
             lastUpdated = Date.now();
             for (const folder of Object.keys(folders)) {
                 list.appendChild(document.createElement('li'));
+                list.lastChild.appendChild(document.createElement('out'));
+                list.lastChild.lastChild.appendChild(document.createTextNode('(0)'));
                 list.lastChild.appendChild(document.createTextNode(folders[folder].name + ' (' + folders[folder].type + ')'));
                 list.lastChild.setAttribute('data-id', folder);
+                list.lastChild.setAttribute('class', 'folder');
                 list.lastChild.appendChild(document.createElement('ul'));
                 const ul = list.lastChild.lastChild;
                 ul.setAttribute('class', 'inactive');
