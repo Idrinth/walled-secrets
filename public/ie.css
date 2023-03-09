@@ -1,0 +1,18 @@
+img {
+    border: none;
+}
+#navigation ul {
+    display: block;
+    overflow: hidden;
+}
+#navigation li {
+    float: left;
+}
+#content form {
+    display: block;
+}
+#content form > * {
+    display: block;
+    float: left;
+    width: 50%;
+}
