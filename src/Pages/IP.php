@@ -52,7 +52,7 @@ class IP
         $stmt = $this->database->prepare('SELECT ip_whitelist,ip_blacklist FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $_SESSION['id']]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);
-        $this->twig->render('ip-settings', [
+        return $this->twig->render('ip-settings', [
             'title' => 'IP-Settings',
             'server' => [
                 'asn' => $this->env->getString('IP_ASN_BLACKLIST'),
