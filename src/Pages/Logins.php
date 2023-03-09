@@ -110,11 +110,13 @@ class Logins
         $stmt->execute([':aid' => $login['folder']]);
         $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         $maySee = true;
+        $isOrganisation = false;
         if ($folder === 'Organisation') {
             $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
             $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
             $role = $stmt->fetchColumn();
             $maySee = in_array($role, ['Administrator', 'Owner', 'Member', 'Reader'], true);
+            $isOrganisation = true;
         }
         if (!$maySee) {
             header ('Location: /', true, 303);
@@ -165,9 +167,20 @@ class Logins
                 }
             }
         }
+        $organisations = [];
+        if (!$isOrganisation) {
+            $stmt = $this->database->query('SELECT folders.id AS folder,folders.`name` AS folderName, organisations.`name`,organisations.id
+FROM organisations
+INNER JOIN folders ON organisations.aid=folders.`owner` AND folders.`type`="Organisation"
+INNER JOIN memberships ON memberships.organisation=organisations.aid
+WHERE memberships.`account`=:id AND memberships.`role` NOT IN ("Reader","Proposed")');
+            $stmt->execute([':id' => $_SESSION['id']]);
+            $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         return $this->twig->render('login', [
             'title' => $login['public'],
             'login' => $login,
+            'organisations' => $organisations,
         ]);
     }
 }
