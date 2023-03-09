@@ -50,7 +50,11 @@
 <p>These store your passwords and secret notes</p>
 <ul>
     {% for folder in folders %}
-        <li><a href="/folder/{{ folder.id }}">{{ folder.name }} ({{ folder.type }})</a></li>
+        {% if folder.type=='Account' %}
+            <li><a href="/folder/{{ folder.id }}">{{ folder.name }}</a></li>
+        {% else %}
+            <li><a href="/folder/{{ folder.id }}">{{ folder.name }} ({{ prganisations[folder.owner] }})</a></li>
+        {% endif %}
     {% endfor %}
 </ul>
 <h3>New</h3>

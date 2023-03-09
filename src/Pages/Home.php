@@ -49,10 +49,17 @@ class Home
             $stmt = $this->database->prepare('SELECT * FROM folders WHERE (`owner`=:id AND `type`="Account") OR (`type`="Organisation" AND `owner` IN (SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id))');
             $stmt->execute([':id' => $_SESSION['id']]);
             $folders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $organisations = [];
+            $stmt = $this->database->prepare('SELECT organisations.aid,organisations.name FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
+            $stmt->execute([':id' => $user['aid']]);
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $org) {
+                $organisations[$org['aid']] = $org['name'];
+            }
             return $this->twig->render('home-user', [
                 'title' => 'Home',
                 'user' => $user,
                 'folders' => $folders,
+                'organisations' => $organisations,
             ]);
         }
         if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {

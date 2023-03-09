@@ -29,6 +29,12 @@ class ListSecrets
             header('Content-Type: application/json', true, 403);
             return '{"error":"eMail and ApiKey can\'t be found"}';
         }
+        $organisations = [];
+        $stmt = $this->database->prepare('SELECT organisations.aid,organisations.name FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
+        $stmt->execute([':id' => $user['aid']]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $org) {
+            $organisations[$org['aid']] = $org['name'];
+        }
         $data = [];
         $stmt = $this->database->prepare('SELECT * FROM folders WHERE (`owner`=:id AND `type`="Account") OR (`type`="Organisation" AND `owner` IN (SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id))');
         $stmt->execute([':id' => $user['aid']]);
@@ -43,6 +49,9 @@ class ListSecrets
                 'notes' => $stmt2->fetchAll(PDO::FETCH_ASSOC),
                 'logins' => $stmt3->fetchAll(PDO::FETCH_ASSOC),
             ];
+            if ($folder['type'] === 'Organisation') {
+                $data[$folder['id']]['organisation'] = $organisations[$folder['owner']];
+            }
         }
         header('Content-Type: application/json', true, 200);
         return json_encode($data);
