@@ -138,7 +138,10 @@ class Organisation
         $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
         $stmt->execute([':org' => $organisation['aid']]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt = $this->database->prepare('SELECT target FROM knowns WHERE owner=:id AND target NOT IN (SELECT account FROM memberships WHERE organisation=:org)');
+        $stmt = $this->database->prepare('SELECT accounts.*
+FROM knowns
+INNER JOIN accounts ON accounts.aid=knowns.target
+WHERE `owner`=:id AND target NOT IN (SELECT `account` FROM memberships WHERE organisation=:org)');
         $stmt->execute([':org' => $organisation['aid'], ':id' => $_SESSION['id']]);
         $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->database->prepare('SELECT * FROM folders WHERE owner=:org AND `type`="Organisation"');
