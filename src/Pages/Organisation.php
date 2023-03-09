@@ -111,12 +111,6 @@ class Organisation
                 header ('Location: /organisation/'.$id, true, 303);
                 return '';
             }
-            $stmt = $this->database->prepare('SELECT account FROM memberships WHERE role <> "Proposed" AND organisation=:org');
-            $stmt->execute([':org' => $organisation['aid']]);
-            foreach ($stmt->fetchAll() as $account) {
-                $this->addKnown($user['aid'], $account['account'], Uuid::uuid1()->toString(), 'Shares the group ' . $organisation['name'] . '.');
-                $this->addKnown($account['account'], $user['aid'], Uuid::uuid1()->toString(), 'Shares the group ' . $organisation['name'] . '.');
-            }
             $this->database
                 ->prepare('INSERT INTO memberships (organisation,account) VALUES (:org,:id)')
                 ->execute([':id' => $user['aid'], ':org' => $organisation['aid']]);
