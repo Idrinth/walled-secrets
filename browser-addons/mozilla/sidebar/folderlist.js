@@ -47,7 +47,13 @@
             list.appendChild(document.createElement('li'));
             list.lastChild.appendChild(document.createElement('out'));
             list.lastChild.lastChild.appendChild(document.createTextNode('(0)'));
-            list.lastChild.appendChild(document.createTextNode(folders[folder].name + ' (' + folders[folder].type + ')'));
+            if (folders[folder].type === 'Account') {
+                list.lastChild.appendChild(document.createTextNode(folders[folder].name));
+            } else if (folders[folder].organisation) {
+                list.lastChild.appendChild(document.createTextNode(folders[folder].name + ' (' + folders[folder].organisation + ')'));
+            } else {
+                list.lastChild.appendChild(document.createTextNode(folders[folder].name + ' (Organisation)'));
+            }
             list.lastChild.setAttribute('data-id', folder);
             list.lastChild.setAttribute('class', 'folder');
             list.lastChild.appendChild(document.createElement('ul'));
