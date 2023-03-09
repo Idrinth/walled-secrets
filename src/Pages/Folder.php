@@ -61,7 +61,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             header ('Location: /folder/' . $id, true, 303);
             return '';            
         }
-        if (isset($post['organisation'])) {
+        if (isset($post['organisation']) && !$isOrganisation) {
             $this->database
                 ->prepare('UPDATE folders SET `owner`=:owner AND `type`="Organisation" WHERE aid=:id')
                 ->execute([':aid' => $folder['aid'], ':owner' => $post['organisation']]);

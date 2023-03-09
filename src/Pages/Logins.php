@@ -107,6 +107,9 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 $shared->setKey($login['key']);
                 $post['note'] = $shared->decrypt($login['note']);
             }
+            $this->database
+                ->prepare('UPDATE logins SET folder=:new WHERE id=:id AND `account`=:user')
+                ->execute([':new' => $folder['id'], ':id' => $id, ':user' => $_SESSION['id']]);
         }
         if ($isOrganisation) {
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
