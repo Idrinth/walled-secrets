@@ -28,7 +28,7 @@
     <form method="post">
         <label for="known">User</label>
         <select name="known" id="known">
-            {% for known in knows %}
+            {% for known in knowns %}
                 <option value="{{ known.id }}">{{ known.display }} ({{ known.id }})</option>
             {% endfor %}
         </select>
