@@ -83,7 +83,7 @@ class Notes
             $stmt = $this->database->prepare('SELECT organisations.aid
 FROM organisations
 INNER JOIN memberships ON memberships.organisation=organisations.aid
-WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role` IN ("Owner"."Administrator","Member")');
+WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role` IN ("Owner","Administrator","Member")');
             $stmt->execute([':id' => $org, ':user' => $_SESSION['id']]);
             $organisation = $stmt->fetchColumn();
             if (!$organisation || $organisation !== $folder['owner']) {
