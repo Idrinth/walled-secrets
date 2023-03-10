@@ -15,7 +15,7 @@ class ShareFolderWithOrganisation
     private PrivateKey $private;
     private SecretHandler $share;
 
-    public function __construct(MasterPassword $master, PDO $database, ENV $env, SecretHandler $share)
+    public function __construct(MasterPassword $master, PDO $database, SecretHandler $share)
     {
         $this->share = $share;
         $this->database = $database;

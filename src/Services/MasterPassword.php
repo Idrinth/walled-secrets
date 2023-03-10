@@ -33,11 +33,12 @@ class MasterPassword
         if ($this->decrypted) {
             return $this->decrypted;
         }
-        return $this->decrypted = $this->aes->decrypt($this->blowfish->decrypt($this->decrypted));
+        return $this->decrypted = $this->aes->decrypt($this->blowfish->decrypt($this->encrypted));
     }
     public function set(string $password): void
     {
         $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($password));
         $this->encrypted = $_SESSION['password'];
+        $this->decrypted = $password;
     }
 }
