@@ -28,7 +28,7 @@ class MasterPassword
     {
         return strlen($this->encrypted) > 0;
     }
-    public function get(): bool
+    public function get(): string
     {
         if ($this->decrypted) {
             return $this->decrypted;
