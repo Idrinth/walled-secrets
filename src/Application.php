@@ -75,7 +75,7 @@ class Application
             case Dispatcher::FOUND:
                 $vars = $routeInfo[2];
                 $user = Users::get($routeInfo[1], $this->di->get('PDO'));
-                if ($this->di->get(Access::class)->may($_SERVER['REMOTE_ADDR'], $user)) {
+                if (!$this->di->get(Access::class)->may($_SERVER['REMOTE_ADDR'], $user)) {
                     return $this->result('IP is blacklisted.', 403);
                 }
                 $obj = $this->di->get($routeInfo[1]);
