@@ -4,11 +4,11 @@ namespace De\Idrinth\WalledSecrets\Factories;
 
 class Superglobals
 {
-    public static function post(): int
+    public static function post(): array
     {
         return self::filtered($_POST);
     }
-    public static function session(): int
+    public static function session(): array
     {
         return self::filtered($_SESSION);
     }
