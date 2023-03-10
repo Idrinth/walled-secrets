@@ -21,6 +21,7 @@ A small password manager, supporting proper sharing. Want to discuss the project
 - Imports
   - Keepass XML
   - Bitwarden JSON
+  - Firefox CSV
 - Security
   - Server IP Whitelist
   - Server IP Blacklist
