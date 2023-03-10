@@ -14,10 +14,10 @@
         {% for log in entries %}
             <tr>
                 <th>{{ log.created }}</th>
-                <th>{{ log.display }}</th>
-                <th>{{ log.target }}@{{ log.type }}</th>
-                <th>{{ log.action }}</th>
-                <th>{{ log.ip }}</th>
+                <td>{{ log.display }}</td>
+                <td>{{ log.target }}@{{ log.type }}</td>
+                <td>{{ log.action }}</td>
+                <td>{{ log.ip }}</td>
             </tr>
         {% endfor %}
     </tbody>
