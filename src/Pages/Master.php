@@ -2,41 +2,33 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\MasterPassword;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use Exception;
 use PDO;
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Blowfish;
 
 class Master
 {
     private PDO $database;
     private ENV $env;
-    private AES $aes;
-    private Blowfish $blowfish;
+    private MasterPassword $master;
     private Twig $twig;
     private Audit $audit;
 
-    public function __construct(Audit $audit, Twig $twig, PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
+    public function __construct(Audit $audit, Twig $twig, PDO $database, ENV $env, MasterPassword $master)
     {
         $this->audit = $audit;
         $this->twig = $twig;
         $this->database = $database;
         $this->env = $env;
-        $this->aes = $aes;
-        $this->blowfish = $blowfish;
-        $this->aes->setKeyLength(256);
-        $this->aes->setKey($this->env->getString('PASSWORD_KEY'));
-        $this->aes->setIV($this->env->getString('PASSWORD_IV'));
-        $this->blowfish->setKeyLength(448);
-        $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
-        $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
+        $this->master = $master;
     }
 
-    public function get(): string
+    public function get(User $user): string
     {
         if (!isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
             header('Location: /', true, 303);
@@ -44,13 +36,14 @@ class Master
         }
         return $this->twig->render('master', ['title' => 'Confirm Login', 'disableRefresh' => true]);
     }
-    public function post($post): string
+    public function post(User $user, array $post): string
     {
-        if (!isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
+        $cookie = $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE');
+        if (!isset($_COOKIE[$cookie])) {
             header('Location: /', true, 303);
             return '';
         }
-        if ($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')] !== sha1($this->env->getString('SYSTEM_SALT') . $post['email'])) {
+        if ($_COOKIE[$cookie] !== sha1($this->env->getString('SYSTEM_SALT') . $post['email'])) {
             header('Location: /master', true, 303);
             return '';
         }
@@ -69,8 +62,8 @@ class Master
         }
         $_SESSION['id'] = $user['aid'];
         $_SESSION['uuid'] = $user['id'];
-        $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
-        $this->audit->log('signin', 'create', $_SESSION['id'], null, $_SESSION['uuid']);
+        $this->master->set($post['password']);
+        $this->audit->log('signin', 'create', $_SESSION['id'], null, $user['id']);
         header('Location: /', true, 303);
         return '';
     }

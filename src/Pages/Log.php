@@ -2,7 +2,8 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 
 class Log
@@ -16,17 +17,17 @@ class Log
         $this->twig = $twig;
     }
 
-    public function get():string
+    public function get(User $user): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT audits.created,accounts.display,audits.`action`,audits.`type`,audits.ip,audits.target
+        $stmt = $this->database->prepare('SELECT audits.*,accounts.display
 FROM audits
 INNER JOIN accounts ON accounts.aid=audits.`user`
 WHERE audits.`user`=:id');
-        $stmt->execute([':id' => $_SESSION['id']]);
+        $stmt->execute([':id' => $user->aid()]);
         return $this->twig->render('log', [
             'title' => 'Log',
             'entries' => $stmt->fetchAll(),

@@ -2,12 +2,13 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -40,9 +41,11 @@ class SignUp
         $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
 
-    public function get(string $id, string $pass): string
+    public function get(User $user, string $id, string $pass): string
     {
-        $stmt = $this->database->prepare('SELECT aid FROM invites WHERE id=:id AND secret=:secret AND ISNULL(invitee)');
+        $stmt = $this->database->prepare(
+            'SELECT aid FROM invites WHERE id=:id AND secret=:secret AND ISNULL(invitee)'
+        );
         $stmt->execute([':id' => $id, ':secret' => $pass]);
         $id = $stmt->fetchColumn();
         if (!$id) {
@@ -68,7 +71,9 @@ class SignUp
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
+            ->prepare(
+                'INSERT INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)'
+            )
             ->execute(
                 [
                 ':comment' => $shared->encrypt($comment),
@@ -80,17 +85,18 @@ class SignUp
                 ]
             );
     }
-    public function post(array $post, string $id, string $pass): string
+    public function post(User $user, array $post, string $id, string $pass): string
     {
         if (!isset($post['name']) || !isset($post['email'])) {
             header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
-        if (!isset($post['password']) || strlen($post['password']) < $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')) {
+        $length = $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH');
+        if (!isset($post['password']) || strlen($post['password']) < $length) {
             header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
-        if (!isset($post['password2']) || strlen($post['password2']) < $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')) {
+        if (!isset($post['password2']) || strlen($post['password2']) < $length) {
             header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
@@ -98,7 +104,8 @@ class SignUp
             header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT aid,inviter FROM invites WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
+        $stmt = $this->database->prepare('SELECT aid,inviter FROM invites
+WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
         $stmt->execute([':id' => $id, ':secret' => $pass, ':mail' => $post['email']]);
         $invite = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$invite) {
@@ -115,10 +122,10 @@ class SignUp
             ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
             ->execute(
                 [
-                ':display' => $post['name'],
-                ':id' => $uuid,
-                ':mail' => $post['email'],
-                ':apikey' => PasswordGenerator::make(),
+                    ':display' => $post['name'],
+                    ':id' => $uuid,
+                    ':mail' => $post['email'],
+                    ':apikey' => PasswordGenerator::make(),
                 ]
             );
         $new = $this->database->lastInsertId();

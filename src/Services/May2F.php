@@ -37,8 +37,7 @@ class May2F
         }
         $stmt = $this->database->prepare('SELECT `require2fa` FROM organisations WHERE aid=:aid');
         $stmt->execute([':aid' => $organisation]);
-        $twofactor = $stmt->fetchColumn();
-        return $twofactor !== '1';
+        return $stmt->fetchColumn() !== '1';
     }
 
     public function can(int $user): bool

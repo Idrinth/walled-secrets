@@ -17,8 +17,13 @@ class Mailer
         $this->database = $database;
     }
 
-    public function send(int $tagetUser, string $template, array $templateContext, string $subject, string $toMail, string $toName)
-    {
+    public function send(
+        string $template,
+        array $templateContext,
+        string $subject,
+        string $toMail,
+        string $toName
+    ): bool {
         $stmt = $this->database->prepare('SELECT 1 FROM email_blacklist WHERE email=:email');
         $stmt->execute([':email' => $toMail]);
         if ($stmt->fetchColumn() === '1') {

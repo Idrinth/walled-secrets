@@ -2,8 +2,9 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\ENV;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\Twig;
 
 class Mailed
 {
@@ -16,7 +17,7 @@ class Mailed
         $this->twig = $twig;
     }
 
-    public function get(): string
+    public function get(User $user): string
     {
         return $this->twig->render(
             'mailed',

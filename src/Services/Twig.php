@@ -1,8 +1,7 @@
 <?php
 
-namespace De\Idrinth\WalledSecrets;
+namespace De\Idrinth\WalledSecrets\Services;
 
-use De\Idrinth\WalledSecrets\Services\May2F;
 use PDO;
 use Twig\Environment;
 

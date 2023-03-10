@@ -2,10 +2,11 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\May2F;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 
 class IP
@@ -25,20 +26,22 @@ class IP
         $this->twoFactor = $twoFactor;
     }
 
-    public function post($post): string
+    public function post(User $user, array $post): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code'], $_SESSION['id'])) {
+        if (!$this->twoFactor->may($post['code'], $user->aid())) {
             header('Location: /ip', true, 303);
             return '';
         }
         if (isset($post['ip'])) {
-            $this->audit->log('ip', 'modify', $_SESSION['id'], null, $_SESSION['uuid']);
-            $stmt = $this->database->prepare('UPDATE `accounts` SET `ip_blacklist`=:ipbl,`ip_whitelist`=:ipwl WHERE `aid`=:id');
-            $stmt->bindValue(':id', $_SESSION['id']);
+            $this->audit->log('ip', 'modify', $user->aid(), null, $user->id());
+            $stmt = $this->database->prepare(
+                'UPDATE `accounts` SET `ip_blacklist`=:ipbl,`ip_whitelist`=:ipwl WHERE `aid`=:id'
+            );
+            $stmt->bindValue(':id', $user->aid());
             $stmt->bindValue(':ipwl', $post['whitelist'] ?? '');
             $stmt->bindValue(':ipbl', $post['blacklist'] ?? '');
             $stmt->execute();
@@ -47,29 +50,26 @@ class IP
         return '';
     }
 
-    public function get(): string
+    public function get(User $user): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
-        $this->audit->log('ip', 'read', $_SESSION['id'], null, $_SESSION['uuid']);
-        $stmt = $this->database->prepare('SELECT ip_whitelist,ip_blacklist FROM accounts WHERE aid=:aid');
-        $stmt->execute([':aid' => $_SESSION['id']]);
-        $account = $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->audit->log('ip', 'read', $user->aid(), null, $user->id());
         return $this->twig->render(
             'ip-settings',
             [
-            'title' => 'IP-Settings',
-            'server' => [
-                'asn' => $this->env->getString('IP_ASN_BLACKLIST'),
-                'whitelist' => $this->env->getString('IP_WHITELIST'),
-                'blacklist' => $this->env->getString('IP_BLACKLIST_SET'),
-            ],
-            'account' => [
-                'whitelist' => $account['ip_whitelist'],
-                'blacklist' => $account['ip_blacklist'],
-            ],
+                'title' => 'IP-Settings',
+                'server' => [
+                    'asn' => $this->env->getString('IP_ASN_BLACKLIST'),
+                    'whitelist' => $this->env->getString('IP_WHITELIST'),
+                    'blacklist' => $this->env->getString('IP_BLACKLIST_SET'),
+                ],
+                'account' => [
+                    'whitelist' => $user->ipWhitelist(),
+                    'blacklist' => $user->ipBlacklist(),
+                ],
             ]
         );
     }

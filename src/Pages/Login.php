@@ -2,39 +2,32 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\MasterPassword;
 use PDO;
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Blowfish;
 use Swoole\MySQL\Exception;
 
 class Login
 {
     private PDO $database;
     private ENV $env;
-    private AES $aes;
-    private Blowfish $blowfish;
+    private MasterPassword $master;
     private Audit $audit;
 
-    public function __construct(Audit $audit, PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
+    public function __construct(Audit $audit, PDO $database, ENV $env, MasterPassword $master)
     {
         $this->audit = $audit;
         $this->database = $database;
         $this->env = $env;
-        $this->aes = $aes;
-        $this->blowfish = $blowfish;
-        $this->aes->setKeyLength(256);
-        $this->aes->setKey($this->env->getString('PASSWORD_KEY'));
-        $this->aes->setIV($this->env->getString('PASSWORD_IV'));
-        $this->blowfish->setKeyLength(448);
-        $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
-        $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
+        $this->master = $master;
     }
-    public function get(string $id, string $password): string
+    public function get(User $user, string $id, string $password): string
     {
-        if (!isset($_SESSION['password'])) {
+        if ($this->master->has()) {
             header('Location: /', true, 303);
             return '';
         }
@@ -43,8 +36,7 @@ class Login
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user) {
             try {
-                $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-                KeyLoader::private($id, $master);
+                KeyLoader::private($id, $this->master->get());
             } catch (Exception $ex) {
                 header('Location: /', true, 303);
                 return '';

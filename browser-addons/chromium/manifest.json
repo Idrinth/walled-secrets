@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "version": "1.6.0",
+    "version": "1.8.0",
     "name": "idrinth/walled-secrets",
     "author": "Björn 'Idrinth' Büttner",
     "homepage_url": "https://github.com/idrinth/walled-secrets",

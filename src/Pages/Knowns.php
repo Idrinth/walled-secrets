@@ -2,13 +2,14 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
 use De\Idrinth\WalledSecrets\Services\May2F;
-use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\SecretHandler;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -22,13 +23,22 @@ class Knowns
     private AES $aes;
     private Blowfish $blowfish;
     private ENV $env;
-    private ShareWithOrganisation $share;
+    private SecretHandler $share;
     private Mailer $mailer;
     private May2F $twoFactor;
     private Audit $audit;
 
-    public function __construct(Audit $audit, May2F $twoFactor, Mailer $mailer, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
-    {
+    public function __construct(
+        Audit $audit,
+        May2F $twoFactor,
+        Mailer $mailer,
+        PDO $database,
+        Twig $twig,
+        AES $aes,
+        Blowfish $blowfish,
+        ENV $env,
+        SecretHandler $share
+    ) {
         $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->mailer = $mailer;
@@ -46,9 +56,9 @@ class Knowns
         $this->share = $share;
     }
 
-    public function post(array $post, string $id): string
+    public function post(User $user, array $post, string $id): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
@@ -62,17 +72,17 @@ class Knowns
 FROM knowns
 WHERE knowns.id=:id AND knowns.`owner`=:account'
         );
-        $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
+        $stmt->execute([':id' => $id, ':account' => $user->aid()]);
         $known = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$known) {
             header('Location: /socials', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code'] ?? '', $_SESSION['id'])) {
+        if (!$this->twoFactor->may($post['code'] ?? '', $user->aid())) {
             header('Location: /knowns/' . $id, true, 303);
             return '';
         }
-        if (isset($post['identifier']) && isset($post['user']) && isset($post['password']) && isset($post['identifier'])) {
+        if (isset($post['identifier']) && isset($post['user']) && isset($post['password'])) {
             $stmt = $this->database->prepare(
                 'SELECT accounts.id,accounts.aid,folders.aid as folder
 FROM accounts
@@ -80,12 +90,9 @@ INNER JOIN knowns ON knowns.target=accounts.aid
 INNER JOIN folders ON knowns.target=folders.`owner` AND folders.`default` AND folders.`type`="Account"
 WHERE knowns.`owner`=:owner AND knowns.id=:id'
             );
-            $stmt->execute([':id' => $id, ':owner' => $_SESSION['id']]);
+            $stmt->execute([':id' => $id, ':owner' => $user->aid()]);
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
             $login = Uuid::uuid1()->toString();
-            $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:aid');
-            $stmt->execute([':aid' => $_SESSION['aid']]);
-            $sender = $stmt->fetchColumn();
             $this->share->updateLogin(
                 $data['aid'],
                 $data['id'],
@@ -96,13 +103,12 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
                 $post['note'] ?? '',
                 $post['identifier']
             );
-            $this->audit->log('login', 'create', $_SESSION['id'], null, $login);
+            $this->audit->log('login', 'create', $user->aid(), null, $login);
             $this->mailer->send(
-                $data['aid'],
                 'new-login',
                 [
                     'public' => $post['identifier'],
-                    'sender' => $sender,
+                    'sender' => $user->display(),
                     'id' => $login,
                 ],
                 'Login added at ' . $this->env->getString('SYSTEM_HOSTNAME'),
@@ -119,12 +125,9 @@ INNER JOIN knowns ON knowns.target=accounts.aid
 INNER JOIN folders ON knowns.target=folders.`owner` AND folders.`default` AND folders.`type`="Account"
 WHERE knowns.`owner`=:owner AND knowns.id=:id'
             );
-            $stmt->execute([':id' => $id, ':owner' => $_SESSION['id']]);
+            $stmt->execute([':id' => $id, ':owner' => $user->aid()]);
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
             $note = Uuid::uuid1()->toString();
-            $stmt = $this->database->prepare('SELECT display FROM accounts WHERE aid=:aid');
-            $stmt->execute([':aid' => $_SESSION['aid']]);
-            $sender = $stmt->fetchColumn();
             $this->share->updateNote(
                 $data['aid'],
                 $data['id'],
@@ -133,13 +136,12 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
                 $post['content'],
                 $post['public']
             );
-            $this->audit->log('note', 'create', $_SESSION['id'], null, $note);
+            $this->audit->log('note', 'create', $user->aid(), null, $note);
             $this->mailer->send(
-                $data['aid'],
                 'new-note',
                 [
                     'public' => $post['public'],
-                    'sender' => $sender,
+                    'sender' => $user->display(),
                     'id' => $note,
                 ],
                 'Note added at ' . $this->env->getString('SYSTEM_HOSTNAME'),
@@ -153,8 +155,8 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
             header('Location: /knowns/' . $id, true, 303);
             return '';
         }
-        $this->audit->log('known', 'modify', $_SESSION['id'], null, $id);
-        $public = KeyLoader::public($_SESSION['uuid']);
+        $this->audit->log('known', 'modify', $user->aid(), null, $id);
+        $public = KeyLoader::public($user->id());
         $iv = Random::string(16);
         $key = Random::string(32);
         $shared = new AES('ctr');
@@ -163,21 +165,19 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
         $shared->setIV($iv);
         $this->database
             ->prepare('UPDATE knowns SET note=:note, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
-            ->execute(
-                [
-                ':owner' => $_SESSION['id'],
+            ->execute([
+                ':owner' => $user->aid(),
                 ':id' => $id,
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
                 ':note' => $shared->encrypt($post['note']),
-                ]
-            );
+            ]);
         header('Location: /knowns/' . $id, true, 303);
         return '';
     }
-    public function get(string $id): string
+    public function get(User $user, string $id): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
@@ -192,16 +192,16 @@ FROM knowns
 INNER JOIN accounts ON accounts.aid = knowns.target
 WHERE knowns.id=:id AND knowns.`owner`=:account'
         );
-        $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
+        $stmt->execute([':id' => $id, ':account' => $user->aid()]);
         $known = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$known) {
             header('Location: /', true, 303);
             return '';
         }
-        $this->audit->log('known', 'read', $_SESSION['id'], null, $id);
+        $this->audit->log('known', 'read', $user->aid(), null, $id);
         set_time_limit(0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $private = KeyLoader::private($_SESSION['uuid'], $master);
+        $private = KeyLoader::private($user->id(), $master);
         if ($known['note']) {
             $known['iv'] = $private->decrypt($known['iv']);
             $known['key'] = $private->decrypt($known['key']);
@@ -214,8 +214,8 @@ WHERE knowns.id=:id AND knowns.`owner`=:account'
         return $this->twig->render(
             'known',
             [
-            'known' => $known,
-            'title' => $known['display']
+                'known' => $known,
+                'title' => $known['display']
             ]
         );
     }

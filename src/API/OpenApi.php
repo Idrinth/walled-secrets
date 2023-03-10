@@ -2,9 +2,11 @@
 
 namespace De\Idrinth\WalledSecrets\API;
 
+use De\Idrinth\WalledSecrets\Models\User;
+
 class OpenApi
 {
-    public function get()
+    public function get(User $user)
     {
         header('Content-Type: application/json');
         return str_replace(

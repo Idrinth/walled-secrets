@@ -2,7 +2,8 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\Twig;
 
 class Imprint
 {
@@ -12,7 +13,7 @@ class Imprint
     {
         $this->twig = $twig;
     }
-    public function get(): string
+    public function get(User $user): string
     {
         return $this->twig->render('imprint', ['title' => 'Imprint', 'disableRefresh' => true]);
     }

@@ -2,7 +2,8 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 
 class Search
@@ -16,39 +17,43 @@ class Search
         $this->twig = $twig;
     }
 
-    public function get()
+    public function get(User $user)
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
         return $this->twig->render(
             'search',
             [
-            'title' => 'Search',
+                'title' => 'Search',
             ]
         );
     }
 
-    public function post(array $post)
+    public function post(User $user, array $post)
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT public,id FROM logins WHERE public LIKE CONCAT("%",:term,"%") AND `account`=:id');
-        $stmt->execute([':id' => $_SESSION['id'], ':term' => $post['term']]);
+        $stmt = $this->database->prepare('SELECT public,id
+FROM logins
+WHERE public LIKE CONCAT("%",:term,"%") AND `account`=:id');
+        $stmt->execute([':id' => $user->aid(), ':term' => $post['term']]);
         $logins = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt = $this->database->prepare('SELECT public,id FROM notes WHERE public LIKE CONCAT("%",:term,"%") AND `account`=:id');
-        $stmt->execute([':id' => $_SESSION['id'], ':term' => $post['term']]);
+        $stmt = $this->database->prepare('SELECT public,id
+FROM notes
+WHERE public LIKE CONCAT("%",:term,"%") AND `account`=:id');
+        $stmt->execute([':id' => $user->aid(), ':term' => $post['term']]);
         $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $this->twig->render(
             'search',
             [
-            'term' => $post['term'],
-            'title' => 'Search',
-            'logins' => $logins,
-            'notes' => $notes,
+                'term' => $post['term'],
+                'title' => 'Search',
+                'logins' => $logins,
+                'notes' => $notes,
             ]
         );
     }

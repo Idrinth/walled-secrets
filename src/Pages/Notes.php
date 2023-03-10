@@ -2,10 +2,13 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
-use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\May2F;
+use De\Idrinth\WalledSecrets\Services\SecretHandler;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
@@ -17,12 +20,20 @@ class Notes
     private AES $aes;
     private Blowfish $blowfish;
     private ENV $env;
-    private ShareWithOrganisation $share;
+    private SecretHandler $share;
     private May2F $twoFactor;
     private Audit $audit;
 
-    public function __construct(Audit $audit, May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
-    {
+    public function __construct(
+        Audit $audit,
+        May2F $twoFactor,
+        PDO $database,
+        Twig $twig,
+        AES $aes,
+        Blowfish $blowfish,
+        ENV $env,
+        SecretHandler $share
+    ) {
         $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->database = $database;
@@ -39,10 +50,14 @@ class Notes
         $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
 
-    public function post(array $post, string $id): string
+    public function post(User $user, array $post, string $id): string
     {
+        if ($user->aid() === 0) {
+            header('Location: /', true, 303);
+            return '';
+        }
         $stmt = $this->database->prepare('SELECT * FROM logins WHERE id=:id AND `account`=:account');
-        $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
+        $stmt->execute([':id' => $id, ':account' => $user->aid()]);
         $note = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$note) {
             header('Location: /', true, 303);
@@ -54,8 +69,10 @@ class Notes
         $mayEdit = true;
         $isOrganisation = false;
         if ($folder['type'] === 'Organisation') {
-            $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
-            $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
+            $stmt = $this->database->prepare(
+                'SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner'
+            );
+            $stmt->execute([':org' => $folder['owner'], ':owner' => $user->aid()]);
             $role = $stmt->fetchColumn();
             $mayEdit = in_array($role, ['Administrator', 'Owner', 'Member'], true);
             $isOrganisation = true;
@@ -64,7 +81,7 @@ class Notes
             header('Location: /', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code'] ?? '', $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+        if (!$this->twoFactor->may($post['code'] ?? '', $user->aid(), $isOrganisation ? $folder['owner'] : 0)) {
             header('Location: /logins/' . $id, true, 303);
             return '';
         }
@@ -76,7 +93,7 @@ class Notes
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
                 ->execute([':id' => $note['folder']]);
             header('Location: /', true, 303);
-            $this->audit->log('note', 'delete', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
+            $this->audit->log('note', 'delete', $user->aid(), $isOrganisation ? $folder['owner'] : null, $id);
             return '';
         }
         if (isset($post['organisation']) && !$isOrganisation) {
@@ -90,9 +107,11 @@ class Notes
                 'SELECT organisations.aid
 FROM organisations
 INNER JOIN memberships ON memberships.organisation=organisations.aid
-WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role` IN ("Owner","Administrator","Member")'
+WHERE organisations.id=:id
+AND memberships.`account`=:user
+AND memberships.`role` IN ("Owner","Administrator","Member")'
             );
-            $stmt->execute([':id' => $org, ':user' => $_SESSION['id']]);
+            $stmt->execute([':id' => $org, ':user' => $user->aid()]);
             $organisation = $stmt->fetchColumn();
             if (!$organisation || $organisation !== $folder['owner']) {
                 header('Location: /notes/' . $id, true, 303);
@@ -100,7 +119,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             }
             set_time_limit(0);
             $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-            $private = KeyLoader::private($_SESSION['uuid'], $master);
+            $private = KeyLoader::private($user->id(), $master);
             if ($note['content']) {
                 $note['iv'] = $private->decrypt($note['iv']);
                 $note['key'] = $private->decrypt($note['key']);
@@ -110,27 +129,44 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 $shared->setKey($note['key']);
                 $post['content'] = $shared->decrypt($note['content']);
             }
-            $this->audit->log('note', 'create', $_SESSION['id'], $organisation, $id);
+            $this->audit->log('note', 'create', $user->aid(), $organisation, $id);
         }
         if ($isOrganisation) {
-            $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
+            $stmt = $this->database->prepare('SELECT `aid`,`id`
+FROM `memberships`
+INNER JOIN accounts ON memberships.`account`=accounts.aid
+WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute();
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
-                $this->share->updateNote($user['aid'], $user['id'], $note['folder'], $id, $post['content'], $post['identifier']);
+                $this->share->updateNote(
+                    $user['aid'],
+                    $user['id'],
+                    $note['folder'],
+                    $id,
+                    $post['content'],
+                    $post['identifier']
+                );
             }
-            $this->audit->log('note', 'modify', $_SESSION['id'], $folder['owner'], $id);
+            $this->audit->log('note', 'modify', $user->aid(), $folder['owner'], $id);
             header('Location: /notes/' . $id, true, 303);
             return '';
         }
-        $this->audit->log('note', 'modify', $_SESSION['id'], null, $id);
-        $this->share->updateNote($_SESSION['id'], $_SESSION['uuid'], $note['folder'], $id, $post['content'], $post['identifier']);
+        $this->audit->log('note', 'modify', $user->aid(), null, $id);
+        $this->share->updateNote(
+            $user->aid(),
+            $user->id(),
+            $note['folder'],
+            $id,
+            $post['content'],
+            $post['identifier']
+        );
         header('Location:  /notes/' . $id, true, 303);
         return '';
     }
 
-    public function get(string $id): string
+    public function get(User $user, string $id): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
@@ -140,7 +176,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             return '';
         }
         $stmt = $this->database->prepare('SELECT * FROM notes WHERE id=:id AND `account`=:account');
-        $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
+        $stmt->execute([':id' => $id, ':account' => $user->aid()]);
         $note = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$note) {
             header('Location: /', true, 303);
@@ -152,8 +188,10 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
         $maySee = true;
         $isOrganisation = false;
         if ($folder['type'] === 'Organisation') {
-            $stmt = $this->database->prepare('SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner');
-            $stmt->execute([':org' => $folder['owner'], ':owner' => $_SESSION['id']]);
+            $stmt = $this->database->prepare(
+                'SELECT `role` FROM memberships WHERE organisation=:org AND `account`=:owner'
+            );
+            $stmt->execute([':org' => $folder['owner'], ':owner' => $user->aid()]);
             $role = $stmt->fetchColumn();
             $maySee = in_array($role, ['Administrator', 'Owner', 'Member', 'Reader'], true);
             $isOrganisation = true;
@@ -163,9 +201,9 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             return '';
         }
         set_time_limit(0);
-        $this->audit->log('note', 'read', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
+        $this->audit->log('note', 'read', $user->aid(), $isOrganisation ? $folder['owner'] : null, $id);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $private = KeyLoader::private($_SESSION['uuid'], $master);
+        $private = KeyLoader::private($user->id(), $master);
         if ($note['content']) {
             $note['iv'] = $private->decrypt($note['iv']);
             $note['key'] = $private->decrypt($note['key']);
@@ -184,15 +222,15 @@ INNER JOIN folders ON organisations.aid=folders.`owner` AND folders.`type`="Orga
 INNER JOIN memberships ON memberships.organisation=organisations.aid
 WHERE memberships.`account`=:id AND memberships.`role` NOT IN ("Reader","Proposed")'
             );
-            $stmt->execute([':id' => $_SESSION['id']]);
+            $stmt->execute([':id' => $user->aid()]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         return $this->twig->render(
             'note',
             [
-            'note' => $note,
-            'title' => $note['public'],
-            'organisations' => $organisations,
+                'note' => $note,
+                'title' => $note['public'],
+                'organisations' => $organisations,
             ]
         );
     }

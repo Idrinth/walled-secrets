@@ -57,6 +57,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     {
         return 0;
     }
+    // phpcs:ignore
     public function create_sid(): string
     {
         $chars = str_split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');

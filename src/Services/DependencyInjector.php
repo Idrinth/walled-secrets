@@ -24,7 +24,7 @@ class DependencyInjector
             }
         }
     }
-    public function init(ReflectionClass $class): object
+    private function init(ReflectionClass $class): object
     {
         if (!isset($this->singletons[$class->getName()])) {
             $args = [];
@@ -44,8 +44,14 @@ class DependencyInjector
             $this->register(new $handler(...$args));
         }
         if (!isset($this->singletons[$class->getName()])) {
-            throw new UnexpectedValueException("Couldn'find {$class->getName()} in " . implode(',', array_keys($this->singletons)));
+            throw new UnexpectedValueException(
+                "Couldn'find {$class->getName()} in " . implode(',', array_keys($this->singletons))
+            );
         }
         return $this->singletons[$class->getName()];
+    }
+    public function get(string $class): object
+    {
+        return $this->init(new ReflectionClass($class));
     }
 }

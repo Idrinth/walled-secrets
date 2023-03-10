@@ -2,10 +2,11 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 use PragmaRX\Google2FAQRCode\Google2FA;
 
@@ -26,9 +27,9 @@ class TwoFactor
         $this->audit = $audit;
     }
 
-    public function get(): string
+    public function get(User $user): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
@@ -36,9 +37,9 @@ class TwoFactor
             header('Location: /', true, 303);
             return '';
         }
-        $this->audit->log('2fa', 'read', $_SESSION['id'], null, $_SESSION['uuid']);
+        $this->audit->log('2fa', 'read', $user->aid(), null, $user->id());
         $stmt = $this->database->prepare('SELECT `2fa` FROM accounts WHERE aid=:aid');
-        $stmt->execute([':aid' => $_SESSION['id']]);
+        $stmt->execute([':aid' => $user->aid()]);
         $twofactor = $stmt->fetchColumn();
         if (!$twofactor) {
             $_SESSION['2fakey'] = $this->twoFactor->generateSecretKey($this->env->getInt('2FA_SECRET_LENGTH'));
@@ -61,14 +62,14 @@ class TwoFactor
         return $this->twig->render(
             '2fa-deactivation',
             [
-            'title' => 'Deactivate 2FA',
-            'reset' => $reset,
+                'title' => 'Deactivate 2FA',
+                'reset' => $reset,
             ]
         );
     }
-    public function post(array $post): string
+    public function post(User $user, array $post): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
@@ -77,29 +78,33 @@ class TwoFactor
             return '';
         }
         $stmt = $this->database->prepare('SELECT `2fa` FROM accounts WHERE aid=:aid');
-        $stmt->execute([':aid' => $_SESSION['id']]);
+        $stmt->execute([':aid' => $user->aid()]);
         $twofactor = $stmt->fetchColumn();
         if (!$twofactor && isset($_SESSION['2fakey']) && isset($post['secret'])) {
             if ($this->twoFactor->verifyKey($_SESSION['2fakey'], $post['secret'], 0)) {
-                $this->audit->log('2fa', 'create', $_SESSION['id'], null, $_SESSION['uuid']);
+                $this->audit->log('2fa', 'create', $user->aid(), null, $user->id());
                 $_SESSION['2fareset'] = PasswordGenerator::make();
                 $this->database
                     ->prepare('UPDATE accounts set `2fa`=:fa,`2fareset`=:reset WHERE aid=:aid')
-                    ->execute([':aid' => $_SESSION['id'], ':fa' => $_SESSION['2fakey'], ':reset' => $_SESSION['2fareset']]);
+                    ->execute([
+                        ':aid' => $user->aid(),
+                        ':fa' => $_SESSION['2fakey'],
+                        ':reset' => $_SESSION['2fareset']
+                    ]);
             }
             unset($_SESSION['2fakey']);
         } elseif ($twofactor && isset($post['secret'])) {
             if ($this->twoFactor->verify($post['secret'], $twofactor, 0)) {
-                $this->audit->log('2fa', 'delete', $_SESSION['id'], null, $_SESSION['uuid']);
+                $this->audit->log('2fa', 'delete', $user->aid(), null, $user->id());
                 $this->database
                     ->prepare('UPDATE accounts set `2fa`="",`2fareset`="" WHERE aid=:aid')
-                    ->execute([':aid' => $_SESSION['id']]);
+                    ->execute([':aid' => $user->aid()]);
             }
         } elseif ($twofactor && isset($post['reset'])) {
-            $this->audit->log('2fa', 'delete', $_SESSION['id'], null, $_SESSION['uuid']);
+            $this->audit->log('2fa', 'delete', $user->aid(), null, $user->id());
             $this->database
                 ->prepare('UPDATE accounts set `2fa`="",`2fareset`="" WHERE aid=:aid AND `2fareset`=:reset')
-                ->execute([':aid' => $_SESSION['id'], ':reset' => $post['reset']]);
+                ->execute([':aid' => $user->aid(), ':reset' => $post['reset']]);
         }
         header('Location: /2fa', true, 303);
         return '';

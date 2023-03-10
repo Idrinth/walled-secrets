@@ -15,8 +15,22 @@ class DataCleanup
 
     public function run()
     {
-        $del1 = $this->database->prepare('DELETE FROM logins WHERE folder IN (SELECT folder FROM folders WHERE `type`="Organisation" AND `owner`=:org) AND `account` NOT IN (SELECT `account` FROM memberships WHERE organisation=:org AND `role`<>"Proposed")');
-        $del2 = $this->database->prepare('DELETE FROM notes WHERE folder IN (SELECT folder FROM folders WHERE `type`="Organisation" AND `owner`=:org) AND `account` NOT IN (SELECT `account` FROM memberships WHERE organisation=:org AND `role`<>"Proposed")');
+        $del1 = $this->database->prepare('DELETE FROM logins
+WHERE folder IN (
+    SELECT folder FROM folders
+    WHERE `type`="Organisation" AND `owner`=:org
+) AND `account` NOT IN (
+    SELECT `account` FROM memberships
+    WHERE organisation=:org AND `role`<>"Proposed"
+)');
+        $del2 = $this->database->prepare('DELETE FROM notes
+WHERE folder IN (
+    SELECT folder FROM folders
+    WHERE `type`="Organisation" AND `owner`=:org
+) AND `account` NOT IN (
+    SELECT `account` FROM memberships
+    WHERE organisation=:org AND `role`<>"Proposed"
+)');
         $stmt = $this->database->query('SELECT aid FROM organisations');
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $org) {
             $del1->closeCursor();

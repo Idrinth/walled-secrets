@@ -6,7 +6,7 @@ use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Random;
 
-class ShareWithOrganisation
+class SecretHandler
 {
     private PDO $database;
 
@@ -15,11 +15,18 @@ class ShareWithOrganisation
         $this->database = $database;
     }
 
-    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $content, string $publicIdentifier): void
-    {
+    public function updateNote(
+        int $owner,
+        string $uuid,
+        int $folder,
+        string $id,
+        string $content,
+        string $publicIdentifier
+    ): void {
         $public = KeyLoader::public($uuid);
         $this->database
-            ->prepare('INSERT IGNORE INTO notes (public,content,iv,name,`key`,id,`owner`,folder) VALUES ("","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO notes (public,content,iv,name,`key`,id,`owner`,folder)
+VALUES ("","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -28,7 +35,9 @@ class ShareWithOrganisation
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE notes SET public=:public,content=:content, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
+            ->prepare(
+                'UPDATE notes SET public=:public,content=:content, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner'
+            )
             ->execute(
                 [
                 ':owner' => $owner,
@@ -44,11 +53,20 @@ class ShareWithOrganisation
             ->execute([':id' => $folder]);
     }
 
-    public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $note, string $publicIdentifier): void
-    {
+    public function updateLogin(
+        int $owner,
+        string $uuid,
+        int $folder,
+        string $id,
+        string $login,
+        string $password,
+        string $note,
+        string $publicIdentifier
+    ): void {
         $public = KeyLoader::public($uuid);
         $this->database
-            ->prepare('INSERT IGNORE INTO logins (public,pass,login,iv,`key`,`note`,id,`account`,folder) VALUES ("","","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO logins (public,pass,login,iv,`key`,`note`,id,`account`,folder)
+VALUES ("","","","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -57,7 +75,8 @@ class ShareWithOrganisation
         $shared->setKey($key);
         $shared->setIV($iv);
         $this->database
-            ->prepare('UPDATE logins SET public=:public,pass=:pass, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
+            ->prepare('UPDATE logins SET public=:public,pass=:pass, login=:login,iv=:iv,`key`=:key,`note`=:note
+WHERE id=:id AND `account`=:owner')
             ->execute(
                 [
                 ':owner' => $owner,

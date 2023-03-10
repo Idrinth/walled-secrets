@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Services;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use Iodev\Whois\Factory;
 use PDO;
 use Wikimedia\IPSet;
@@ -30,6 +31,9 @@ class Access
         file_put_contents($file, json_encode($status));
         return $status;
     }
+    /**
+     * @param string[] $routes
+     */
     private function byASN(array &$routes): void
     {
         $file = dirname(__DIR__, 2) . '/ipcache/asn';
@@ -55,7 +59,7 @@ class Access
         }
         file_put_contents($file, json_encode($asnRoutes));
     }
-    private function byServer($ip): bool
+    private function byServer(string $ip): bool
     {
         $file = md5($ip) . '_' . strlen($ip);
         $previous = $this->getCachedResult($file);
@@ -71,7 +75,7 @@ class Access
         $blacklist = new IPSet($routes);
         return $this->setCachedResult($file, !$blacklist->match($ip));
     }
-    private function byUser($user, $ip): bool
+    private function byUser(int $user, string $ip): bool
     {
         $file = md5($ip) . '_' . strlen($ip) . '_' . $user;
         $previous = $this->getCachedResult($file);
@@ -88,16 +92,16 @@ class Access
         $blacklist = new IPSet($this->stringToList($ips['ip_blacklist']));
         return $this->setCachedResult($file, !$blacklist->match($ip));
     }
-    public function may($ip): bool
+    public function may(string $ip, User $user): bool
     {
         if (!$this->byServer($ip)) {
             error_log("$ip blocked by server blacklist.");
             return false;
         }
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             return true;
         }
-        if (!$this->byUser($_SESSION['id'], $ip)) {
+        if (!$this->byUser($user->aid(), $ip)) {
             error_log("$ip blocked by user blacklist.");
             return false;
         }

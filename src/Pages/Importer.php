@@ -2,10 +2,11 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
-use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
-use De\Idrinth\WalledSecrets\Twig;
+use De\Idrinth\WalledSecrets\Services\SecretHandler;
+use De\Idrinth\WalledSecrets\Services\Twig;
 use DOMDocument;
 use League\Csv\Reader;
 use PDO;
@@ -16,10 +17,10 @@ class Importer
     private Twig $twig;
     private ENV $env;
     private PDO $database;
-    private ShareWithOrganisation $share;
+    private SecretHandler $share;
     private Audit $audit;
 
-    public function __construct(Audit $audit, Twig $twig, ENV $env, PDO $database, ShareWithOrganisation $share)
+    public function __construct(Audit $audit, Twig $twig, ENV $env, PDO $database, SecretHandler $share)
     {
         $this->audit = $audit;
         $this->twig = $twig;
@@ -28,30 +29,32 @@ class Importer
         $this->share = $share;
     }
 
-    public function get(): string
+    public function get(User $user): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
         return $this->twig->render('import', ['title' => 'Import']);
     }
-    private function getFolder(string $name): int
+    private function getFolder(User $user, string $name): int
     {
-        $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `type`="Account" AND `name`=:name');
-            $stmt->execute([':name' => $name, ':owner' => $_SESSION['id']]);
-            $folder = $stmt->fetchColumn();
+        $stmt = $this->database->prepare('SELECT aid
+FROM folders
+WHERE `owner`=:owner AND `type`="Account" AND `name`=:name');
+        $stmt->execute([':name' => $name, ':owner' => $user->aid()]);
+        $folder = $stmt->fetchColumn();
         if ($folder) {
             return $folder;
         }
         $folder = Uuid::uuid1()->toString();
-        $this->audit->log('folder', 'create', $_SESSION['id'], null, $folder);
+        $this->audit->log('folder', 'create', $user->aid(), null, $folder);
         $this->database
             ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
-            ->execute([':name' => $name, ':owner' => $_SESSION['id'], ':id' => $folder]);
+            ->execute([':name' => $name, ':owner' => $user->aid(), ':id' => $folder]);
         return $this->database->lastInsertId();
     }
-    private function importKeypass(string $file): string
+    private function importKeypass(User $user, string $file): string
     {
         $dom = new DOMDocument();
         if (!$dom->load($file)) {
@@ -82,7 +85,11 @@ class Importer
                                     $password = $data->getElementsByTagName('Value')->item(0)->nodeValue;
                                     break;
                                 case 'URL':
-                                    $publicIdentifier .= ' ' . preg_replace('/http?s:\/\/(.+?)($|\/.*$)/', '$1', $data->getElementsByTagName('Value')->item(0)->nodeValue);
+                                    $publicIdentifier .= ' ' . preg_replace(
+                                        '/http?s:\/\/(.+?)($|\/.*$)/',
+                                        '$1',
+                                        $data->getElementsByTagName('Value')->item(0)->nodeValue
+                                    );
                                     break;
                                 case 'Notes':
                                     $note = $data->getElementsByTagName('Value')->item(0)->nodeValue;
@@ -91,10 +98,10 @@ class Importer
                         }
                     }
                     $uuid = Uuid::uuid1()->toString();
-                    $this->audit->log('login', 'create', $_SESSION['id'], null, $uuid);
+                    $this->audit->log('login', 'create', $user->aid(), null, $uuid);
                     $this->share->updateLogin(
-                        $_SESSION['id'],
-                        $_SESSION['uuid'],
+                        $user->aid(),
+                        $user->id(),
                         $folder,
                         $uuid,
                         $login,
@@ -107,20 +114,20 @@ class Importer
         }
         return '';
     }
-    private function importBitwarden(string $file): string
+    private function importBitwarden(User $user, string $file): string
     {
         $data = json_decode(file_get_contents($file), true);
         $folders = [];
         foreach ($data['folders'] as $folder) {
-            $folders[$folder['id']] = $this->getFolder($folder['name']);
+            $folders[$folder['id']] = $this->getFolder($user, $folder['name']);
         }
         foreach ($data['items'] as $item) {
             if ($item['type'] === 1) {
                 $uuid = Uuid::uuid1()->toString();
-                $this->audit->log('login', 'create', $_SESSION['id'], null, $uuid);
+                $this->audit->log('login', 'create', $user->aid(), null, $uuid);
                 $this->share->updateLogin(
-                    $_SESSION['id'],
-                    $_SESSION['uuid'],
+                    $user->aid(),
+                    $user->id(),
                     $folders[$item['folderId']],
                     $uuid,
                     $item['login']['username'] ?? '',
@@ -132,19 +139,19 @@ class Importer
         }
         return '';
     }
-    private function importFirefox(string $file): string
+    private function importFirefox(User $user, string $file): string
     {
         $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `default`=1');
-        $stmt->execute([':owner' => $_SESSION['id']]);
+        $stmt->execute([':owner' => $user->aid()]);
         $folder = $stmt->fetchColumn();
         $csv = Reader::createFromPath($file, 'r');
         $csv->setHeaderOffset(0);
         foreach ($csv->getRecords() as $record) {
             $uuid = Uuid::uuid1()->toString();
-            $this->audit->log('login', 'create', $_SESSION['id'], null, $uuid);
+            $this->audit->log('login', 'create', $user->aid(), null, $uuid);
             $this->share->updateLogin(
-                $_SESSION['id'],
-                $_SESSION['uuid'],
+                $user->aid(),
+                $user->id(),
                 $folder,
                 $uuid,
                 $record['username'],
@@ -155,20 +162,20 @@ class Importer
         }
         return '';
     }
-    public function post(array $post): string
+    public function post(User $user, array $post): string
     {
-        if (!isset($_SESSION['id'])) {
+        if ($user->aid() === 0) {
             header('Location: /', true, 303);
             return '';
         }
         header('Location: /', true, 303);
         switch ($post['source']) {
             case '0':
-                return $this->importKeypass($_FILES['file']['tmp_name']);
+                return $this->importKeypass($user, $_FILES['file']['tmp_name']);
             case '1':
-                return $this->importBitwarden($_FILES['file']['tmp_name']);
+                return $this->importBitwarden($user, $_FILES['file']['tmp_name']);
             case '2':
-                return $this->importFirefox($_FILES['file']['tmp_name']);
+                return $this->importFirefox($user, $_FILES['file']['tmp_name']);
         }
         return '';
     }
