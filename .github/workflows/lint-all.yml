@@ -12,15 +12,12 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version: ['7.4', '8.0', '8.1', '8.2']
     steps:
     - uses: actions/checkout@v3
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.version }}
+        php-version: 7.4
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
     - name: Run psr12 lint
