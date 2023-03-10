@@ -2,7 +2,6 @@
 
 namespace De\Idrinth\WalledSecrets\Services;
 
-use De\Idrinth\WalledSecrets\Twig;
 use PDO;
 use PHPMailer\PHPMailer\PHPMailer;
 
