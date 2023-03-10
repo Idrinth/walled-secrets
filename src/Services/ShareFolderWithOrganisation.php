@@ -5,7 +5,7 @@ namespace De\Idrinth\WalledSecrets\Services;
 use PDO;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Blowfish;
-use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib3\Crypt\RSA\PrivateKey;
 
 class ShareFolderWithOrganisation
 {
@@ -19,18 +19,16 @@ class ShareFolderWithOrganisation
     public function __construct(AES $aes, Blowfish $blowfish, PDO $database, ENV $env, ShareWithOrganisation $share)
     {
         $this->share = $share;
-        $this->aes = $aes;
-        $this->blowfish = $blowfish;
-        $this->aes->setKeyLength(256);
-        $this->aes->setKey($env->getString('PASSWORD_KEY'));
-        $this->aes->setIV($env->getString('PASSWORD_IV'));
-        $this->blowfish->setKeyLength(448);
-        $this->blowfish->setKey($env->getString('PASSWORD_BLOWFISH_KEY'));
-        $this->blowfish->setIV($env->getString('PASSWORD_BLOWFISH_IV'));
+        $aes->setKeyLength(256);
+        $aes->setKey($env->getString('PASSWORD_KEY'));
+        $aes->setIV($env->getString('PASSWORD_IV'));
+        $blowfish->setKeyLength(448);
+        $blowfish->setKey($env->getString('PASSWORD_BLOWFISH_KEY'));
+        $blowfish->setIV($env->getString('PASSWORD_BLOWFISH_IV'));
         $this->database = $database;
         if (isset($_SESSION['id']) && isset($_SESSION['uuid'])) {
             $this->user = $_SESSION['id'];
-            $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
+            $master = $aes->decrypt($blowfish->decrypt($_SESSION['password']));
             $this->private = KeyLoader::private($_SESSION['uuid'], $master);
             register_shutdown_function([$this, 'share']);
         }
