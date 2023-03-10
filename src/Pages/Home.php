@@ -55,9 +55,6 @@ class Home
     public function get(User $user): string
     {
         if ($user->aid() !== 0) {
-            $stmt = $this->database->prepare('SELECT * FROM accounts WHERE aid=:id');
-            $stmt->execute([':id' => $user->aid()]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             $stmt = $this->database->prepare('SELECT * FROM folders
 WHERE (`owner`=:id AND `type`="Account")
 OR (`type`="Organisation" AND `owner` IN (
