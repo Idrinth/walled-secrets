@@ -2,6 +2,9 @@
 
 namespace De\Idrinth\WalledSecrets\Services;
 
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Blowfish;
+
 class MasterPassword
 {
     private string $decrypted = '';
