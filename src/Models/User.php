@@ -17,7 +17,8 @@ final class User
     {
         $stmt = $database->prepare('SELECT * FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $aid]);
-        $stmt->fetch(PDO::FETCH_INTO, $this);
+        $stmt->setFetchMode(PDO::FETCH_INTO, $this);
+        $stmt->fetch();
     }
     public function ipWhitelist(): string
     {
