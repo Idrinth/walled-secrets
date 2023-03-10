@@ -6,12 +6,12 @@ use PDO;
 
 final class User
 {
-    private int $aid;
-    private string $id;
-    private string $ip_whitelist;
-    private string $ip_blacklist;
-    private string $display;
-    private bool $haveibeenpwned;
+    private int $aid = 0;
+    private string $id = '';
+    private string $ip_whitelist = '';
+    private string $ip_blacklist = '';
+    private string $display = '';
+    private bool $haveibeenpwned = false;
 
     public function __construct(int $aid, PDO $database)
     {
