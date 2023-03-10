@@ -7,19 +7,18 @@ use De\Idrinth\WalledSecrets\Models\User;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use De\Idrinth\WalledSecrets\Services\MasterPassword;
 use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\SecretHandler;
 use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
 use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Blowfish;
 
 class Logins
 {
     private PDO $database;
     private Twig $twig;
-    private AES $aes;
-    private Blowfish $blowfish;
+    private MasterPassword $master;
     private ENV $env;
     private SecretHandler $share;
     private May2F $twoFactor;
@@ -30,24 +29,16 @@ class Logins
         May2F $twoFactor,
         PDO $database,
         Twig $twig,
-        AES $aes,
-        Blowfish $blowfish,
+        MasterPassword $master,
         ENV $env,
         SecretHandler $share
     ) {
+        $this->master = $master;
         $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->database = $database;
         $this->twig = $twig;
-        $this->aes = $aes;
-        $this->blowfish = $blowfish;
         $this->env = $env;
-        $this->aes->setKeyLength(256);
-        $this->aes->setKey($this->env->getString('PASSWORD_KEY'));
-        $this->aes->setIV($this->env->getString('PASSWORD_IV'));
-        $this->blowfish->setKeyLength(448);
-        $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
-        $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
         $this->share = $share;
     }
 
@@ -115,8 +106,7 @@ AND memberships.`role` IN ("Owner","Administrator","Member")'
                 return '';
             }
             set_time_limit(0);
-            $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-            $private = KeyLoader::private($user->id(), $master);
+            $private = KeyLoader::private($user->id(), $this->master->get());
             $post['identifier'] = $login['public'];
             $post['user'] = $private->decrypt($login['login']);
             $post['password'] = $private->decrypt($login['pass']);
@@ -239,8 +229,7 @@ WHERE organisation=:org AND `role`<>"Proposed"');
         }
         $this->audit->log('login', 'read', $user->aid(), $isOrganisation ? $folder['owner'] : null, $id);
         set_time_limit(0);
-        $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
-        $private = KeyLoader::private($$user->id(), $master);
+        $private = KeyLoader::private($user->id(), $this->master->get());
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
         if ($login['note']) {
