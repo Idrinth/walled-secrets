@@ -39,6 +39,9 @@ class ShareWithOrganisation
                 ':content' => $shared->encrypt($content),
                 ]
             );
+        $this->database
+            ->prepare('UPDATE folders SET modified=NOW() WHERE aid=:id')
+            ->execute([':id' => $folder]);
     }
 
     public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $note, string $publicIdentifier): void
@@ -67,5 +70,8 @@ class ShareWithOrganisation
                 ':note' => $shared->encrypt($note),
                 ]
             );
+        $this->database
+            ->prepare('UPDATE folders SET modified=NOW() WHERE aid=:id')
+            ->execute([':id' => $folder]);
     }
 }
