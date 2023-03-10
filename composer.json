@@ -19,7 +19,8 @@
         "php-curl-class/php-curl-class": "^9.14.1",
         "bacon/bacon-qr-code": "^2.0.8",
         "io-developer/php-whois": "4.1.10",
-        "wikimedia/ip-set": "^3.1.0"
+        "wikimedia/ip-set": "^3.1.0",
+        "league/csv": "^9.8.0"
     },
     "autoload": {
         "psr-4": {

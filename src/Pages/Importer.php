@@ -6,6 +6,7 @@ use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
 use DOMDocument;
+use League\Csv\Reader;
 use PDO;
 use Ramsey\Uuid\Uuid;
 
@@ -32,6 +33,19 @@ class Importer
         }
         return $this->twig->render('import', ['title' => 'Import']);
     }
+    private function getFolder(string $name): int
+    {
+        $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `type`="Account" AND `name`=:name');
+            $stmt->execute([':name' => $name, ':owner' => $_SESSION['id']]);
+            $folder = $stmt->fetchColumn();
+            if ($folder) {
+                return $folder;
+            }
+            $this->database
+                ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
+                ->execute([':name' => $name, ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
+            return $this->database->lastInsertId();
+    }
     private function importKeypass(string $file): string
     {
         $dom = new DOMDocument();
@@ -41,14 +55,7 @@ class Importer
         $groups = $dom->getElementsByTagName('Group');
         for ($i = 0; $i < $groups->count(); $i++) {
             $group = $groups->item($i);
-            $this->database
-                ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
-                ->execute([
-                    ':name' => $group->getElementsByTagName('Name')->item(0)->nodeValue,
-                    ':owner' => $_SESSION['id'],
-                    ':id' => Uuid::uuid1()->toString()
-                ]);
-            $folder = $this->database->lastInsertId();
+            $folder = $this->getFolder($group->getElementsByTagName('Name')->item(0)->nodeValue);
             for ($j = 0; $j < $group->childNodes->length; $j++) {
                 $secret = $group->childNodes->item($j);
                 if ($secret->localName === 'Entry') {
@@ -98,15 +105,7 @@ class Importer
         $data = json_decode(file_get_contents($file), true);
         $folders = [];
         foreach ($data['folders'] as $folder) {
-            $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `name`=:name');
-            $stmt->execute([':name' => $folder['name'], ':owner' => $_SESSION['id']]);
-            $folders[$folder['id']] = $stmt->fetchColumn();
-            if (!$folders[$folder['id']]) {
-                $this->database
-                    ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
-                    ->execute([':name' => $folder['name'], ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
-                $folders[$folder['id']] = $this->database->lastInsertId();
-            }
+            $folders[$folder['id']] = $this->getFolder($folder['name']);
         }
         foreach ($data['items'] as $item) {
             if ($item['type'] === 1) {
@@ -124,6 +123,27 @@ class Importer
         }
         return '';
     }
+    private function importFirefox(string $file): string
+    {
+        $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `default`=1');
+        $stmt->execute([':owner' => $_SESSION['id']]);
+        $folder = $stmt->fetchColumn();
+        $csv = Reader::createFromPath($file, 'r');
+        $csv->setHeaderOffset(0);
+        foreach ($csv->getRecords() as $record) {
+            $this->share->updateLogin(
+                $_SESSION['id'],
+                $_SESSION['uuid'],
+                $folder,
+                Uuid::uuid1()->toString(),
+                $record['username'],
+                $record['password'],
+                '',
+                preg_replace('/http?s:\/\/(.+?)($|\/.*$)/', '$1', $record['url'])
+            );
+        }
+        return '';
+    }
     public function post(array $post): string
     {
         if (!isset($_SESSION['id'])) {
@@ -136,6 +156,8 @@ class Importer
                 return $this->importKeypass($_FILES['file']['tmp_name']);
             case '1':
                 return $this->importBitwarden($_FILES['file']['tmp_name']);
+            case '2':
+                return $this->importFirefox($_FILES['file']['tmp_name']);
         }
         return '';
     }

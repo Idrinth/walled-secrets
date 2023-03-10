@@ -3,7 +3,7 @@ FROM php:7.4-apache
 LABEL "de.idrinth.maintainer"="Björn 'Idrinth' Büttner"
 
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
-RUN apt-get update && apt-get install curl libcurl4-openssl-dev -y
+RUN apt-get update && apt-get install curl libcurl4-openssl-dev cron -y
 RUN docker-php-ext-install pdo_mysql
 RUN a2enmod rewrite
 RUN apt-get purge $PHPIZE_DEPS php-pear -y && apt autoremove -y
@@ -17,6 +17,11 @@ COPY --chown=www-data:www-data resources /var/www/resources
 COPY --chown=www-data:www-data templates /var/www/templates
 COPY --chown=www-data:www-data vendor /var/www/vendor
 COPY --chown=www-data:www-data sessions /var/www/sessions
+
+COPY setup/crontab /etc/cron.d/walled-secrets
+RUN chmod 0644 /etc/cron.d/walled-secrets
+RUN crontab /etc/cron.d/walled-secrets
+CMD cron
 
 VOLUME /var/www/keys
 
