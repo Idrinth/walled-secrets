@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   `2fa` char(32) NOT NULL DEFAULT '',
   `ip_whitelist` text NOT NULL DEFAULT '',
   `ip_blacklist` text NOT NULL DEFAULT '',
+  `2fareset` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`aid`),
   UNIQUE KEY `mail` (`mail`),
   UNIQUE KEY `id` (`id`),
@@ -35,12 +36,12 @@ CREATE TABLE IF NOT EXISTS `folders` (
   `owner` bigint(20) unsigned NOT NULL COMMENT 'owner of the folder',
   `type` enum('Account','Organisation') NOT NULL DEFAULT 'Account' COMMENT 'What kind of owner it is',
   `default` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `modified` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`aid`),
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `name_owner` (`name`,`owner`),
   KEY `FK_folder_accounts` (`owner`) USING BTREE,
-  KEY `owner_type` (`owner`,`type`),
-  CONSTRAINT `FK_folder_accounts` FOREIGN KEY (`owner`) REFERENCES `accounts` (`aid`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `owner_type` (`owner`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='a folder to organize logins and notes';
 
 CREATE TABLE IF NOT EXISTS `invites` (
