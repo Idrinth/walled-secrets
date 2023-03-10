@@ -17,7 +17,7 @@ final class User
     {
         $stmt = $database->prepare('SELECT * FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $aid]);
-        foreach ($stmt->fetch(PDO::FETCH_ASSOC) as $property => $value) {
+        foreach ($stmt->fetch(PDO::FETCH_ASSOC) ?: [] as $property => $value) {
             $this->{$property} = $value;
         }
     }
