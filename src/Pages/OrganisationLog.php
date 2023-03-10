@@ -34,7 +34,7 @@ FROM audits
 INNER JOIN accounts ON accounts.aid=audits.`user`
 WHERE organisation=:id');
         $stmt->execute([':id' => $organisation['aid']]);
-        $this->twig->render('log', [
+        return $this->twig->render('log', [
             'title' => $organisation . ' Log',
             'entries' => $stmt->fetchAll(),
         ]);

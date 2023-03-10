@@ -27,7 +27,7 @@ FROM audits
 INNER JOIN accounts ON accounts.aid=audits.`user`
 WHERE audits.`user`=:id');
         $stmt->execute([':id' => $_SESSION['id']]);
-        $this->twig->render('log', [
+        return $this->twig->render('log', [
             'title' => 'Log',
             'entries' => $stmt->fetchAll(),
         ]);
