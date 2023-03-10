@@ -16,9 +16,10 @@ final class User
     public function __construct(int $aid, PDO $database)
     {
         $stmt = $database->prepare('SELECT * FROM accounts WHERE aid=:aid');
-        $stmt->setFetchMode(PDO::FETCH_INTO, $this);
         $stmt->execute([':aid' => $aid]);
-        $stmt->fetch();
+        foreach ($stmt->fetch(PDO::FETCH_ASSOC) as $property => $value) {
+            $this->{$property} = $value;
+        }
     }
     public function ipWhitelist(): string
     {
