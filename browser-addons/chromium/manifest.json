@@ -1,6 +1,6 @@
 {
-    "manifest_version": 2,
-    "version": "1.4.1",
+    "manifest_version": 3,
+    "version": "1.6.0",
     "name": "idrinth/walled-secrets",
     "author": "Björn 'Idrinth' Büttner",
     "homepage_url": "https://github.com/idrinth/walled-secrets",
@@ -22,7 +22,7 @@
             ]
         }
     ],
-    "browser_action": {
+    "action": {
         "browser_style": true,
         "default_icon": {
             "16": "icons/16x16.png",

@@ -63,7 +63,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         }
         if (isset($post['organisation']) && !$isOrganisation) {
             $this->database
-                ->prepare('UPDATE folders SET `owner`=:owner AND `type`="Organisation" WHERE aid=:id')
+                ->prepare('UPDATE folders SET `owner`=:owner,modified=NOW() AND `type`="Organisation" WHERE aid=:id')
                 ->execute([':aid' => $folder['aid'], ':owner' => $post['organisation']]);
             $this->bigShare->setOrganisation($post['organisation']);
             $this->bigShare->setFolder($folder['aid']);
@@ -73,7 +73,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         if (isset($post['name'])) {
             if (in_array($folder['role'], ['Administrator', 'Owner'], true)) {
                 $this->database
-                    ->prepare('UPDATE folders SET `name`=:name WHERE id=:id')
+                    ->prepare('UPDATE folders SET `name`=:name,modified=NOW() WHERE id=:id')
                     ->execute([':name' => $post['name'], ':id' => $post['id']]);
             }
             header ('Location: /folder/' . $id, true, 303);
@@ -107,6 +107,9 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             } else {
                 $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note']??'', $post['identifier']);
             }
+            $this->database
+                ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+                ->execute([':id' => $post['id']]);
         } elseif (isset($post['content']) && isset($post['public'])) {
             if ($isOrganisation) {
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
@@ -117,6 +120,9 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             } else {
                 $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['content'], $post['public']);
             }
+            $this->database
+                ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+                ->execute([':id' => $post['id']]);
         }
         header ('Location: /folder/' . $id, true, 303);
         return '';

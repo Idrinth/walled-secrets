@@ -23,6 +23,16 @@
         "/api/list-secrets": {
             "description": "List all secrets (notes and logins) for the authenticated user",
             "post": {
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "x-LAST-UPDATED",
+                        "schema": {
+                          "type": "integer"
+                        },
+                        "required": false
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "application/x-www-form-urlencoded": {
@@ -108,6 +118,16 @@
                                         }
                                     },
                                     "additionalProperties": false
+                                }
+                            }
+                        }
+                    },
+                    "304": {
+                        "description": "Nothing modified",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
                                 }
                             }
                         }

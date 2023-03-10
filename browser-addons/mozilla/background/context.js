@@ -53,10 +53,11 @@
                     for (const login of folders[folder].logins) {
                         if (reg.test(login.public)) {
                             items.push('walled-secrets-' + login.id);
+                            const org = folders[folder].organisation ? folders[folder].organisation + ':' : '';
                             browser.contextMenus.create(
                                     {
                                         id: 'walled-secrets-' + login.id,
-                                        title: login.public + ' (' + folders[folder].name + ')',
+                                        title: login.public + ' (' + org + folders[folder].name + ')',
                                         parentId: 'walled-secrets-selection',
                                     },
                                     onCreated
@@ -76,10 +77,11 @@
                     for (const login of folders[folder].logins) {
                         if (reg2.test(login.public) && !items.includes('walled-secrets-' + login.id)) {
                             items.push('walled-secrets-' + login.id);
+                            const org = folders[folder].organisation ? folders[folder].organisation + ':' : '';
                             browser.contextMenus.create(
                                     {
                                         id: 'walled-secrets-' + login.id,
-                                        title: login.public + ' (' + folders[folder].name + ')',
+                                        title: login.public + ' (' + org + folders[folder].name + ')',
                                         parentId: 'walled-secrets-selection',
                                     },
                                     onCreated

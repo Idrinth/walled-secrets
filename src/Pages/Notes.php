@@ -70,6 +70,9 @@ class Notes
             $this->database
                 ->prepare('DELETE FROM notes WHERE id=:id')
                 ->execute([':id' => $id]);
+            $this->database
+                ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+                ->execute([':id' => $note['folder']]);
             header ('Location: /', true, 303);
             return '';
         }
@@ -79,7 +82,7 @@ class Notes
             $stmt = $this->database->prepare('SELECT aid,`type`,`owner` FROM folders WHERE id=:id');
             $stmt->execute([':id' => $fid]);
             $folder = $stmt->fetch(PDO::FETCH_ASSOC);
-            $login['folder'] = $folder['aid'];
+            $note['folder'] = $folder['aid'];
             $stmt = $this->database->prepare('SELECT organisations.aid
 FROM organisations
 INNER JOIN memberships ON memberships.organisation=organisations.aid
@@ -110,12 +113,18 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute();
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
-                $this->share->updateNote($user['aid'], $user['id'], $login['folder'], $id, $post['content'], $post['identifier']);
+                $this->share->updateNote($user['aid'], $user['id'], $note['folder'], $id, $post['content'], $post['identifier']);
             }
             header ('Location: /notes/' . $id, true, 303);
+            $this->database
+                ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+                ->execute([':id' => $note['folder']]);
             return '';
         }
-        $this->share->updateNote($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['content'], $post['identifier']);
+        $this->share->updateNote($_SESSION['id'], $_SESSION['uuid'], $note['folder'], $id, $post['content'], $post['identifier']);
+        $this->database
+            ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+            ->execute([':id' => $note['folder']]);
         header ('Location:  /notes/' . $id, true, 303);
         return '';
     }

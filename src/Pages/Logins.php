@@ -72,6 +72,9 @@ class Logins
             $this->database
                 ->prepare('DELETE FROM logins WHERE id=:id')
                 ->execute([':id' => $id]);
+            $this->database
+                ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+                ->execute([':id' => $login['folder']]);
             header ('Location: /', true, 303);
             return '';
         }
@@ -117,10 +120,16 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
                 $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['note']??'', $post['identifier']);
             }
+            $this->database
+                ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+                ->execute([':id' => $login['folder']]);
             header ('Location: /logins/' . $id, true, 303);
             return '';
         }
         $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['note']??'', $post['identifier']);
+        $this->database
+            ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
+            ->execute([':id' => $login['folder']]);
         header ('Location: /logins/' . $id, true, 303);
         return '';
     }

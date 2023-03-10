@@ -17,7 +17,7 @@ class ListSecrets
     {
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: POST, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type');
+        header('Access-Control-Allow-Headers: Content-Type,X-LAST-UPDATED');
         if (!isset($post['email']) || !isset($post['apikey'])) {
             header('Content-Type: application/json', true, 403);
             return '{"error":"email and apikey must be set."}';
@@ -28,6 +28,16 @@ class ListSecrets
         if (!$user) {
             header('Content-Type: application/json', true, 403);
             return '{"error":"eMail and ApiKey can\'t be found"}';
+        }
+        $headers = apache_request_headers();
+        if (isset($headers['X-LAST-UPDATED']) && intval($headers['X-LAST-UPDATED'], 10) !== 0) {
+            $stmt = $this->database->prepare('SELECT MAX(modified) FROM folders WHERE (`owner`=:id AND `type`="Account") OR (`type`="Organisation" AND `owner` IN (SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id))');
+            $stmt->execute([':id' => $user['aid']]);
+            $lastModified = intval($stmt->fetchColumn(), 10);
+            if (intval($headers['X-LAST-UPDATED'], 10) > $lastModified * 1000) {
+                header('Content-Type: text/plain', true, 304);
+                return '';
+            }
         }
         $organisations = [];
         $stmt = $this->database->prepare('SELECT organisations.aid,organisations.name FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
@@ -52,6 +62,7 @@ class ListSecrets
             if ($folder['type'] === 'Organisation') {
                 $data[$folder['id']]['organisation'] = $organisations[$folder['owner']];
             }
+            $lastModified = max($lastModified, strtotime($folder['modified']));
         }
         header('Content-Type: application/json', true, 200);
         return json_encode($data);

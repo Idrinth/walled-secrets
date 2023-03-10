@@ -8,15 +8,18 @@
         const url = document.getElementById('url').value;
         const apikey = document.getElementById('apikey').value;
         const email = document.getElementById('email').value;
+        const cooldown = document.getElementById('cooldown').value;
         chrome.storage.local.set({
             email,
             apikey,
             url,
+            cooldown,
         });
     };
-    chrome.storage.local.get(['email','apikey','url'], ({email,apikey,url}) => {
+    chrome.storage.local.get(['email','apikey','url','cooldown'], ({email,apikey,url,cooldown}) => {
         document.getElementById('email').value = email || '';
         document.getElementById('apikey').value = apikey || '';
         document.getElementById('url').value = url || '';
+        document.getElementById('cooldown').value = cooldown || 15;
     });
 })();
