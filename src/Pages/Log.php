@@ -22,7 +22,7 @@ class Log
             header('Location: /', true, 303);
             return '';
         }
-        $stmt = $this->database->prepare('SELECT audits.created,accounts.display,audits.`action`,audits.`type`,audits.ip
+        $stmt = $this->database->prepare('SELECT audits.created,accounts.display,audits.`action`,audits.`type`,audits.ip,audits.target
 FROM audits
 INNER JOIN accounts ON accounts.aid=audits.`user`
 WHERE audits.`user`=:id');
