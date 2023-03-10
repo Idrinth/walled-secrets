@@ -68,7 +68,6 @@ class ListSecrets
             } else {
                 $this->audit->log('folder', 'read', $user['aid'], null, $folder['id']);
             }
-            $lastModified = max($lastModified, strtotime($folder['modified']));
         }
         header('Content-Type: application/json', true, 200);
         return json_encode($data);
