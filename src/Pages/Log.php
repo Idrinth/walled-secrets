@@ -16,7 +16,7 @@ class Log
         $this->twig = $twig;
     }
 
-    public function get(string $id):string
+    public function get():string
     {
         if (!isset($_SESSION['id'])) {
             header('Location: /', true, 303);
