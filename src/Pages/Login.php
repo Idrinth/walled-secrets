@@ -16,9 +16,11 @@ class Login
     private ENV $env;
     private AES $aes;
     private Blowfish $blowfish;
+    private Audit $audit;
 
-    public function __construct(PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
+    public function __construct(Audit $audit, PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
     {
+        $this->audit = $audit;
         $this->database = $database;
         $this->env = $env;
         $this->aes = $aes;
@@ -48,6 +50,7 @@ class Login
                 return '';
             }
             if (strtotime($user['since']) + $this->env->getInt('SYSTEM_SESSION_DURATION') > time()) {
+                $this->audit->log('signin', 'create', $user['aid'], null, $id);
                 $_SESSION['id'] = $user['aid'];
                 $_SESSION['uuid'] = $id;
                 Cookie::set(

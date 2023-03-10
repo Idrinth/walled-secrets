@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Twig;
@@ -13,9 +14,11 @@ class IP
     private PDO $database;
     private ENV $env;
     private May2F $twoFactor;
+    private Audit $audit;
 
-    public function __construct(Twig $twig, PDO $database, ENV $env, May2F $twoFactor)
+    public function __construct(Audit $audit, Twig $twig, PDO $database, ENV $env, May2F $twoFactor)
     {
+        $this->audit = $audit;
         $this->twig = $twig;
         $this->database = $database;
         $this->env = $env;
@@ -33,6 +36,7 @@ class IP
             return '';
         }
         if (isset($post['ip'])) {
+            $this->audit->log('ip', 'modify', $_SESSION['id'], null, $_SESSION['uuid']);
             $stmt = $this->database->prepare('UPDATE `accounts` SET `ip_blacklist`=:ipbl,`ip_whitelist`=:ipwl WHERE `aid`=:id');
             $stmt->bindValue(':id', $_SESSION['id']);
             $stmt->bindValue(':ipwl', $post['whitelist'] ?? '');
@@ -49,6 +53,7 @@ class IP
             header('Location: /', true, 303);
             return '';
         }
+        $this->audit->log('ip', 'read', $_SESSION['id'], null, $_SESSION['uuid']);
         $stmt = $this->database->prepare('SELECT ip_whitelist,ip_blacklist FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $_SESSION['id']]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);

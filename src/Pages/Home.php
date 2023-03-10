@@ -23,9 +23,11 @@ class Home
     private Blowfish $blowfish;
     private ENV $env;
     private May2F $twoFactor;
+    private Audit $audit;
 
-    public function __construct(May2F $twoFactor, Twig $twig, PDO $database, Mailer $mailer, AES $aes, Blowfish $blowfish, ENV $env)
+    public function __construct(Audit $audit, May2F $twoFactor, Twig $twig, PDO $database, Mailer $mailer, AES $aes, Blowfish $blowfish, ENV $env)
     {
+        $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->env = $env;
         $this->blowfish = $blowfish;
@@ -90,18 +92,22 @@ class Home
                 $stmt->bindValue(':id', $_SESSION['id']);
                 $stmt->bindValue(':haveibeenpwned', $post['haveibeenpwned']);
                 $stmt->execute();
+                $this->audit->log('account', 'modify', $_SESSION['id'], null, $_SESSION['uuid']);
             } elseif (isset($post['regenerate'])) {
                 $stmt = $this->database
                     ->prepare('UPDATE `accounts` SET `apikey`=:ak WHERE `aid`=:id');
                 $stmt->bindValue(':id', $_SESSION['id']);
                 $stmt->bindValue(':ak', PasswordGenerator::make());
                 $stmt->execute();
+                $this->audit->log('account', 'modify', $_SESSION['id'], null, $_SESSION['uuid']);
             } elseif (isset($post['folder'])) {
                 $stmt = $this->database->prepare('INSERT INTO folders (`name`,`owner`,id) VALUES (:name, :owner,:id)');
                 $stmt->bindValue(':name', $post['folder']);
                 $stmt->bindValue(':owner', $_SESSION['id']);
-                $stmt->bindValue(':id', Uuid::uuid1()->toString());
+                $folder = Uuid::uuid1()->toString();
+                $stmt->bindValue(':id', $folder);
                 $stmt->execute();
+                $this->audit->log('folder', 'create', $_SESSION['id'], null, $folder);
             } elseif (isset($post['default'])) {
                 $this->database
                     ->prepare('UPDATE folders SET `default`=0 WHERE `owner`=:owner')
@@ -109,6 +115,7 @@ class Home
                 $this->database
                     ->prepare('UPDATE folders SET `default`=1 WHERE `type`="Account" AND `owner`=:owner AND id=:id')
                     ->execute([':owner' => $_SESSION['id'], ':id' => $post['default']]);
+                $this->audit->log('folder', 'modify', $_SESSION['id'], null, $post['default']);
             }
             header('Location: /', true, 303);
             return '';
@@ -141,6 +148,7 @@ class Home
                 $post['email'],
                 $user['display']
             );
+            $this->audit->log('login', 'create', $user['aid'], null, $user['id']);
             $this->database
                 ->prepare('UPDATE accounts SET since=NOW(),identifier=:id WHERE aid=:aid')
                 ->execute([':id' => $id, ':aid' => $user['aid']]);

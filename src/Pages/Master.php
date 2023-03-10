@@ -17,9 +17,11 @@ class Master
     private AES $aes;
     private Blowfish $blowfish;
     private Twig $twig;
+    private Audit $audit;
 
-    public function __construct(Twig $twig, PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
+    public function __construct(Audit $audit, Twig $twig, PDO $database, ENV $env, AES $aes, Blowfish $blowfish)
     {
+        $this->audit = $audit;
         $this->twig = $twig;
         $this->database = $database;
         $this->env = $env;
@@ -67,6 +69,7 @@ class Master
         $_SESSION['id'] = $user['aid'];
         $_SESSION['uuid'] = $user['id'];
         $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
+        $this->audit->log('signin', 'create', $_SESSION['id'], null, $_SESSION['uuid']);
         header('Location: /', true, 303);
         return '';
     }

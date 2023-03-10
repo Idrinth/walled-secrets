@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\Cookie;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
@@ -21,9 +22,11 @@ class SignUp
     private AES $aes;
     private ENV $env;
     private Twig $twig;
+    private Audit $audit;
 
-    public function __construct(Twig $twig, PDO $database, Blowfish $blowfish, AES $aes, ENV $env)
+    public function __construct(Audit $audit, Twig $twig, PDO $database, Blowfish $blowfish, AES $aes, ENV $env)
     {
+        $this->audit = $audit;
         $this->twig = $twig;
         $this->database = $database;
         $this->blowfish = $blowfish;
@@ -121,23 +124,29 @@ class SignUp
         $new = $this->database->lastInsertId();
         $_SESSION['id'] = $new;
         $_SESSION['uuid'] = $uuid;
+        $this->audit->log('account', 'create', $new, null, $uuid);
         $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
         $this->database
             ->prepare('UPDATE invitations SET invitee=:invitee WHERE aid=:invite')
-            ->execute([':id' => $invite['aid'], ':invitee' => $new]);
+            ->execute([':invite' => $invite['aid'], ':invitee' => $new]);
         $this->addKnown($new, $invite['inviter'], $uuid, 'Was invited by them.');
         $stmt = $this->database->prepare('SELECT id FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $invite['inviter']]);
-        $this->addKnown($invite['inviter'], $new, $stmt->fetchColumn(), 'Invited them.');
+        $inviter = $stmt->fetchColumn();
+        $this->addKnown($invite['inviter'], $new, $inviter, 'Invited them.');
+        $this->audit->log('known', 'create', $new, null, $inviter);
+        $this->audit->log('known', 'create', $invite['inviter'], null, $uuid);
         header('Location: /', true, 303);
         Cookie::set(
             $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE'),
             sha1($this->env->getString('SYSTEM_SALT') . $post['mail']),
             $this->env->getInt('SYSTEM_QUICK_LOGIN_DURATION')
         );
+        $folder = Uuid::uuid1()->toString();
         $this->database
             ->prepare('INSERT INTO folders (id,`owner`,`name`,`default`) VALUES (:id,:owner,"unsorted",1)')
-            ->execute([':id' => Uuid::uuid1()->toString(), ':owner' => $new]);
+            ->execute([':id' => $folder, ':owner' => $new]);
+        $this->audit->log('folder', 'create', $new, null, $folder);
         return '';
     }
 }

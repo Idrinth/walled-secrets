@@ -2,15 +2,18 @@
 
 namespace De\Idrinth\WalledSecrets\API;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use PDO;
 
 class ListSecrets
 {
     private PDO $database;
+    private Audit $audit;
 
-    public function __construct(PDO $database)
+    public function __construct(Audit $audit, PDO $database)
     {
         $this->database = $database;
+        $this->audit = $audit;
     }
 
     public function post(array $post)
@@ -61,6 +64,9 @@ class ListSecrets
             ];
             if ($folder['type'] === 'Organisation') {
                 $data[$folder['id']]['organisation'] = $organisations[$folder['owner']];
+                $this->audit->log('folder', 'read', $user['aid'], $folder['owner'], $folder['id']);
+            } else {
+                $this->audit->log('folder', 'read', $user['aid'], null, $folder['id']);
             }
             $lastModified = max($lastModified, strtotime($folder['modified']));
         }

@@ -2,16 +2,20 @@
 
 namespace De\Idrinth\WalledSecrets\API;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
+use Exception;
 use PDO;
 use phpseclib3\Crypt\AES;
 
 class Login
 {
     private PDO $database;
+    private Audit $audit;
 
-    public function __construct(PDO $database)
+    public function __construct(Audit $audit, PDO $database)
     {
+        $this->audit = $audit;
         $this->database = $database;
     }
 
@@ -45,6 +49,9 @@ class Login
             header('Content-Type: application/json', true, 403);
             return '{"error":"Master Password is wrong."}';
         }
+        $stmt = $this->database->prepare('SELECT `owner` FROM folders WHERE aid=:folder AND `type`="Account"');
+        $stmt->execute([':folder' => $login['folder']]);
+        $this->audit->log('note', 'read', $user['aid'], $stmt->fetchColumn() ?: null, $id);
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
         if ($login['note']) {

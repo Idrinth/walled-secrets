@@ -6,6 +6,7 @@ A small password manager, supporting proper sharing. Want to discuss the project
 - Organisations
   - shared passwords
   - shared notes
+  - may require their members to use 2FA
 - Socials
   - notes on known members
   - create notes for a person
@@ -37,6 +38,8 @@ A small password manager, supporting proper sharing. Want to discuss the project
   - 2 Factor Authentication via Google Authenticator or similar
   - IP-Locked Sessions
   - Configurable Minimum Master-Password Length
+  - Verbose account audit log
+  - Verbose organisation audit log
 
 ## Installation
 

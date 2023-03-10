@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use Curl\Curl;
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\May2F;
@@ -21,9 +22,11 @@ class Logins
     private ENV $env;
     private ShareWithOrganisation $share;
     private May2F $twoFactor;
+    private Audit $audit;
 
-    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    public function __construct(Audit $audit, May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->database = $database;
         $this->twig = $twig;
@@ -75,6 +78,7 @@ class Logins
             $this->database
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
                 ->execute([':id' => $login['folder']]);
+            $this->audit->log('login', 'delete', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
             header('Location: /', true, 303);
             return '';
         }
@@ -112,6 +116,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 $shared->setKey($login['key']);
                 $post['note'] = $shared->decrypt($login['note']);
             }
+            $this->audit->log('login', 'create', $_SESSION['id'], $organisation, $id);
             $this->database
                 ->prepare('UPDATE logins SET folder=:new WHERE id=:id AND `account`=:user')
                 ->execute([':new' => $folder['aid'], ':id' => $id, ':user' => $_SESSION['id']]);
@@ -122,9 +127,11 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
                 $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
             }
+            $this->audit->log('login', 'modify', $_SESSION['id'], $folder['owner'], $id);
             header('Location: /logins/' . $id, true, 303);
             return '';
         }
+        $this->audit->log('login', 'modify', $_SESSION['id'], null, $id);
         $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
         header('Location: /logins/' . $id, true, 303);
         return '';
@@ -163,6 +170,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             header('Location: /', true, 303);
             return '';
         }
+        $this->audit->log('login', 'read', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
         set_time_limit(0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $private = KeyLoader::private($_SESSION['uuid'], $master);

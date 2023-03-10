@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\ShareWithOrganisation;
 use De\Idrinth\WalledSecrets\Twig;
@@ -16,9 +17,11 @@ class Importer
     private ENV $env;
     private PDO $database;
     private ShareWithOrganisation $share;
+    private Audit $audit;
 
-    public function __construct(Twig $twig, ENV $env, PDO $database, ShareWithOrganisation $share)
+    public function __construct(Audit $audit, Twig $twig, ENV $env, PDO $database, ShareWithOrganisation $share)
     {
+        $this->audit = $audit;
         $this->twig = $twig;
         $this->env = $env;
         $this->database = $database;
@@ -41,10 +44,12 @@ class Importer
         if ($folder) {
             return $folder;
         }
-            $this->database
-                ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
-                ->execute([':name' => $name, ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
-            return $this->database->lastInsertId();
+        $folder = Uuid::uuid1()->toString();
+        $this->audit->log('folder', 'create', $_SESSION['id'], null, $folder);
+        $this->database
+            ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
+            ->execute([':name' => $name, ':owner' => $_SESSION['id'], ':id' => $folder]);
+        return $this->database->lastInsertId();
     }
     private function importKeypass(string $file): string
     {
@@ -85,11 +90,13 @@ class Importer
                             }
                         }
                     }
+                    $uuid = Uuid::uuid1()->toString();
+                    $this->audit->log('login', 'create', $_SESSION['id'], null, $uuid);
                     $this->share->updateLogin(
                         $_SESSION['id'],
                         $_SESSION['uuid'],
                         $folder,
-                        Uuid::uuid1()->toString(),
+                        $uuid,
                         $login,
                         $password,
                         $note,
@@ -109,11 +116,13 @@ class Importer
         }
         foreach ($data['items'] as $item) {
             if ($item['type'] === 1) {
+                $uuid = Uuid::uuid1()->toString();
+                $this->audit->log('login', 'create', $_SESSION['id'], null, $uuid);
                 $this->share->updateLogin(
                     $_SESSION['id'],
                     $_SESSION['uuid'],
                     $folders[$item['folderId']],
-                    Uuid::uuid1()->toString(),
+                    $uuid,
                     $item['login']['username'] ?? '',
                     $item['login']['password'] ?? '',
                     '',
@@ -131,11 +140,13 @@ class Importer
         $csv = Reader::createFromPath($file, 'r');
         $csv->setHeaderOffset(0);
         foreach ($csv->getRecords() as $record) {
+            $uuid = Uuid::uuid1()->toString();
+            $this->audit->log('login', 'create', $_SESSION['id'], null, $uuid);
             $this->share->updateLogin(
                 $_SESSION['id'],
                 $_SESSION['uuid'],
                 $folder,
-                Uuid::uuid1()->toString(),
+                $uuid,
                 $record['username'],
                 $record['password'],
                 '',

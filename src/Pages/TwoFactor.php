@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Twig;
@@ -14,13 +15,15 @@ class TwoFactor
     private Twig $twig;
     private Google2FA $twoFactor;
     private ENV $env;
+    private Audit $audit;
 
-    public function __construct(PDO $database, Twig $twig, Google2FA $twoFactor, ENV $env)
+    public function __construct(Audit $audit, PDO $database, Twig $twig, Google2FA $twoFactor, ENV $env)
     {
         $this->database = $database;
         $this->twig = $twig;
         $this->twoFactor = $twoFactor;
         $this->env = $env;
+        $this->audit = $audit;
     }
 
     public function get(): string
@@ -33,6 +36,7 @@ class TwoFactor
             header('Location: /', true, 303);
             return '';
         }
+        $this->audit->log('2fa', 'read', $_SESSION['id'], null, $_SESSION['uuid']);
         $stmt = $this->database->prepare('SELECT `2fa` FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $_SESSION['id']]);
         $twofactor = $stmt->fetchColumn();
@@ -77,6 +81,7 @@ class TwoFactor
         $twofactor = $stmt->fetchColumn();
         if (!$twofactor && isset($_SESSION['2fakey']) && isset($post['secret'])) {
             if ($this->twoFactor->verifyKey($_SESSION['2fakey'], $post['secret'], 0)) {
+                $this->audit->log('2fa', 'create', $_SESSION['id'], null, $_SESSION['uuid']);
                 $_SESSION['2fareset'] = PasswordGenerator::make();
                 $this->database
                     ->prepare('UPDATE accounts set `2fa`=:fa,`2fareset`=:reset WHERE aid=:aid')
@@ -85,11 +90,13 @@ class TwoFactor
             unset($_SESSION['2fakey']);
         } elseif ($twofactor && isset($post['secret'])) {
             if ($this->twoFactor->verify($post['secret'], $twofactor, 0)) {
+                $this->audit->log('2fa', 'delete', $_SESSION['id'], null, $_SESSION['uuid']);
                 $this->database
                     ->prepare('UPDATE accounts set `2fa`="",`2fareset`="" WHERE aid=:aid')
                     ->execute([':aid' => $_SESSION['id']]);
             }
         } elseif ($twofactor && isset($post['reset'])) {
+            $this->audit->log('2fa', 'delete', $_SESSION['id'], null, $_SESSION['uuid']);
             $this->database
                 ->prepare('UPDATE accounts set `2fa`="",`2fareset`="" WHERE aid=:aid AND `2fareset`=:reset')
                 ->execute([':aid' => $_SESSION['id'], ':reset' => $post['reset']]);

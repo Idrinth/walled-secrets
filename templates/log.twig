@@ -1,0 +1,25 @@
+{% include 'header.twig' %}
+<h1>{{ title }}</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Created</th>
+            <th>User</th>
+            <th>Resource</th>
+            <th>Action</th>
+            <th>IP</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in entries %}
+            <tr>
+                <th>{{ log.created }}</th>
+                <th>{{ log.display }}</th>
+                <th>{{ log.target }}@{{ log.type }}</th>
+                <th>{{ log.action }}</th>
+                <th>{{ log.ip }}</th>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% include 'footer.twig' %}

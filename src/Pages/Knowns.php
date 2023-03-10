@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
@@ -24,9 +25,11 @@ class Knowns
     private ShareWithOrganisation $share;
     private Mailer $mailer;
     private May2F $twoFactor;
+    private Audit $audit;
 
-    public function __construct(May2F $twoFactor, Mailer $mailer, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    public function __construct(Audit $audit, May2F $twoFactor, Mailer $mailer, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->mailer = $mailer;
         $this->database = $database;
@@ -45,10 +48,6 @@ class Knowns
 
     public function post(array $post, string $id): string
     {
-        if (!isset($post['note'])) {
-            header('Location: /knowns/' . $id, true, 303);
-            return '';
-        }
         if (!isset($_SESSION['id'])) {
             header('Location: /', true, 303);
             return '';
@@ -97,6 +96,7 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
                 $post['note'] ?? '',
                 $post['identifier']
             );
+            $this->audit->log('login', 'create', $_SESSION['id'], null, $login);
             $this->mailer->send(
                 $data['aid'],
                 'new-login',
@@ -133,6 +133,7 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
                 $post['content'],
                 $post['public']
             );
+            $this->audit->log('note', 'create', $_SESSION['id'], null, $note);
             $this->mailer->send(
                 $data['aid'],
                 'new-note',
@@ -148,6 +149,11 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
             header('Location: /socials', true, 303);
             return '';
         }
+        if (!isset($post['note'])) {
+            header('Location: /knowns/' . $id, true, 303);
+            return '';
+        }
+        $this->audit->log('known', 'modify', $_SESSION['id'], null, $id);
         $public = KeyLoader::public($_SESSION['uuid']);
         $iv = Random::string(16);
         $key = Random::string(32);
@@ -192,6 +198,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account'
             header('Location: /', true, 303);
             return '';
         }
+        $this->audit->log('known', 'read', $_SESSION['id'], null, $id);
         set_time_limit(0);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $private = KeyLoader::private($_SESSION['uuid'], $master);

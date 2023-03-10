@@ -2,6 +2,7 @@
 
 namespace De\Idrinth\WalledSecrets\Pages;
 
+use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\ShareFolderWithOrganisation;
@@ -18,9 +19,11 @@ class Folder
     private ShareFolderWithOrganisation $bigShare;
     private ShareWithOrganisation $smallShare;
     private May2F $twoFactor;
+    private Audit $audit;
 
-    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, ShareWithOrganisation $smallShare)
+    public function __construct(Audit $audit, May2F $twoFactor, PDO $database, Twig $twig, ENV $env, ShareFolderWithOrganisation $bigShare, ShareWithOrganisation $smallShare)
     {
+        $this->audit = $audit;
         $this->database = $database;
         $this->env = $env;
         $this->twig = $twig;
@@ -70,13 +73,15 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $this->bigShare->setOrganisation($post['organisation']);
             $this->bigShare->setFolder($folder['aid']);
             header('Location: /folder/' . $id, true, 303);
+            $this->audit->log('folder', 'create', $_SESSION['id'], $post['organisation'], $id);
             return '';
         }
         if (isset($post['name'])) {
             if (in_array($folder['role'], ['Administrator', 'Owner'], true)) {
                 $this->database
                     ->prepare('UPDATE folders SET `name`=:name,modified=NOW() WHERE id=:id')
-                    ->execute([':name' => $post['name'], ':id' => $post['id']]);
+                    ->execute([':name' => $post['name'], ':id' => $id]);
+                $this->audit->log('folder', 'modify', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
             }
             header('Location: /folder/' . $id, true, 303);
             return '';
@@ -92,6 +97,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 $this->database
                     ->prepare('DELETE FROM folders WHERE aid=:id')
                     ->execute([':id' => $folder['aid']]);
+                $this->audit->log('folder', 'delete', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
             }
             header('Location: /', true, 303);
             return '';
@@ -101,22 +107,26 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         }
         if (isset($post['password']) && isset($post['user']) && isset($post['identifier'])) {
             if ($isOrganisation) {
+                $this->audit->log('login', 'create', $_SESSION['id'], $folder['owner'], $post['id']);
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
                     $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
                 }
             } else {
+                $this->audit->log('login', 'create', $_SESSION['id'], null, $post['id']);
                 $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
             }
         } elseif (isset($post['content']) && isset($post['public'])) {
             if ($isOrganisation) {
+                $this->audit->log('note', 'create', $_SESSION['id'], $folder['owner'], $post['id']);
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
                     $this->smallShare->updateNote($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['content'], $post['public']);
                 }
             } else {
+                $this->audit->log('note', 'create', $_SESSION['id'], null, $post['id']);
                 $this->smallShare->updateNote($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['content'], $post['public']);
             }
         }
@@ -160,6 +170,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $stmt->execute([':user' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+        $this->audit->log('folder', 'read', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
         return $this->twig->render(
             'folder',
             [

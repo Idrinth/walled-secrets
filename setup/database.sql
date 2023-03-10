@@ -18,6 +18,22 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   KEY `mail_apikey` (`mail`,`apikey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='your user accounts';
 
+CREATE TABLE IF NOT EXISTS `audits` (
+  `aid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user` bigint(20) unsigned NOT NULL,
+  `target` char(36) NOT NULL,
+  `organisation` bigint(20) unsigned DEFAULT NULL,
+  `type` enum('invite','known','login','note','organisation','signin','signup','membership','2fa','ip') NOT NULL,
+  `action` enum('create','delete','read','modify') NOT NULL,
+  `ip` varchar(255) NOT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`aid`),
+  KEY `FK_audits_accounts` (`user`),
+  KEY `FK_audits_organisations` (`organisation`),
+  CONSTRAINT `FK_audits_accounts` FOREIGN KEY (`user`) REFERENCES `accounts` (`aid`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_audits_organisations` FOREIGN KEY (`organisation`) REFERENCES `organisations` (`aid`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE IF NOT EXISTS `configurations` (
   `key` varchar(255) NOT NULL,
   `value` varchar(255) NOT NULL,

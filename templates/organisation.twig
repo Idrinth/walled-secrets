@@ -1,5 +1,21 @@
 {% include 'header.twig' %}
 <h1>{{ organisation.name }}</h1>
+{% if organisation.role == 'Administrator' or organisation.role == 'Owner' %}
+    <form method="post">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" value="{{ organisation.name }}"/>
+        {% if twoFactor %}
+            <label for="auth">Require Auth-Code</label>
+            <input type="hidden" value="0" name="auth"/>
+            <input type="checkbox" value="1" name="auth" id="auth"/>
+            <label for="orgcode">Auth-Code</label>
+            <input type="text" required name="code" id="orgcode"/>
+        {% endif %}
+        <button type="submit">Modify</button>
+    </form>
+    <a href="/organisations/{{ organisation.id }}/log">Audit-Log</a>
+{% endif %}
+<h2>Members</h2>
 {% for member in members %}
     <form method="post">
         <input type="hidden" name="id" value="{{ member.id }}"/>

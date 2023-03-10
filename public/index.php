@@ -14,12 +14,14 @@ use De\Idrinth\WalledSecrets\Pages\Importer;
 use De\Idrinth\WalledSecrets\Pages\Imprint;
 use De\Idrinth\WalledSecrets\Pages\IP;
 use De\Idrinth\WalledSecrets\Pages\Knowns;
+use De\Idrinth\WalledSecrets\Pages\Log;
 use De\Idrinth\WalledSecrets\Pages\Login;
 use De\Idrinth\WalledSecrets\Pages\Logins;
 use De\Idrinth\WalledSecrets\Pages\Mailed;
 use De\Idrinth\WalledSecrets\Pages\Master;
 use De\Idrinth\WalledSecrets\Pages\Notes;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
+use De\Idrinth\WalledSecrets\Pages\OrganisationLog;
 use De\Idrinth\WalledSecrets\Pages\PrivacyPolicy;
 use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
@@ -74,10 +76,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->post('/folder/{id}', Folder::class)
     ->get('/organisation/{id}', Organisation::class)
     ->post('/organisation/{id}', Organisation::class)
+    ->get('/organisation/{id}/log', OrganisationLog::class)
     ->post('/api/list-secrets', ListSecrets::class)
     ->get('/api/open-api.json', OpenApi::class)
     ->post('/2fa', TwoFactor::class)
     ->get('/2fa', TwoFactor::class)
     ->post('/ip', IP::class)
     ->get('/ip', IP::class)
+    ->get('/log', Log::class)
     ->run();

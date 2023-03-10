@@ -19,9 +19,11 @@ class Notes
     private ENV $env;
     private ShareWithOrganisation $share;
     private May2F $twoFactor;
+    private Audit $audit;
 
-    public function __construct(May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
+    public function __construct(Audit $audit, May2F $twoFactor, PDO $database, Twig $twig, AES $aes, Blowfish $blowfish, ENV $env, ShareWithOrganisation $share)
     {
+        $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->database = $database;
         $this->twig = $twig;
@@ -74,6 +76,7 @@ class Notes
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
                 ->execute([':id' => $note['folder']]);
             header('Location: /', true, 303);
+            $this->audit->log('note', 'delete', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
             return '';
         }
         if (isset($post['organisation']) && !$isOrganisation) {
@@ -107,6 +110,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                 $shared->setKey($note['key']);
                 $post['content'] = $shared->decrypt($note['content']);
             }
+            $this->audit->log('note', 'create', $_SESSION['id'], $organisation, $id);
         }
         if ($isOrganisation) {
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
@@ -114,9 +118,11 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
                 $this->share->updateNote($user['aid'], $user['id'], $note['folder'], $id, $post['content'], $post['identifier']);
             }
+            $this->audit->log('note', 'modify', $_SESSION['id'], $folder['owner'], $id);
             header('Location: /notes/' . $id, true, 303);
             return '';
         }
+        $this->audit->log('note', 'modify', $_SESSION['id'], null, $id);
         $this->share->updateNote($_SESSION['id'], $_SESSION['uuid'], $note['folder'], $id, $post['content'], $post['identifier']);
         header('Location:  /notes/' . $id, true, 303);
         return '';
@@ -157,6 +163,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             return '';
         }
         set_time_limit(0);
+        $this->audit->log('note', 'read', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
         $master = $this->aes->decrypt($this->blowfish->decrypt($_SESSION['password']));
         $private = KeyLoader::private($_SESSION['uuid'], $master);
         if ($note['content']) {
