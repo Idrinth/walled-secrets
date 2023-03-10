@@ -36,15 +36,18 @@ class ShareFolderWithOrganisation
         }
     }
 
-    public function setFolder(int $folder)
+    public function setFolder(int $folder): void
     {
         $this->folders[] = $folder;
     }
-    public function setOrganisation(int $organisation)
+    public function setOrganisation(int $organisation): void
     {
         $this->organisation = $organisation;
     }
-    private function updateNotes(array $members, int $folder)
+    /**
+     * @param string[][] $members
+     */
+    private function updateNotes(array $members, int $folder): void
     {
         $stmt = $this->database->prepare('SELECT * FROM notes WHERE folder=:folder AND `account`=:id');
         $stmt->execute([':folder' => $folder, ':id' => $this->user]);
@@ -63,7 +66,10 @@ class ShareFolderWithOrganisation
             }
         }
     }
-    private function updateLogins(array $members, int $folder)
+    /**
+     * @param string[][] $members
+     */
+    private function updateLogins(array $members, int $folder): void
     {
         $stmt = $this->database->prepare('SELECT * FROM logins WHERE folder=:folder AND `account`=:id');
         $stmt->execute([':folder' => $folder, ':id' => $this->user]);
@@ -84,7 +90,7 @@ class ShareFolderWithOrganisation
             }
         }
     }
-    public function share()
+    public function share(): void
     {
         if ($this->organisation === 0 || $this->user === 0) {
             return;

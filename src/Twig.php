@@ -18,6 +18,9 @@ class Twig
         $this->database = $database;
         $this->may = $may;
     }
+    /**
+     * @suppress PhanPluginUnknownArrayMethodParamType
+     */
     public function render(string $template, array $context = []): string
     {
         $context['website_name'] = $_ENV['SYSTEM_NAME'];

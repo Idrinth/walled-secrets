@@ -15,7 +15,7 @@ class ShareWithOrganisation
         $this->database = $database;
     }
 
-    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $content, string $publicIdentifier)
+    public function updateNote(int $owner, string $uuid, int $folder, string $id, string $content, string $publicIdentifier): void
     {
         $public = KeyLoader::public($uuid);
         $this->database
@@ -39,7 +39,7 @@ class ShareWithOrganisation
             ]);
     }
 
-    public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $note, string $publicIdentifier)
+    public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $note, string $publicIdentifier): void
     {
         $public = KeyLoader::public($uuid);
         $this->database

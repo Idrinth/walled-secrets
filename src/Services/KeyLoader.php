@@ -3,8 +3,8 @@
 namespace De\Idrinth\WalledSecrets\Services;
 
 use InvalidArgumentException;
-use phpseclib3\Crypt\Common\PrivateKey;
-use phpseclib3\Crypt\Common\PublicKey;
+use phpseclib3\Crypt\RSA\PrivateKey;
+use phpseclib3\Crypt\RSA\PublicKey;
 use phpseclib3\Crypt\RSA;
 
 class KeyLoader
