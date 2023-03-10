@@ -8,7 +8,7 @@ use UnexpectedValueException;
 
 class DependencyInjector
 {
-    private array $singletons=[];
+    private array $singletons = [];
 
     public function register(object $singleton): void
     {

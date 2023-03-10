@@ -41,11 +41,14 @@ class Socials
         $stmt = $this->database->prepare('SELECT * FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE account=:id');
         $stmt->execute([':id' => $_SESSION['id']]);
         $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $this->twig->render('socials', [
+        return $this->twig->render(
+            'socials',
+            [
             'title' => 'Home',
             'knowns' => $knowns,
             'organisations' => $organisations,
-        ]);
+            ]
+        );
     }
     private function addKnown(int $user, int $known, string $uuid, string $comment): void
     {
@@ -58,14 +61,16 @@ class Socials
         $shared->setIV($iv);
         $this->database
             ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
-            ->execute([
+            ->execute(
+                [
                 ':comment' => $shared->encrypt($comment),
                 ':iv' => $public->encrypt($iv),
                 ':key' => $public->encrypt($key),
                 ':owner' => $user,
                 ':target' => $known,
                 ':id' => Uuid::uuid1()->toString(),
-            ]);
+                ]
+            );
     }
     public function post(array $post): string
     {
@@ -73,9 +78,9 @@ class Socials
             header('Location: /', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['auth']??'', $_SESSION['id'])) {
-            header ('Location: /socials', true, 303);
-            return '';            
+        if (!$this->twoFactor->may($post['auth'] ?? '', $_SESSION['id'])) {
+            header('Location: /socials', true, 303);
+            return '';
         }
         if (isset($post['email']) && isset($post['name'])) {
             $stmt = $this->database->prepare('SELECT aid FROM invites WHERE mail=:mail AND inviter=:id');
@@ -129,7 +134,7 @@ class Socials
             $stmt->execute([':id' => $post['id'], ':secret' => $post['code']]);
             $invite = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$invite) {
-                header ('Location: /socials', true, 303);
+                header('Location: /socials', true, 303);
                 return '';
             }
             $this->database
@@ -146,7 +151,7 @@ class Socials
                 $this->database
                     ->prepare('INSERT INTO memberships (organisation,account,role) VALUES (:organisation,:account,"Owner")')
                     ->execute([':organisation' => $this->database->lastInsertId(), ':account' => $_SESSION['id']]);
-            }
+        }
         header('Location: /socials', true, 303);
         return '';
     }

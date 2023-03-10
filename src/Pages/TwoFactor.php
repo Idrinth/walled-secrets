@@ -38,21 +38,29 @@ class TwoFactor
         $twofactor = $stmt->fetchColumn();
         if (!$twofactor) {
             $_SESSION['2fakey'] = $this->twoFactor->generateSecretKey($this->env->getInt('2FA_SECRET_LENGTH'));
-            return $this->twig->render('2fa-activation', [
+            return $this->twig->render(
+                '2fa-activation',
+                [
                 'title' => 'Activate 2FA',
-                'source' => base64_encode($this->twoFactor->getQRCodeInline(
-                    $this->env->getString('2FA_COMPANY_NAME'),
-                    $this->env->getString('2FA_COMPANY_EMAIL'),
-                    $_SESSION['2fakey']
-                )),
-            ]);
+                'source' => base64_encode(
+                    $this->twoFactor->getQRCodeInline(
+                        $this->env->getString('2FA_COMPANY_NAME'),
+                        $this->env->getString('2FA_COMPANY_EMAIL'),
+                        $_SESSION['2fakey']
+                    )
+                ),
+                ]
+            );
         }
         $reset = $_SESSION['2fareset'] ?? '';
         unset($_SESSION['2fareset']);
-        return $this->twig->render('2fa-deactivation', [
+        return $this->twig->render(
+            '2fa-deactivation',
+            [
             'title' => 'Deactivate 2FA',
             'reset' => $reset,
-        ]);
+            ]
+        );
     }
     public function post(array $post): string
     {

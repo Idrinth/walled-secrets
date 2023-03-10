@@ -32,7 +32,7 @@ class Folder
     public function post(array $post, string $id): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT *, "Owner" as `role` FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
@@ -41,25 +41,27 @@ class Folder
         $isOrganisation = false;
         if (!$folder) {
             $isOrganisation = true;
-            $stmt = $this->database->prepare('SELECT folders.*,memberships.`role`
+            $stmt = $this->database->prepare(
+                'SELECT folders.*,memberships.`role`
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
-WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.`role` <> "Proposed"');
+WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.`role` <> "Proposed"'
+            );
             $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
             $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         }
         if (!$folder) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         if (!isset($_SESSION['password'])) {
             session_destroy();
-            header ('Location: /', true, 303);
-            return '';            
+            header('Location: /', true, 303);
+            return '';
         }
-        if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
-            header ('Location: /folder/' . $id, true, 303);
-            return '';            
+        if (!$this->twoFactor->may($post['code'] ?? '', $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+            header('Location: /folder/' . $id, true, 303);
+            return '';
         }
         if (isset($post['organisation']) && !$isOrganisation) {
             $this->database
@@ -67,7 +69,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 ->execute([':aid' => $folder['aid'], ':owner' => $post['organisation']]);
             $this->bigShare->setOrganisation($post['organisation']);
             $this->bigShare->setFolder($folder['aid']);
-            header ('Location: /folder/' . $id, true, 303);
+            header('Location: /folder/' . $id, true, 303);
             return '';
         }
         if (isset($post['name'])) {
@@ -76,7 +78,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                     ->prepare('UPDATE folders SET `name`=:name,modified=NOW() WHERE id=:id')
                     ->execute([':name' => $post['name'], ':id' => $post['id']]);
             }
-            header ('Location: /folder/' . $id, true, 303);
+            header('Location: /folder/' . $id, true, 303);
             return '';
         }
         if (isset($post['delete'])) {
@@ -91,7 +93,7 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                     ->prepare('DELETE FROM folders WHERE aid=:id')
                     ->execute([':id' => $folder['aid']]);
             }
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         if (!isset($post['id'])) {
@@ -102,10 +104,10 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 $stmt = $this->database->prepare('SELECT accounts.id, accounts.aid FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
                 $stmt->execute([':org' => $folder['owner']]);
                 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                    $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note']??'', $post['identifier']);
+                    $this->smallShare->updateLogin($row['aid'], $row['id'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
                 }
             } else {
-                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note']??'', $post['identifier']);
+                $this->smallShare->updateLogin($_SESSION['id'], $_SESSION['uuid'], $folder['aid'], $post['id'], $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
             }
             $this->database
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
@@ -124,13 +126,13 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
                 ->execute([':id' => $post['id']]);
         }
-        header ('Location: /folder/' . $id, true, 303);
+        header('Location: /folder/' . $id, true, 303);
         return '';
     }
     public function get(string $id): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT *, "Owner" as `role` FROM folders WHERE `owner`=:user AND id=:id AND `type`="Account"');
@@ -139,15 +141,17 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
         $isOrganisation = false;
         if (!$folder) {
             $isOrganisation = true;
-            $stmt = $this->database->prepare('SELECT folders.*,memberships.`role`
+            $stmt = $this->database->prepare(
+                'SELECT folders.*,memberships.`role`
 FROM folders
 INNER JOIN memberships ON memberships.organisation=folders.owner
-WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.role <> "Proposed"');
+WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisation" AND memberships.role <> "Proposed"'
+            );
             $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
             $folder = $stmt->fetch(PDO::FETCH_ASSOC);
         }
         if (!$folder) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT public,id FROM logins WHERE account=:user AND folder=:id');
@@ -162,13 +166,16 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $stmt->execute([':user' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        return $this->twig->render('folder', [
+        return $this->twig->render(
+            'folder',
+            [
             'notes' => $notes,
             'logins' => $logins,
             'folder' => $folder,
             'title' => $folder['name'],
             'isOrganisation' => $isOrganisation,
             'organisations' => $organisations,
-        ]);
+            ]
+        );
     }
 }

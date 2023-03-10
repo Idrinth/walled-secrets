@@ -45,7 +45,7 @@ class Logins
         $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
         $login = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$login) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT `type`,`owner` FROM folders WHERE aid=:aid');
@@ -61,12 +61,12 @@ class Logins
             $isOrganisation = true;
         }
         if (!$mayEdit) {
-            header ('Location: /logins/' . $id, true, 303);
+            header('Location: /logins/' . $id, true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
-            header ('Location: /logins/' . $id, true, 303);
-            return '';            
+        if (!$this->twoFactor->may($post['code'] ?? '', $_SESSION['id'], $isOrganisation ? $folder['owner'] : 0)) {
+            header('Location: /logins/' . $id, true, 303);
+            return '';
         }
         if (isset($post['delete'])) {
             $this->database
@@ -75,7 +75,7 @@ class Logins
             $this->database
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
                 ->execute([':id' => $login['folder']]);
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         if (isset($post['organisation']) && !$isOrganisation) {
@@ -85,14 +85,16 @@ class Logins
             $stmt->execute([':id' => $fid]);
             $folder = $stmt->fetch(PDO::FETCH_ASSOC);
             $login['folder'] = $folder['aid'];
-            $stmt = $this->database->prepare('SELECT organisations.aid
+            $stmt = $this->database->prepare(
+                'SELECT organisations.aid
 FROM organisations
 INNER JOIN memberships ON memberships.organisation=organisations.aid
-WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role` IN ("Owner","Administrator","Member")');
+WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role` IN ("Owner","Administrator","Member")'
+            );
             $stmt->execute([':id' => $org, ':user' => $_SESSION['id']]);
             $organisation = $stmt->fetchColumn();
             if (!$organisation || $organisation !== $folder['owner']) {
-                header ('Location: /logins/' . $id, true, 303);
+                header('Location: /logins/' . $id, true, 303);
                 return '';
             }
             set_time_limit(0);
@@ -118,37 +120,37 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             $stmt = $this->database->prepare('SELECT `aid`,`id` FROM `memberships` INNER JOIN accounts ON memberships.`account`=accounts.aid WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute([':org' => $folder['owner']]);
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
-                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['note']??'', $post['identifier']);
+                $this->share->updateLogin($user['aid'], $user['id'], $login['folder'], $id, $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
             }
             $this->database
                 ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
                 ->execute([':id' => $login['folder']]);
-            header ('Location: /logins/' . $id, true, 303);
+            header('Location: /logins/' . $id, true, 303);
             return '';
         }
-        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['note']??'', $post['identifier']);
+        $this->share->updateLogin($_SESSION['id'], $_SESSION['uuid'], $login['folder'], $id, $post['user'], $post['password'], $post['note'] ?? '', $post['identifier']);
         $this->database
             ->prepare('UPDATE folders SET modified=NOW() WHERE id=:id')
             ->execute([':id' => $login['folder']]);
-        header ('Location: /logins/' . $id, true, 303);
+        header('Location: /logins/' . $id, true, 303);
         return '';
     }
     public function get(string $id): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         if (!isset($_SESSION['password'])) {
             session_destroy();
-            header ('Location: /', true, 303);
-            return '';            
+            header('Location: /', true, 303);
+            return '';
         }
         $stmt = $this->database->prepare('SELECT * FROM logins WHERE id=:id AND `account`=:account');
         $stmt->execute([':id' => $id, ':account' => $_SESSION['id']]);
         $login = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$login) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT `type`,`owner` FROM folders WHERE aid=:aid');
@@ -164,7 +166,7 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
             $isOrganisation = true;
         }
         if (!$maySee) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         set_time_limit(0);
@@ -197,12 +199,12 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
                     $curl->setHeader('hibp-api-key', $this->env->getString('HAVEIBEENPWNED_API_KEY'));
                     $curl->setUserAgent('idrinth/walled-secrets@' . $this->env->getString('SYSTEM_HOSTNAME'));
                     $curl->get('https://haveibeenpwned.com/api/v3/breachedaccount/' . urlencode($login['login']));
-                    if ($curl->httpStatusCode===200) {
+                    if ($curl->httpStatusCode === 200) {
                         $login['pwned'] = true;
                         $this->database
                             ->prepare('INSERT INTO waspwned (id,pwned) VALUES (:id,1) ON DUPLICATE KEY UPDATE pwned=1')
                             ->execute([':id' => $id]);
-                    } elseif ($curl->httpStatusCode===429) {
+                    } elseif ($curl->httpStatusCode === 429) {
                         error_log('Rate Limit exceeded.');
                     }
                     $this->database
@@ -213,18 +215,23 @@ WHERE organisations.id=:id AND memberships.`account`=:user AND memberships.`role
         }
         $organisations = [];
         if (!$isOrganisation) {
-            $stmt = $this->database->prepare('SELECT folders.id AS folder,folders.`name` AS folderName, organisations.`name`,organisations.id
+            $stmt = $this->database->prepare(
+                'SELECT folders.id AS folder,folders.`name` AS folderName, organisations.`name`,organisations.id
 FROM organisations
 INNER JOIN folders ON organisations.aid=folders.`owner` AND folders.`type`="Organisation"
 INNER JOIN memberships ON memberships.organisation=organisations.aid
-WHERE memberships.`account`=:id AND memberships.`role` NOT IN ("Reader","Proposed")');
+WHERE memberships.`account`=:id AND memberships.`role` NOT IN ("Reader","Proposed")'
+            );
             $stmt->execute([':id' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        return $this->twig->render('login', [
+        return $this->twig->render(
+            'login',
+            [
             'title' => $login['public'],
             'login' => $login,
             'organisations' => $organisations,
-        ]);
+            ]
+        );
     }
 }

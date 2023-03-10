@@ -28,7 +28,7 @@ class Importer
     public function get(): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         return $this->twig->render('import', ['title' => 'Import']);
@@ -38,9 +38,9 @@ class Importer
         $stmt = $this->database->prepare('SELECT aid FROM folders WHERE `owner`=:owner AND `type`="Account" AND `name`=:name');
             $stmt->execute([':name' => $name, ':owner' => $_SESSION['id']]);
             $folder = $stmt->fetchColumn();
-            if ($folder) {
-                return $folder;
-            }
+        if ($folder) {
+            return $folder;
+        }
             $this->database
                 ->prepare('INSERT INTO folders (id,`name`,`owner`) VALUES (:id,:name,:owner)')
                 ->execute([':name' => $name, ':owner' => $_SESSION['id'], ':id' => Uuid::uuid1()->toString()]);
@@ -98,7 +98,7 @@ class Importer
                 }
             }
         }
-        return '';        
+        return '';
     }
     private function importBitwarden(string $file): string
     {
@@ -147,10 +147,10 @@ class Importer
     public function post(array $post): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
-        header ('Location: /', true, 303);
+        header('Location: /', true, 303);
         switch ($post['source']) {
             case '0':
                 return $this->importKeypass($_FILES['file']['tmp_name']);

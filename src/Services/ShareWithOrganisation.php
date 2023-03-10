@@ -29,14 +29,16 @@ class ShareWithOrganisation
         $shared->setIV($iv);
         $this->database
             ->prepare('UPDATE notes SET public=:public,content=:content, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
-            ->execute([
+            ->execute(
+                [
                 ':owner' => $owner,
                 ':id' => $id,
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
                 ':public' => $publicIdentifier,
                 ':content' => $shared->encrypt($content),
-            ]);
+                ]
+            );
     }
 
     public function updateLogin(int $owner, string $uuid, int $folder, string $id, string $login, string $password, string $note, string $publicIdentifier): void
@@ -53,7 +55,8 @@ class ShareWithOrganisation
         $shared->setIV($iv);
         $this->database
             ->prepare('UPDATE logins SET public=:public,pass=:pass, login=:login,iv=:iv,`key`=:key,`note`=:note WHERE id=:id AND `account`=:owner')
-            ->execute([
+            ->execute(
+                [
                 ':owner' => $owner,
                 ':id' => $id,
                 ':pass' => $public->encrypt($password),
@@ -62,6 +65,7 @@ class ShareWithOrganisation
                 ':key' => $public->encrypt($key),
                 ':iv' => $public->encrypt($iv),
                 ':note' => $shared->encrypt($note),
-            ]);
+                ]
+            );
     }
 }

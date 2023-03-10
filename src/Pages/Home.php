@@ -55,26 +55,32 @@ class Home
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $org) {
                 $organisations[$org['aid']] = $org['name'];
             }
-            return $this->twig->render('home-user', [
+            return $this->twig->render(
+                'home-user',
+                [
                 'title' => 'Home',
                 'user' => $user,
                 'folders' => $folders,
                 'organisations' => $organisations,
-            ]);
+                ]
+            );
         }
         if (isset($_COOKIE[$this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE')])) {
             header('Location: /master', true, 303);
             return '';
         }
-        return $this->twig->render('home-anon', [
+        return $this->twig->render(
+            'home-anon',
+            [
             'title' => 'Login',
             'disableRefresh' => true
-        ]);
+            ]
+        );
     }
     public function post(array $post): string
     {
         if (isset($_SESSION['id'])) {
-            if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'])) {
+            if (!$this->twoFactor->may($post['code'] ?? '', $_SESSION['id'])) {
                 header('Location: /', true, 303);
                 return '';
             }
@@ -134,11 +140,10 @@ class Home
                 'Login Request at ' . $this->env->getString('SYSTEM_HOSTNAME'),
                 $post['email'],
                 $user['display']
-             );
+            );
             $this->database
                 ->prepare('UPDATE accounts SET since=NOW(),identifier=:id WHERE aid=:aid')
                 ->execute([':id' => $id, ':aid' => $user['aid']]);
-
         }
         header('Location: /mailed', true, 303);
         return '';

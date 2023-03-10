@@ -8,7 +8,8 @@ class Imprint
 {
     private Twig $twig;
 
-    public function __construct(Twig $twig) {
+    public function __construct(Twig $twig)
+    {
         $this->twig = $twig;
     }
     public function get(): string

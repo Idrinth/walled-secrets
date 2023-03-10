@@ -10,8 +10,9 @@ class ENV
      * @var string[]
      */
     private array $env;
-    
-    public function __construct(PDO $database) {
+
+    public function __construct(PDO $database)
+    {
         foreach ($database->query('SELECT * FROM configurations') as $row) {
             $this->env[$row['key']] = $row['value'];
         }

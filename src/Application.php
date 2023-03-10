@@ -11,11 +11,12 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use ReflectionClass;
 use Throwable;
+
 use function FastRoute\simpleDispatcher;
 
 class Application
 {
-    private $routes=[];
+    private $routes = [];
     private DependencyInjector $di;
     public function __construct()
     {
@@ -61,7 +62,7 @@ class Application
     }
     private function result(string $data): void
     {
-        header('Content-Length: '.strlen($data));
+        header('Content-Length: ' . strlen($data));
         die($data);
     }
     public function run(): void
@@ -71,13 +72,15 @@ class Application
             header('Content-Type: text/plain', true, 403);
             die('IP not allowed.');
         }
-        $dispatcher = simpleDispatcher(function(RouteCollector $r) {
-            foreach ($this->routes as $path => $data) {
-                foreach($data as $method => $func) {
-                    $r->addRoute($method, $path, $func);
+        $dispatcher = simpleDispatcher(
+            function (RouteCollector $r) {
+                foreach ($this->routes as $path => $data) {
+                    foreach ($data as $method => $func) {
+                        $r->addRoute($method, $path, $func);
+                    }
                 }
             }
-        });
+        );
         $httpMethod = $_SERVER['REQUEST_METHOD'];
         $uri = $_SERVER['REQUEST_URI'];
         if (false !== $pos = strpos($uri, '?')) {
@@ -109,7 +112,7 @@ class Application
                     }
                 } catch (Throwable $t) {
                     header('', true, 500);
-                    error_log($t->getFile().':'.$t->getLine().': '.$t->getMessage());
+                    error_log($t->getFile() . ':' . $t->getLine() . ': ' . $t->getMessage());
                     error_log($t->getTraceAsString());
                 }
                 break;

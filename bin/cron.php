@@ -9,12 +9,14 @@ use De\Idrinth\WalledSecrets\Commands\SessionCleanup;
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 (new Command())
-    ->register(new PDO(
-        'mysql:host=' . $_ENV['DATABASE_HOST'] . ';dbname=' . $_ENV['DATABASE_DATABASE'],
-        $_ENV['DATABASE_USER'],
-        $_ENV['DATABASE_PASSWORD'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING]
-    ))
+    ->register(
+        new PDO(
+            'mysql:host=' . $_ENV['DATABASE_HOST'] . ';dbname=' . $_ENV['DATABASE_DATABASE'],
+            $_ENV['DATABASE_USER'],
+            $_ENV['DATABASE_PASSWORD'],
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING]
+        )
+    )
     ->add('cleanup-session', SessionCleanup::class)
     ->add('cleanup-ipcache', IPCacheCleanup::class)
     ->add('cleanup-database', DataCleanup::class)

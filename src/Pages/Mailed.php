@@ -18,10 +18,13 @@ class Mailed
 
     public function get(): string
     {
-        return $this->twig->render('mailed', [
+        return $this->twig->render(
+            'mailed',
+            [
             'title' => 'Login',
-            'minutes' => ceil($this->env->getInt('SYSTEM_SESSION_DURATION')/60),
+            'minutes' => ceil($this->env->getInt('SYSTEM_SESSION_DURATION') / 60),
             'disableRefresh' => true
-        ]);
+            ]
+        );
     }
 }

@@ -10,7 +10,7 @@ class Mailer
 {
     private Twig $twig;
     private PDO $database;
-    
+
     public function __construct(Twig $twig, PDO $database)
     {
         $this->twig = $twig;
@@ -38,7 +38,7 @@ class Mailer
         $mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mailer->Timeout = 60;
         $mailer->isHTML(true);
-        $mailer->Mailer ='smtp';
+        $mailer->Mailer = 'smtp';
         $mailer->Subject = $subject;
         $mailer->Body = $this->twig->render(
             "mails/$template-html",

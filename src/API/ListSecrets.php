@@ -48,7 +48,7 @@ class ListSecrets
         $data = [];
         $stmt = $this->database->prepare('SELECT * FROM folders WHERE (`owner`=:id AND `type`="Account") OR (`type`="Organisation" AND `owner` IN (SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id))');
         $stmt->execute([':id' => $user['aid']]);
-        foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $folder) {
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $folder) {
             $stmt2 = $this->database->prepare('SELECT public,id FROM notes WHERE folder=:folder AND `account`=:id');
             $stmt2->execute([':id' => $user['aid'], ':folder' => $folder['aid']]);
             $stmt3 = $this->database->prepare('SELECT public,id FROM logins WHERE folder=:folder AND `account`=:id');

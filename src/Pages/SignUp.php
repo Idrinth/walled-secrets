@@ -22,7 +22,7 @@ class SignUp
     private ENV $env;
     private Twig $twig;
 
-    public function __construct(Twig $twig, PDO $database, Blowfish $blowfish, AES $aes,ENV $env)
+    public function __construct(Twig $twig, PDO $database, Blowfish $blowfish, AES $aes, ENV $env)
     {
         $this->twig = $twig;
         $this->database = $database;
@@ -43,7 +43,7 @@ class SignUp
         $stmt->execute([':id' => $id, ':secret' => $pass]);
         $id = $stmt->fetchColumn();
         if (!$id) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         return $this->twig->render(
@@ -66,38 +66,40 @@ class SignUp
         $shared->setIV($iv);
         $this->database
             ->prepare('INSERT INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
-            ->execute([
+            ->execute(
+                [
                 ':comment' => $shared->encrypt($comment),
                 ':iv' => $public->encrypt($iv),
                 ':key' => $public->encrypt($key),
                 ':owner' => $user,
                 ':target' => $known,
                 ':id' => Uuid::uuid1()->toString(),
-            ]);
+                ]
+            );
     }
     public function post(array $post, string $id, string $pass): string
     {
         if (!isset($post['name']) || !isset($post['email'])) {
-            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
         if (!isset($post['password']) || strlen($post['password']) < $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')) {
-            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
         if (!isset($post['password2']) || strlen($post['password2']) < $this->env->getInt('SYSTEM_MIN_PASSWORD_LENGTH')) {
-            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
         if ($post['password2'] !== $post['password']) {
-            header ('Location: /register/'.$id.'/'.$pass, true, 303);
+            header('Location: /register/' . $id . '/' . $pass, true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT aid,inviter FROM invites WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
         $stmt->execute([':id' => $id, ':secret' => $pass, ':mail' => $post['email']]);
         $invite = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$invite) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $uuid = Uuid::uuid1();
@@ -108,12 +110,14 @@ class SignUp
         file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('OpenSSH'));
         $this->database
             ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
-            ->execute([
+            ->execute(
+                [
                 ':display' => $post['name'],
                 ':id' => $uuid,
                 ':mail' => $post['email'],
                 ':apikey' => PasswordGenerator::make(),
-            ]);
+                ]
+            );
         $new = $this->database->lastInsertId();
         $_SESSION['id'] = $new;
         $_SESSION['uuid'] = $uuid;
@@ -125,7 +129,7 @@ class SignUp
         $stmt = $this->database->prepare('SELECT id FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $invite['inviter']]);
         $this->addKnown($invite['inviter'], $new, $stmt->fetchColumn(), 'Invited them.');
-        header ('Location: /', true, 303);
+        header('Location: /', true, 303);
         Cookie::set(
             $this->env->getString('SYSTEM_QUICK_LOGIN_COOKIE'),
             sha1($this->env->getString('SYSTEM_SALT') . $post['mail']),

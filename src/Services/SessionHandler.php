@@ -18,7 +18,7 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     }
     private function getFile(string $id): string
     {
-        return dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' .$id;
+        return dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' . $id;
     }
     private function exists(string $id): bool
     {

@@ -36,38 +36,40 @@ class Organisation
         $shared->setIV($iv);
         $this->database
             ->prepare('INSERT IGNORE INTO knowns (`owner`,target,note,iv,`key`,id) VALUES (:owner,:target,:comment,:iv,:key,:id)')
-            ->execute([
+            ->execute(
+                [
                 ':comment' => $shared->encrypt($comment),
                 ':iv' => $public->encrypt($iv),
                 ':key' => $public->encrypt($key),
                 ':owner' => $user,
                 ':target' => $known,
                 ':target' => Uuid::uuid1(),
-            ]);
+                ]
+            );
     }
 
     public function post(array $post, string $id): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT organisations.*,memberships.role FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE organisations.id=:id AND memberships.account=:user AND memberships.role<>"Proposed"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $organisation = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$organisation) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
-        if (!$this->twoFactor->may($post['code']??'', $_SESSION['id'], $organisation['aid'])) {
-            header ('Location: /organisation/'.$id, true, 303);
-            return '';            
+        if (!$this->twoFactor->may($post['code'] ?? '', $_SESSION['id'], $organisation['aid'])) {
+            header('Location: /organisation/' . $id, true, 303);
+            return '';
         }
         if (isset($post['folder']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
             $this->database
                 ->prepare('INSERT INTO folders (`name`,`owner`,id,`type`) VALUES (:name, :owner,:id, "Organisation")')
                 ->execute([':name' => $post['folder'], ':owner' => $organisation['aid'], ':id' => Uuid::uuid1()->toString()]);
-            header ('Location: /organisation/'.$id, true, 303);
+            header('Location: /organisation/' . $id, true, 303);
             return '';
         }
         if (isset($post['id']) && isset($post['role']) && in_array($organisation['role'], ['Administrator', 'Owner'], true)) {
@@ -76,7 +78,7 @@ class Organisation
                 $stmt->execute([':org' => $organisation['aid'], ':id' => $post['id']]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 if (!$user) {
-                    header ('Location: /organisation/'.$id, true, 303);
+                    header('Location: /organisation/' . $id, true, 303);
                     return '';
                 }
                 if ($organisation['role'] === 'Owner') {
@@ -108,48 +110,53 @@ class Organisation
             $stmt->execute([':id' => $post['known']]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$user) {
-                header ('Location: /organisation/'.$id, true, 303);
+                header('Location: /organisation/' . $id, true, 303);
                 return '';
             }
             $this->database
                 ->prepare('INSERT INTO memberships (organisation,account) VALUES (:org,:id)')
                 ->execute([':id' => $user['aid'], ':org' => $organisation['aid']]);
         }
-        header ('Location: /organisation/'.$id, true, 303);
+        header('Location: /organisation/' . $id, true, 303);
         return '';
     }
 
     public function get(string $id): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT organisations.*,memberships.role FROM organisations INNER JOIN memberships ON memberships.organisation=organisations.aid WHERE organisations.id=:id AND memberships.account=:user AND memberships.role<>"Proposed"');
         $stmt->execute([':id' => $id, ':user' => $_SESSION['id']]);
         $organisation = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$organisation) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
         $stmt->execute([':org' => $organisation['aid']]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt = $this->database->prepare('SELECT accounts.*
+        $stmt = $this->database->prepare(
+            'SELECT accounts.*
 FROM knowns
 INNER JOIN accounts ON accounts.aid=knowns.target
-WHERE `owner`=:id AND target NOT IN (SELECT `account` FROM memberships WHERE organisation=:org)');
+WHERE `owner`=:id AND target NOT IN (SELECT `account` FROM memberships WHERE organisation=:org)'
+        );
         $stmt->execute([':org' => $organisation['aid'], ':id' => $_SESSION['id']]);
         $knowns = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $this->database->prepare('SELECT * FROM folders WHERE owner=:org AND `type`="Organisation"');
         $stmt->execute([':org' => $organisation['aid']]);
         $folders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $this->twig->render('organisation', [
+        return $this->twig->render(
+            'organisation',
+            [
             'members' => $members,
             'knowns' => $knowns,
             'organisation' => $organisation,
             'title' => $organisation['name'],
             'folders' => $folders,
-        ]);
+            ]
+        );
     }
 }

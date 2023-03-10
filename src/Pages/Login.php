@@ -57,7 +57,7 @@ class Login
                 );
             }
         }
-        header ('Location: /', true, 303);
+        header('Location: /', true, 303);
         return '';
     }
 }

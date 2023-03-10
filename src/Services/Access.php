@@ -10,7 +10,7 @@ class Access
 {
     private PDO $database;
     private ENV $env;
-    
+
     public function __construct(PDO $database, ENV $env)
     {
         $this->database = $database;
@@ -33,7 +33,7 @@ class Access
     private function byASN(array &$routes): void
     {
         $file = dirname(__DIR__, 2) . '/ipcache/asn';
-        if (is_file ($file)) {
+        if (is_file($file)) {
             foreach (json_decode(file_get_contents($file) ?: '[]') as $ip) {
                 $routes[] = $ip;
             }
@@ -41,7 +41,7 @@ class Access
         }
         $whois = Factory::get()->createWhois();
         $asnRoutes = [];
-        foreach($this->env->getStringList('IP_ASN_BLACKLIST') as  $asn) {
+        foreach ($this->env->getStringList('IP_ASN_BLACKLIST') as $asn) {
             foreach ($whois->loadAsnInfo($asn)->routes as $route) {
                 if (!empty($route->route)) {
                     $routes[] = $route->route;

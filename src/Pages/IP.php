@@ -25,11 +25,11 @@ class IP
     public function post($post): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         if (!$this->twoFactor->may($post['code'], $_SESSION['id'])) {
-            header ('Location: /ip', true, 303);
+            header('Location: /ip', true, 303);
             return '';
         }
         if (isset($post['ip'])) {
@@ -39,20 +39,22 @@ class IP
             $stmt->bindValue(':ipbl', $post['blacklist'] ?? '');
             $stmt->execute();
         }
-        header ('Location: /ip', true, 303);
+        header('Location: /ip', true, 303);
         return '';
     }
 
     public function get(): string
     {
         if (!isset($_SESSION['id'])) {
-            header ('Location: /', true, 303);
+            header('Location: /', true, 303);
             return '';
         }
         $stmt = $this->database->prepare('SELECT ip_whitelist,ip_blacklist FROM accounts WHERE aid=:aid');
         $stmt->execute([':aid' => $_SESSION['id']]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $this->twig->render('ip-settings', [
+        return $this->twig->render(
+            'ip-settings',
+            [
             'title' => 'IP-Settings',
             'server' => [
                 'asn' => $this->env->getString('IP_ASN_BLACKLIST'),
@@ -63,6 +65,7 @@ class IP
                 'whitelist' => $account['ip_whitelist'],
                 'blacklist' => $account['ip_blacklist'],
             ],
-        ]);
+            ]
+        );
     }
 }

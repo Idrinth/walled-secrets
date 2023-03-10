@@ -9,7 +9,7 @@ use Throwable;
 
 class Command
 {
-    private array $routes=[];
+    private array $routes = [];
     private DependencyInjector $di;
     public function __construct()
     {
@@ -32,7 +32,6 @@ class Command
     public function run(string ...$arguments): void
     {
         if (count($arguments) < 2) {
-            
         }
         array_shift($arguments);
         $route = array_shift($arguments);
@@ -44,7 +43,7 @@ class Command
         try {
             echo $obj->run(...$arguments);
         } catch (Throwable $t) {
-            error_log($t->getFile().':'.$t->getLine().': '.$t->getMessage());
+            error_log($t->getFile() . ':' . $t->getLine() . ': ' . $t->getMessage());
             error_log($t->getTraceAsString());
         }
     }

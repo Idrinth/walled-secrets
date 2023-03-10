@@ -56,12 +56,14 @@ class Login
             $shared->setKey($login['key']);
             $login['note'] = $shared->decrypt($login['note']);
         }
-        return json_encode([
+        return json_encode(
+            [
             'public' => $login['public'],
             'id' => $login['id'],
             'login' => $login['login'],
             'pass' => $login['pass'],
             'note' => $login['note'],
-        ]);
+            ]
+        );
     }
 }
