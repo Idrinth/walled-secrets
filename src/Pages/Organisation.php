@@ -151,7 +151,6 @@ class Organisation
             header('Location: /', true, 303);
             return '';
         }
-        $this->audit->log('organisation', 'read', $_SESSION['id'], $organisation['aid'], $id);
         $stmt = $this->database->prepare('SELECT memberships.role,accounts.id,accounts.display FROM accounts INNER JOIN memberships ON memberships.account=accounts.aid WHERE memberships.organisation=:org');
         $stmt->execute([':org' => $organisation['aid']]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);

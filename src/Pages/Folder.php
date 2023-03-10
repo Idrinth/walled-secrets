@@ -170,7 +170,6 @@ WHERE memberships.account=:user AND folders.id=:id AND folders.`type`="Organisat
             $stmt->execute([':user' => $_SESSION['id']]);
             $organisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        $this->audit->log('folder', 'read', $_SESSION['id'], $isOrganisation ? $folder['owner'] : null, $id);
         return $this->twig->render(
             'folder',
             [

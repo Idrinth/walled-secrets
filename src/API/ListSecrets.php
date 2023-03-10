@@ -64,9 +64,6 @@ class ListSecrets
             ];
             if ($folder['type'] === 'Organisation') {
                 $data[$folder['id']]['organisation'] = $organisations[$folder['owner']];
-                $this->audit->log('folder', 'read', $user['aid'], $folder['owner'], $folder['id']);
-            } else {
-                $this->audit->log('folder', 'read', $user['aid'], null, $folder['id']);
             }
         }
         header('Content-Type: application/json', true, 200);
