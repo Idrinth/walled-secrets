@@ -72,7 +72,7 @@ I don't want to pay for the whole internet using this. Feel free to host your ow
 I'm coding this in my free time, so it is either a ticket already or you can open one and I'll get to it.
 
 ### From what password managers can you import?
-Right now only from bitwarden's unencrypted json and Keypass's XML.
+Right now only from Bitwarden's unencrypted json, Firefox's CSV and Keepass's XML.
 
 ### Why does it take so long to retrieve encrypted data?
 We unencrypt the data on the fly. The duration is based on the security of the private key used.
