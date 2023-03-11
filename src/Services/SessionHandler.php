@@ -20,15 +20,20 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
     {
         return dirname(__DIR__, 2) . '/sessions/session_' . md5($_SERVER['REMOTE_ADDR']) . '_' . $id;
     }
+    private function valid(string $id): bool
+    {
+        return (bool) preg_match('/^[a-zA-Z0-9]{128}$/', $id);
+    }
     private function exists(string $id): bool
     {
-        return preg_match('/^[a-zA-Z0-9]{128}$/', $id) && touch($this->getFile($id));
+        return $this->valid($id) && touch($this->getFile($id));
     }
     public function write($id, $data)
     {
-        flock(fopen($this->getFile($id), 'rw'), LOCK_UN);
-        if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
-            return (bool) file_put_contents($this->getFile($id), $data);
+        if ($this->valid($id)) {
+            $result = false !== file_put_contents($this->getFile($id), $data);
+            flock(fopen($this->getFile($id), 'rw'), LOCK_UN);
+            return $result;
         }
         return false;
     }
@@ -38,10 +43,8 @@ class SessionHandler implements SessionIdInterface, SessionUpdateTimestampHandle
             flock(fopen($this->getFile($id), 'rw'), LOCK_EX);
             return file_get_contents($this->getFile($id)) ?: '';
         }
-        if (preg_match('/^[a-zA-Z0-9]{128}$/', $id)) {
-            if (touch($this->getFile($id))) {
-                flock(fopen($this->getFile($id), 'rw'), LOCK_EX);
-            }
+        if ($this->valid($id) && touch($this->getFile($id))) {
+            flock(fopen($this->getFile($id), 'rw'), LOCK_EX);
         }
         return '';
     }
