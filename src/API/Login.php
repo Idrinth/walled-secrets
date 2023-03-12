@@ -19,7 +19,13 @@ class Login
         $this->audit = $audit;
         $this->database = $database;
     }
-
+    public function options(User $user): string
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type');
+        return '';
+    }
     public function post(User $user, array $post, string $id): string
     {
         header('Access-Control-Allow-Origin: *');

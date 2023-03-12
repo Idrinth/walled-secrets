@@ -6,6 +6,13 @@ use De\Idrinth\WalledSecrets\Models\User;
 
 class OpenApi
 {
+    public function options(User $user): string
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type');
+        return '';
+    }
     public function get(User $user)
     {
         header('Content-Type: application/json');

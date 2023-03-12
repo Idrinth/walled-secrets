@@ -51,6 +51,10 @@ class Application
     {
         return $this->add('DELETE', $path, $class);
     }
+    public function options(string $path, string $class): self
+    {
+        return $this->add('OPTIONS', $path, $class);
+    }
     private function add(string $method, string $path, string $class): self
     {
         $this->routes[$path] = $this->routes[$path] ?? [];
@@ -89,6 +93,8 @@ class Application
                             return $this->result($obj->put($user, Superglobals::post(), ...array_values($vars)));
                         case 'DELETE':
                             return $this->result($obj->delete($user, ...array_values($vars)));
+                        case 'OPTIONS':
+                            return $this->result($obj->options($user, ...array_values($vars)));
                         default:
                             return $this->result('405 METHOD NOT ALLOWED', 405);
                     }

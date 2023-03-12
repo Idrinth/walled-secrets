@@ -9,14 +9,18 @@ use PDO;
 class ListSecrets
 {
     private PDO $database;
-    private Audit $audit;
 
-    public function __construct(Audit $audit, PDO $database)
+    public function __construct(PDO $database)
     {
         $this->database = $database;
-        $this->audit = $audit;
     }
-
+    public function options(User $user): string
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type,X-LAST-UPDATED');
+        return '';
+    }
     public function post(User $user, array $post)
     {
         header('Access-Control-Allow-Origin: *');
