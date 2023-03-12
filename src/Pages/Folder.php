@@ -79,13 +79,25 @@ AND memberships.`role` <> "Proposed"'
             return '';
         }
         if (isset($post['organisation']) && !$isOrganisation) {
+            $stmt = $this->database->prepare('SELECT organisations.aid
+FROM organisations
+INNER JOIN memberships ON memberships.organisation=organisations.aid
+WHERE organisations.id=:id
+AND memberships.`account`=:user
+AND memberships.`role` IN ("Owner","Administrator","Member")');
+            $stmt->execute([':id' => $post['organisation'], ':user' => $user->aid()]);
+            $organisation = $stmt->fetchColumn();
+            if (!$organisation) {
+                header('Location: /folder/' . $id, true, 303);
+                return '';
+            }
             $this->database
                 ->prepare('UPDATE folders SET `owner`=:owner,modified=NOW() AND `type`="Organisation" WHERE aid=:id')
-                ->execute([':aid' => $folder['aid'], ':owner' => $post['organisation']]);
-            $this->bigShare->setOrganisation($post['organisation']);
+                ->execute([':aid' => $folder['aid'], ':owner' => $organisation]);
+            $this->bigShare->setOrganisation($organisation);
             $this->bigShare->setFolder($folder['aid']);
             header('Location: /folder/' . $id, true, 303);
-            $this->audit->log('folder', 'create', $user->aid(), $post['organisation'], $id);
+            $this->audit->log('folder', 'create', $user->aid(), $organisation, $id);
             return '';
         }
         if (isset($post['name'])) {

@@ -4,8 +4,6 @@ document.getElementsByTagName('button')[0].onclick = async () => {
     const master = document.getElementById('master').value;
     try {
         const data = await requestFromAPI('notes', master, location.hash.replace('#', ''));
-        document.getElementById('id').value = data.id;
-        document.getElementById('name').value = data.name;
         document.getElementById('content').value = data.content;
         const h1 = document.getElementsByTagName('h1')[0];
         while (h1.firstChild) {

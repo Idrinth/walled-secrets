@@ -1,3 +1,4 @@
 */10 * * * * php /walled-secrets/bin/cron.php cleanup-session
 */5 * * * * php /walled-secrets/bin/cron.php cleanup-ipcache
 */20 * * * * php /walled-secrets/bin/cron.php cleanup-database
+0 * * * * php /walled-secrets/bin/cron.php cleanup-audit

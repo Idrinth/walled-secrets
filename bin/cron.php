@@ -1,6 +1,7 @@
 <?php
 
 use De\Idrinth\WalledSecrets\Command;
+use De\Idrinth\WalledSecrets\Commands\AuditCleanup;
 use De\Idrinth\WalledSecrets\Commands\CreateUser;
 use De\Idrinth\WalledSecrets\Commands\DataCleanup;
 use De\Idrinth\WalledSecrets\Commands\IPCacheCleanup;
@@ -20,5 +21,6 @@ require dirname(__DIR__) . '/vendor/autoload.php';
     ->add('cleanup-session', SessionCleanup::class)
     ->add('cleanup-ipcache', IPCacheCleanup::class)
     ->add('cleanup-database', DataCleanup::class)
+    ->add('cleanup-audit', AuditCleanup::class)
     ->add('register', CreateUser::class)
     ->run(...$argv);
