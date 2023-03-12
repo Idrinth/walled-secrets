@@ -48,7 +48,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->get('/', Home::class)
     ->post('/', Home::class)
     ->get('/privacy', PrivacyPolicy::class)
-    ->get('/api/ping', Ping::class)
+    ->get('/ping', Ping::class)
     ->get('/imprint', Imprint::class)
     ->get('/faq', FAQ::class)
     ->get('/mailed', Mailed::class)
