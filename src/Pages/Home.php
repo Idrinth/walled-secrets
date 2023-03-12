@@ -7,13 +7,12 @@ use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
 use De\Idrinth\WalledSecrets\Services\Mailer;
+use De\Idrinth\WalledSecrets\Services\MasterPassword;
 use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\PasswordGenerator;
 use De\Idrinth\WalledSecrets\Services\Twig;
 use Exception;
 use PDO;
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Blowfish;
 use Ramsey\Uuid\Uuid;
 
 class Home
@@ -21,11 +20,10 @@ class Home
     private Twig $twig;
     private PDO $database;
     private Mailer $mailer;
-    private AES $aes;
-    private Blowfish $blowfish;
     private ENV $env;
     private May2F $twoFactor;
     private Audit $audit;
+    private MasterPassword $master;
 
     public function __construct(
         Audit $audit,
@@ -33,24 +31,16 @@ class Home
         Twig $twig,
         PDO $database,
         Mailer $mailer,
-        AES $aes,
-        Blowfish $blowfish,
-        ENV $env
+        ENV $env,
+        MasterPassword $master
     ) {
+        $this->master = $master;
         $this->audit = $audit;
         $this->twoFactor = $twoFactor;
         $this->env = $env;
-        $this->blowfish = $blowfish;
         $this->twig = $twig;
         $this->database = $database;
         $this->mailer = $mailer;
-        $this->aes = $aes;
-        $this->aes->setKeyLength(256);
-        $this->aes->setKey($this->env->getString('PASSWORD_KEY'));
-        $this->aes->setIV($this->env->getString('PASSWORD_IV'));
-        $this->blowfish->setKeyLength(448);
-        $this->blowfish->setKey($this->env->getString('PASSWORD_BLOWFISH_KEY'));
-        $this->blowfish->setIV($this->env->getString('PASSWORD_BLOWFISH_IV'));
     }
     public function get(User $user): string
     {
@@ -156,7 +146,7 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
             || strtotime($user['since']) < time() - $this->env->getInt('SYSTEM_SESSION_DURATION')
         ) {
             $id = PasswordGenerator::make();
-            $_SESSION['password'] = $this->blowfish->encrypt($this->aes->encrypt($post['password']));
+            $this->master->set($post['password']);
             $this->mailer->send(
                 'login',
                 ['password' => $id, 'uuid' => $user['id'], 'name' => $user['display']],

@@ -30,7 +30,7 @@ class Login
     }
     public function get(User $user, string $id, string $password): string
     {
-        if ($this->master->has()) {
+        if (!$this->master->has()) {
             return $this->twig->render('login-error', [
                 'title' => 'Login Failed',
                 'error' => 'Master Password could not be retrieved from session. Please try again.'
