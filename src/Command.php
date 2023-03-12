@@ -39,7 +39,7 @@ class Command
             echo "$route is unknown.\n";
             die(1);
         }
-        $obj = $this->di->init(new ReflectionClass($this->routes[$route]));
+        $obj = $this->di->get($this->routes[$route]);
         try {
             echo $obj->run(...$arguments);
         } catch (Throwable $t) {
