@@ -7,7 +7,7 @@
     "description": "A small open source password manager.",
     "browser_specific_settings": {
         "gecko": {
-            "id": "secrets@idrinth.de"
+            "id": "android-secrets@idrinth.de"
         }
     },
     "icons": {
