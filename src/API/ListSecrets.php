@@ -3,7 +3,6 @@
 namespace De\Idrinth\WalledSecrets\API;
 
 use De\Idrinth\WalledSecrets\Models\User;
-use De\Idrinth\WalledSecrets\Services\Audit;
 use PDO;
 
 class ListSecrets

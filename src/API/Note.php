@@ -49,7 +49,7 @@ class Note
             header('Content-Type: application/json', true, 403);
             return '{"error":"Master Password is wrong."}';
         }
-        $stmt = $this->database->prepare('SELECT `owner` FROM folders WHERE aid=:folder AND `type`="Account"');
+        $stmt = $this->database->prepare('SELECT `owner` FROM folders WHERE aid=:folder AND `type`="Organisation"');
         $stmt->execute([':folder' => $note['folder']]);
         $this->audit->log('note', 'read', $user->aid(), $stmt->fetchColumn() ?: null, $id);
         $note['name'] = $private->decrypt($note['name']);
