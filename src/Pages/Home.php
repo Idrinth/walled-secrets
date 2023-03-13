@@ -125,6 +125,7 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
             return '';
         }
         if (!isset($post['email']) || !isset($post['password'])) {
+            error_log("email or password not set.");
             header('Location: /', true, 303);
             return '';
         }
@@ -132,6 +133,7 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
         $stmt->execute([':mail' => $post['email']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
+            error_log("{$post['email']} not found among users.");
             header('Location: /', true, 303);
             return '';
         }
@@ -139,6 +141,7 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
             KeyLoader::private($user['id'], $post['password']);
         } catch (Exception $ex) {
             header('Location: /', true, 303);
+            error_log("{$user['id']} tried to login with wrong password. $ex");
             return '';
         }
         if (
