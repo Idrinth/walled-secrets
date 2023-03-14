@@ -65,7 +65,7 @@ The Firefox addon is available [here](https://addons.mozilla.org/en-US/firefox/a
 
 #### Firefox Android Browser Addon
 
-The Firefox addon for Android is currently in review.
+The Firefox addon for Android is available [here](https://addons.mozilla.org/en-US/firefox/addon/idrinth-walled-secrets-android/).
 
 #### Opera Browser Addon
 

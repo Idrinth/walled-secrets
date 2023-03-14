@@ -125,7 +125,7 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
             return '';
         }
         if (!isset($post['email']) || !isset($post['password'])) {
-            error_log("email or password not set.");
+            error_log('email or password not set.');
             header('Location: /', true, 303);
             return '';
         }

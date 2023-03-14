@@ -65,7 +65,6 @@ class Note
         return json_encode([
             'public' => $note['public'],
             'id' => $note['id'],
-            'name' => $note['name'],
             'content' => $note['content'],
         ]);
     }

@@ -4,3 +4,6 @@
 /keys/*/private
 /.env
 *.zip
+/clients/java/target
+/clients/java/nbactions.xml
+/clients/java/settings.xml
