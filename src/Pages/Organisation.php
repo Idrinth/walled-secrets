@@ -79,15 +79,15 @@ FROM memberships
 INNER JOIN accounts ON memberships.account=accounts.aid
 WHERE accounts.id=:id AND memberships.organisation=:org');
                 $stmt->execute([':org' => $organisation['aid'], ':id' => $post['id']]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                if (!$user) {
+                $target = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$target) {
                     header('Location: /organisation/' . $id, true, 303);
                     return '';
                 }
                 if ($organisation['role'] === 'Owner') {
                     $this->database
                         ->prepare('UPDATE memberships SET `role`=:role WHERE organisation=:org AND `account`=:id')
-                        ->execute([':role' => $post['role'], ':id' => $user['aid'], ':org' => $organisation['aid']]);
+                        ->execute([':role' => $post['role'], ':id' => $target['aid'], ':org' => $organisation['aid']]);
                     $this->audit->log('membership', 'modify', $user->aid(), $organisation['aid'], $post['id']);
                     if ($post['role'] === 'Owner') {
                         $this->database
@@ -101,12 +101,12 @@ WHERE accounts.id=:id AND memberships.organisation=:org');
                     }
                 } elseif (
                     $organisation['role'] === 'Administrator'
-                    && in_array($user['role'], ['Member', 'Reader', 'Proposed'])
+                    && in_array($target['role'], ['Member', 'Reader', 'Proposed'])
                     && in_array($post['role'], ['Member', 'Reader', 'Proposed'])
                 ) {
                     $this->database
                         ->prepare('UPDATE memberships SET `role`=:role WHERE organisation=:org AND `account`=:id')
-                        ->execute([':role' => $post['role'], ':id' => $user['aid'], ':org' => $organisation['aid']]);
+                        ->execute([':role' => $post['role'], ':id' => $target['aid'], ':org' => $organisation['aid']]);
                     $this->audit->log('membership', 'modify', $user->aid(), $organisation['aid'], $post['id']);
                     if ($post['role'] !== 'Proposed' && $user['role'] !== 'Proposed') {
                         $stmt = $this->prepare('SELECT aid FROM folders WHERE `owner`=:org AND `type`="Organisation"');
