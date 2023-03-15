@@ -190,6 +190,7 @@ WHERE organisation=:org AND `role`<>"Proposed"');
                 ->execute([':id' => $id]);
             return $curl->httpStatusCode === 200 ? 1 : 0;
         }
+        return 0;
     }
     public function get(User $user, string $id): string
     {
