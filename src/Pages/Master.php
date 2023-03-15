@@ -57,6 +57,7 @@ class Master
         try {
             KeyLoader::private($user['id'], $post['password']);
         } catch (Exception $ex) {
+            error_log($ex->getMessage());
             header('Location: /master', true, 303);
             return '';
         }

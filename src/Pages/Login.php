@@ -48,6 +48,7 @@ class Login
         try {
             KeyLoader::private($id, $this->master->get());
         } catch (Exception $ex) {
+            error_log($ex->getMessage());
             return $this->twig->render('login-error', [
                 'title' => 'Login Failed',
                 'error' => 'Master Password could not be verified, please try again.'
