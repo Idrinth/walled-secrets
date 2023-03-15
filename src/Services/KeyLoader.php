@@ -18,6 +18,13 @@ class KeyLoader
         if (empty($password)) {
             throw new InvalidArgumentException('No password given for user ' . $uuid);
         }
+        try {
+            $key = RSA::loadPrivateKey(file_get_contents($file));
+            error_log("$uuid had no password on their private key.");
+            file_put_contents($file, $key->withPassword($password)->toString('OpenSSH'));
+        } catch (Exception $ex) {
+            //ignore, everything fine
+        }
         return RSA::loadPrivateKey(file_get_contents($file), $password);
     }
     public static function public(string $uuid): PublicKey
