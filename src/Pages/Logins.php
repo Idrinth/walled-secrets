@@ -130,10 +130,10 @@ FROM `memberships`
 INNER JOIN accounts ON memberships.`account`=accounts.aid
 WHERE organisation=:org AND `role`<>"Proposed"');
             $stmt->execute([':org' => $folder['owner']]);
-            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $user) {
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $ouser) {
                 $this->share->updateLogin(
-                    $user['aid'],
-                    $user['id'],
+                    $ouser['aid'],
+                    $ouser['id'],
                     $login['folder'],
                     $id,
                     $post['user'],
