@@ -113,11 +113,10 @@ WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
             return '';
         }
         $uuid = Uuid::uuid1();
-        $private = RSA::createKey($this->env->getInt('SYSTEM_KEY_BYTES'));
-        $protected = $private->withPassword($post['master']);
+        $private = RSA::createKey($this->env->getInt('SYSTEM_KEY_BYTES'))->withPassword($post['master']);
         mkdir(__DIR__ . '/../../keys/' . $uuid);
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $protected->toString('OpenSSH'));
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $protected->getPublicKey()->toString('OpenSSH'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('PKCS8'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('PKCS8'));
         $this->database
             ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
             ->execute(
