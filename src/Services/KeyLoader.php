@@ -2,10 +2,11 @@
 
 namespace De\Idrinth\WalledSecrets\Services;
 
+use Exception;
 use InvalidArgumentException;
+use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\PrivateKey;
 use phpseclib3\Crypt\RSA\PublicKey;
-use phpseclib3\Crypt\RSA;
 
 class KeyLoader
 {
