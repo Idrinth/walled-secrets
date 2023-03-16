@@ -25,7 +25,7 @@ class KeyLoader
         } catch (Exception $ex) {
             //ignore, everything fine
         }
-        return RSA::loadPrivateKey(file_get_contents($file), $password);
+        return RSA::loadFormat('PKCS8', file_get_contents($file), $password);
     }
     public static function public(string $uuid): PublicKey
     {
