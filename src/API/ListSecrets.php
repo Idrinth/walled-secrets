@@ -37,7 +37,7 @@ OR (`type`="Organisation" AND `owner` IN (
     SELECT organisation FROM memberships WHERE `role`<>"Proposed" AND `account`=:id)
 )');
             $stmt->execute([':id' => $user->aid()]);
-            $lastModified = intval($stmt->fetchColumn(), 10);
+            $lastModified = strtotime($stmt->fetchColumn() ?: 'now');
             if (intval($headers['X-LAST-UPDATED'], 10) > $lastModified * 1000) {
                 header('Content-Type: text/plain', true, 304);
                 return '';
