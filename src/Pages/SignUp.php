@@ -115,8 +115,8 @@ WHERE id=:id AND mail=:mail AND secret=:secret AND ISNULL(invitee)');
         $uuid = Uuid::uuid1();
         $private = RSA::createKey($this->env->getInt('SYSTEM_KEY_BYTES'))->withPassword($post['master']);
         mkdir(__DIR__ . '/../../keys/' . $uuid);
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private);
-        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey());
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/private', $private->toString('PKCS1'));
+        file_put_contents(__DIR__ . '/../../keys/' . $uuid . '/public', $private->getPublicKey()->toString('PKCS1'));
         $this->database
             ->prepare('INSERT INTO accounts (id,display,mail,apikey) VALUES (:id,:display,:mail,:apikey)')
             ->execute(

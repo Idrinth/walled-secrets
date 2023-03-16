@@ -21,11 +21,11 @@ class KeyLoader
         try {
             $key = RSA::loadPrivateKey(file_get_contents($file));
             error_log("$uuid had no password on their private key.");
-            file_put_contents($file, $key->withPassword($password));
+            file_put_contents($file, $key->withPassword($password)->toString('PKCS1'));
         } catch (Exception $ex) {
             //ignore, everything fine
         }
-        return RSA::loadFormat('PKCS8', file_get_contents($file), $password);
+        return RSA::loadPrivateKey(file_get_contents($file), $password);
     }
     public static function public(string $uuid): PublicKey
     {
