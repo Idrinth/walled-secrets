@@ -21,7 +21,7 @@ class KeyLoader
         try {
             $key = RSA::loadPrivateKey(file_get_contents($file));
             error_log("$uuid had no password on their private key.");
-            file_put_contents($file, $key->withPassword($password)->toString());
+            file_put_contents($file, $key->withPassword($password));
         } catch (Exception $ex) {
             //ignore, everything fine
         }
