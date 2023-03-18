@@ -16,7 +16,7 @@ public class NoteDetailsFrame extends JFrame
     private final JTextArea note;
     private final String project;
 
-    public NoteDetailsFrame(String project, SwingFactory factory, Request request)
+    public NoteDetailsFrame(String project, Request request)
     {
         super("Note Details | " + project);
         this.project = project;

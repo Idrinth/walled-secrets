@@ -19,7 +19,7 @@ public class LoginDetailsFrame extends JFrame
     private final JTextArea note;
     private final String project;
 
-    public LoginDetailsFrame(String project, SwingFactory factory, Request request)
+    public LoginDetailsFrame(String project, Request request)
     {
         super("Login Details | " + project);
         this.project = project;

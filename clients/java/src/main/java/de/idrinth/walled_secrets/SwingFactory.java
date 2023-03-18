@@ -37,7 +37,7 @@ public class SwingFactory
     {
         login.setVisible(false);
         list.setVisible(true);
-        NoteDetailsFrame noteDetail = new NoteDetailsFrame("Walled Secrets", this, request);
+        NoteDetailsFrame noteDetail = new NoteDetailsFrame("Walled Secrets", request);
         noteDetail.display(true, id, master);
         noteDetail.setIconImage(icon.getImage());
     }
@@ -45,7 +45,7 @@ public class SwingFactory
     {
         login.setVisible(false);
         list.setVisible(true);
-        LoginDetailsFrame loginDetail = new LoginDetailsFrame("Walled Secrets", this, request);
+        LoginDetailsFrame loginDetail = new LoginDetailsFrame("Walled Secrets", request);
         loginDetail.display(true, id, master);
         loginDetail.setIconImage(icon.getImage());
     }

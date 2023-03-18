@@ -65,6 +65,8 @@ public class ListPanel extends Panel
                         case "note":
                             factory.showNoteDetail(s.id, new String(pass.getPassword()));
                             return;
+                        default:
+                            return;
                     }
                 }
             }
