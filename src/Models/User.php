@@ -11,6 +11,7 @@ final class User
     private string $ip_whitelist = '';
     private string $ip_blacklist = '';
     private string $display = '';
+    private string $mail = '';
     private bool $haveibeenpwned = false;
 
     public function __construct(int $aid, PDO $database)
@@ -40,6 +41,10 @@ final class User
     public function display(): string
     {
         return $this->display;
+    }
+    public function mail(): string
+    {
+        return $this->mail;
     }
     public function haveibeenpwned(): bool
     {

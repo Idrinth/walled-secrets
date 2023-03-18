@@ -5,6 +5,7 @@ use De\Idrinth\WalledSecrets\API\Login as Login2;
 use De\Idrinth\WalledSecrets\API\Note;
 use De\Idrinth\WalledSecrets\API\OpenApi;
 use De\Idrinth\WalledSecrets\Application;
+use De\Idrinth\WalledSecrets\Pages\Clients;
 use De\Idrinth\WalledSecrets\Pages\Eula;
 use De\Idrinth\WalledSecrets\Pages\FAQ;
 use De\Idrinth\WalledSecrets\Pages\Folder;
@@ -21,8 +22,10 @@ use De\Idrinth\WalledSecrets\Pages\Master;
 use De\Idrinth\WalledSecrets\Pages\Notes;
 use De\Idrinth\WalledSecrets\Pages\Organisation;
 use De\Idrinth\WalledSecrets\Pages\OrganisationLog;
+use De\Idrinth\WalledSecrets\Pages\PasswordChange;
 use De\Idrinth\WalledSecrets\Pages\Ping;
 use De\Idrinth\WalledSecrets\Pages\PrivacyPolicy;
+use De\Idrinth\WalledSecrets\Pages\Root;
 use De\Idrinth\WalledSecrets\Pages\Search;
 use De\Idrinth\WalledSecrets\Pages\SignUp;
 use De\Idrinth\WalledSecrets\Pages\Socials;
@@ -45,8 +48,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
     ->register(new FilesystemLoader(__DIR__ . '/../templates'))
     ->register(new AES('ctr'))
     ->register(new Blowfish('ctr'))
-    ->get('/', Home::class)
-    ->post('/', Home::class)
+    ->get('/', Root::class)
+    ->post('/', Root::class)
+    ->get('/clients', Clients::class)
+    ->get('/password-change/{user}/{uuid}/{key}', PasswordChange::class)
+    ->get('/home', Home::class)
+    ->post('/home', Home::class)
     ->get('/privacy', PrivacyPolicy::class)
     ->get('/ping', Ping::class)
     ->get('/imprint', Imprint::class)

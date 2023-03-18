@@ -73,11 +73,15 @@ The Opera addon is currently in review.
 
 #### Chrome Browser Addon
 
-The Chrome addon is currently in review.
+The Chrome addon is available [here](https://chrome.google.com/webstore/detail/idrinthwalled-secrets/jefepgcemjklaloajlklibdpofpcnkda).
 
 #### Edge Browser Addon
 
 The Edge addon is currently in review.
+
+#### Java Client
+
+The Java Client is available from the [latest Release](https://github.com/Idrinth/walled-secrets/releases/latest).
 
 ## Contributing
 
