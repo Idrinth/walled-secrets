@@ -11,12 +11,11 @@ public class SwingFactory
 {
     private final LoginFrame login;
     private final ListFrame list;
-    private final Config config;
     private final Request request;
     private final ImageIcon icon;
 
     public SwingFactory() throws CertificateException, KeyManagementException, KeyStoreException, IOException, NoSuchAlgorithmException {
-        config = new Config();
+        Config config = new Config();
         icon = new ImageIcon(getClass().getResource("/icons/logo64x64.png"));
         request = new Request(new TrustManager(), config);
         login = new LoginFrame("Walled Secrets", this, config);

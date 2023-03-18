@@ -149,7 +149,7 @@ VALUES (:id,:user,:deny,:confirm,:private)'
                         );
                         $this->audit->log('account', 'modify', $user->aid(), null, $user->id());
                     } catch (Exception $ex) {
-                        //nothing to do yet?
+                        // nothing to do yet?
                     }
                 }
             }

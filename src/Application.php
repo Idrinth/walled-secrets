@@ -110,7 +110,6 @@ class Application
     }
     public function run(): void
     {
-        $access = $this->di->get(Access::class);
         $dispatcher = simpleDispatcher(
             function (RouteCollector $r) {
                 foreach ($this->routes as $path => $data) {

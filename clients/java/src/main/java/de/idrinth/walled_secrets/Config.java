@@ -26,10 +26,10 @@ public class Config
     }
     public void setFrequency(int frequency) throws Exception {
         if (frequency < 10) {
-            throw new Exception("Frequency is too high.");
+            throw new InvalidConfiguration("Frequency is too high.");
         }
         if (frequency > 1000) {
-            throw new Exception("Frequency is too low.");
+            throw new InvalidConfiguration("Frequency is too low.");
         }
         prefs.putInt(KEY_FREQUENCY, frequency);
         this.frequency = frequency;
@@ -39,7 +39,7 @@ public class Config
     }
     public void setServer(String server) throws Exception {
         if (!GenericValidator.isUrl(server)) {
-            throw new Exception("Server is invalid.");
+            throw new InvalidConfiguration("Server is invalid.");
         }
         prefs.put(KEY_SERVER_URL, server);
         this.server = server;
@@ -49,7 +49,7 @@ public class Config
     }
     public void setEmail(String email) throws Exception {
         if (!GenericValidator.isEmail(email)) {
-            throw new Exception("eMail is invalid.");
+            throw new InvalidConfiguration("eMail is invalid.");
         }
         this.email = email;
     }
@@ -58,7 +58,7 @@ public class Config
     }
     public void setApikey(String apikey) throws Exception {
         if (!GenericValidator.matchRegexp(apikey, "^[a-zA-Z0-9]{255}$")) {
-            throw new Exception("API-Key is invalid.");
+            throw new InvalidConfiguration("API-Key is invalid.");
         }
         prefs.put(KEY_API_KEY, apikey);
         this.apikey = apikey;

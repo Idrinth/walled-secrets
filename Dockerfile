@@ -21,11 +21,10 @@ COPY --chown=www-data:www-data sessions /var/www/sessions
 COPY setup/crontab /etc/cron.d/walled-secrets
 RUN chmod 0644 /etc/cron.d/walled-secrets
 RUN crontab /etc/cron.d/walled-secrets
-CMD cron
 
 VOLUME /var/www/keys
 
 RUN touch /var/www/.env
 RUN chown www-data:www-data /var/www/.env
 
-CMD ["apache2-foreground"]
+CMD cron && apache2-foreground
