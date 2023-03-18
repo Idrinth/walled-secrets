@@ -120,11 +120,14 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
                     try {
                         $key = KeyLoader::private($user->id(), $post['old-password']);
                         $password = Uuid::uuid1();
-                        $allow =PasswordGenerator::make();
+                        $allow = PasswordGenerator::make();
                         $deny = PasswordGenerator::make();
                         $this->database
-                             ->prepare('INSERT INTO master (`id`,`user`,`deny`,`confirm`,`private`) VALUES (:id,:user,:deny,:confirm,:private)')
-                             ->execute([
+                            ->prepare(
+                                'INSERT INTO master (`id`,`user`,`deny`,`confirm`,`private`)
+VALUES (:id,:user,:deny,:confirm,:private)'
+                            )
+                            ->execute([
                                  ':id' => $password,
                                  ':user' => $user->id(),
                                  ':deny' => $deny,
@@ -146,7 +149,7 @@ WHERE memberships.`role`<>"Proposed" AND memberships.`account`=:id');
                         );
                         $this->audit->log('account', 'modify', $user->aid(), null, $user->id());
                     } catch (Exception $ex) {
-
+                        //nothing to do yet?
                     }
                 }
             }

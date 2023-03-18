@@ -17,7 +17,7 @@ class PasswordChange
         $this->twig = $twig;
     }
 
-        public function get(User $user, string $userId, string $uuid, string $key)
+    public function get(User $user, string $userId, string $uuid, string $key)
     {
         $stmt = $this->database->prepare('SELECT * FROM master WHERE `id`=:id AND `user`=:user');
         $stmt->execute([':id' => $uuid, ':user' => $userId]);

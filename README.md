@@ -1,4 +1,7 @@
 # walled-secrets
+
+[![PSR-12](https://github.com/Idrinth/walled-secrets/actions/workflows/psr-12.yml/badge.svg)](https://github.com/Idrinth/walled-secrets/actions/workflows/psr-12.yml)[![Phan](https://github.com/Idrinth/walled-secrets/actions/workflows/phan.yml/badge.svg?branch=master)](https://github.com/Idrinth/walled-secrets/actions/workflows/phan.yml)[![Lint All](https://github.com/Idrinth/walled-secrets/actions/workflows/lint-all.yml/badge.svg?branch=master)](https://github.com/Idrinth/walled-secrets/actions/workflows/lint-all.yml)[![CodeQL](https://github.com/Idrinth/walled-secrets/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/Idrinth/walled-secrets/actions/workflows/codeql.yml)[![Codacy Badge](https://app.codacy.com/project/badge/Grade/71296b73514b499a97947539b16f37b6)](https://app.codacy.com/gh/Idrinth/walled-secrets/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 A small password manager, supporting proper sharing. Want to discuss the project or ask Questions? Just join the [Discord](https://discord.gg/6KmbM2r8Tx).
 
 ## Features
