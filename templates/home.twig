@@ -1,0 +1,84 @@
+{% include 'header.twig' %}
+<h1>Welcome {{ user.name }}</h1>
+<h2>Settings</h2>
+<h3>Api-Key</h3>
+<p>You only need this if you use the browser extension. This key gives access to the unencrypted/public part of your data.</p>
+<form method="post">
+    <label for="api-key">Your API-Key</label>
+    <input id="api-key" type="text" disabled value="{{ user.apikey }}"/>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="text" required name="code" id="deletecode"/>
+    {% endif %}
+    <input type="hidden" value="1" name="regenerate"/>
+    <button type="submit">Regenerate Key</button>
+</form>
+<h3>HaveIBeenPwned</h3>
+<p>If active your username is submitted to haveibeenpwned.com when you open a login-edit page.</p>
+<form method="post">
+    <label for="haveibeenpwned">Enable Check</label>
+    <input type="hidden" value="0" name="haveibeenpwned"/>
+    <input id="haveibeenpwned" name="haveibeenpwned" type="checkbox"{% if user.haveibeenpwned==1 %} checked{% endif %} value="1"/>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="text" required name="code" id="deletecode"/>
+    {% endif %}
+    <button type="submit">Submit</button>
+</form>
+<h3>Default Folder</h3>
+<p>This is the folder your contacts can send you passwords to.</p>
+<form method="post">
+    <label for="default">Your default folder, where unsorted logins and notes go.</label>
+    <select name="default" id="default">
+        {% for folder in folders %}
+            {% if folder.type=='Account' %}
+                <option value="{{ folder.id }}"{% if folder.default==1 %} selected{% endif %}>{{ folder.name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="text" required name="code" id="deletecode"/>
+    {% endif %}
+    <button type="submit">Submit</button>
+</form>
+<h3>2FA</h3>
+<p>It is a good idea to setup <a href="/2fa">2 Factor Authentication</a>. It helps protect your data against modification and deletion.
+<h3>IP Lists</h3>
+<p>For extra security you can setup IP-Rules for your account <a href="/ip">here</a>. These are used on top of server specific settings.</p>
+<h3>Password Change</h3>
+<form method="post">
+    <label for="old-password">Old Password</label>
+    <input type="password" id="old-password" name="old-password"/>
+    <label for="new-password">New Password</label>
+    <input type="password" id="new-password" name="new-password"/>
+    <label for="repeat-password">Repeat New Password</label>
+    <input type="password" id="repeat-password" name="repeat-password"/>
+    {% if twoFactor %}
+        <label for="passwordcode">Auth-Code</label>
+        <input type="text" required name="code" id="passwordcode"/>
+    {% endif %}
+    <button type="submit">Submit</button>
+</form>
+<h2>Folders</h2>
+<p>These store your passwords and secret notes</p>
+<ul>
+    {% for folder in folders %}
+        {% if folder.type=='Account' %}
+            <li><a href="/folder/{{ folder.id }}">{{ folder.name }}</a></li>
+        {% else %}
+            <li><a href="/folder/{{ folder.id }}">{{ folder.name }} ({{ organisations[folder.owner] }})</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>
+<h3>New</h3>
+<form method="post">
+    <label for="folder">Your Folder's name</label>
+    <input type="text" placeholder="home" id="folder" name="folder" required/>
+    {% if twoFactor %}
+        <label for="deletecode">Auth-Code</label>
+        <input type="text" required name="code" id="deletecode"/>
+    {% endif %}
+    <button type="submit">Create</button>
+</form>
+{% include 'footer.twig' %}
