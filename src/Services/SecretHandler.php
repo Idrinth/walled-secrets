@@ -25,8 +25,8 @@ class SecretHandler
     ): void {
         $public = KeyLoader::public($uuid);
         $this->database
-            ->prepare('INSERT IGNORE INTO notes (public,content,iv,name,`key`,id,`account`,folder)
-VALUES ("","","","","",:id,:owner,:folder)')
+            ->prepare('INSERT IGNORE INTO notes (public,content,iv,`key`,id,`account`,folder)
+VALUES ("","","","",:id,:owner,:folder)')
             ->execute([':id' => $id, ':owner' => $owner, ':folder' => $folder]);
         $iv = Random::string(16);
         $key = Random::string(32);
