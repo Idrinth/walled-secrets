@@ -4,6 +4,7 @@ namespace De\Idrinth\WalledSecrets\Pages;
 
 use Curl\Curl;
 use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\AESCrypter;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
@@ -12,7 +13,6 @@ use De\Idrinth\WalledSecrets\Services\May2F;
 use De\Idrinth\WalledSecrets\Services\SecretHandler;
 use De\Idrinth\WalledSecrets\Services\Twig;
 use PDO;
-use phpseclib3\Crypt\AES;
 
 class Logins
 {
@@ -110,15 +110,7 @@ AND memberships.`role` IN ("Owner","Administrator","Member")'
             $post['identifier'] = $login['public'];
             $post['user'] = $private->decrypt($login['login']);
             $post['password'] = $private->decrypt($login['pass']);
-            if ($login['note']) {
-                $login['iv'] = $private->decrypt($login['iv']);
-                $login['key'] = $private->decrypt($login['key']);
-                $shared = new AES('ctr');
-                $shared->setIV($login['iv']);
-                $shared->setKeyLength(256);
-                $shared->setKey($login['key']);
-                $post['note'] = $shared->decrypt($login['note']);
-            }
+            $post['note'] = AESCrypter::decrypt($private, $login['note'], $login['iv'], $login['key']);
             $this->audit->log('login', 'create', $user->aid(), $organisation, $id);
             $this->database
                 ->prepare('UPDATE logins SET folder=:new WHERE id=:id AND `account`=:user')
@@ -233,15 +225,7 @@ WHERE organisation=:org AND `role`<>"Proposed"');
         $private = KeyLoader::private($user->id(), $this->master->get());
         $login['login'] = $private->decrypt($login['login']);
         $login['pass'] = $private->decrypt($login['pass']);
-        if ($login['note']) {
-            $login['iv'] = $private->decrypt($login['iv']);
-            $login['key'] = $private->decrypt($login['key']);
-            $shared = new AES('ctr');
-            $shared->setIV($login['iv']);
-            $shared->setKeyLength(256);
-            $shared->setKey($login['key']);
-            $login['note'] = $shared->decrypt($login['note']);
-        }
+        $login['note'] = AESCrypter::decrypt($private, $login['note'], $login['iv'], $login['key']);
         $login['pwned'] = $this->pwned($user, $id, $login['login']);
         $organisations = [];
         if (!$isOrganisation) {

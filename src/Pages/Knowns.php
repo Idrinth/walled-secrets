@@ -3,6 +3,7 @@
 namespace De\Idrinth\WalledSecrets\Pages;
 
 use De\Idrinth\WalledSecrets\Models\User;
+use De\Idrinth\WalledSecrets\Services\AESCrypter;
 use De\Idrinth\WalledSecrets\Services\Audit;
 use De\Idrinth\WalledSecrets\Services\ENV;
 use De\Idrinth\WalledSecrets\Services\KeyLoader;
@@ -148,20 +149,15 @@ WHERE knowns.`owner`=:owner AND knowns.id=:id'
         }
         $this->audit->log('known', 'modify', $user->aid(), null, $id);
         $public = KeyLoader::public($user->id());
-        $iv = Random::string(16);
-        $key = Random::string(32);
-        $shared = new AES('ctr');
-        $shared->setKeyLength(256);
-        $shared->setKey($key);
-        $shared->setIV($iv);
+        $data = AESCrypter::encrypt($public, $post['note']);
         $this->database
             ->prepare('UPDATE knowns SET note=:note, iv=:iv, `key`=:key WHERE id=:id AND `owner`=:owner')
             ->execute([
                 ':owner' => $user->aid(),
                 ':id' => $id,
-                ':key' => $public->encrypt($key),
-                ':iv' => $public->encrypt($iv),
-                ':note' => $shared->encrypt($post['note']),
+                ':key' => $data[2],
+                ':iv' => $data[1],
+                ':note' => $data[0],
             ]);
         header('Location: /knowns/' . $id, true, 303);
         return '';
@@ -192,15 +188,7 @@ WHERE knowns.id=:id AND knowns.`owner`=:account'
         $this->audit->log('known', 'read', $user->aid(), null, $id);
         set_time_limit(0);
         $private = KeyLoader::private($user->id(), $this->master->get());
-        if ($known['note']) {
-            $known['iv'] = $private->decrypt($known['iv']);
-            $known['key'] = $private->decrypt($known['key']);
-            $shared = new AES('ctr');
-            $shared->setIV($known['iv']);
-            $shared->setKeyLength(256);
-            $shared->setKey($known['key']);
-            $known['note'] = $shared->decrypt($known['note']);
-        }
+        $known['note'] = AESCrypter::decrypt($private, $known['note'], $known['iv'], $known['key']);
         return $this->twig->render(
             'known',
             [

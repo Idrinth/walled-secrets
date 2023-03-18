@@ -42,15 +42,7 @@ class ShareFolderWithOrganisation
         $stmt = $this->database->prepare('SELECT * FROM notes WHERE folder=:folder AND `account`=:id');
         $stmt->execute([':folder' => $folder, ':id' => $this->user]);
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $note) {
-            if ($note['content']) {
-                $note['iv'] = $this->private->decrypt($note['iv']);
-                $note['key'] = $this->private->decrypt($note['key']);
-                $shared = new AES('ctr');
-                $shared->setIV($note['iv']);
-                $shared->setKeyLength(256);
-                $shared->setKey($note['key']);
-                $note['content'] = $shared->decrypt($note['content']);
-            }
+            $note['content'] = AESCrypter::decrypt($this->private, $note['content'], $note['iv'], $note['key']);
             foreach ($members as $row) {
                 $this->share->updateNote(
                     $row['aid'],
@@ -73,15 +65,7 @@ class ShareFolderWithOrganisation
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $login) {
             $login['login'] = $this->private->decrypt($login['login']);
             $login['pass'] = $this->private->decrypt($login['pass']);
-            if ($login['note']) {
-                $login['iv'] = $this->private->decrypt($login['iv']);
-                $login['key'] = $this->private->decrypt($login['key']);
-                $shared = new AES('ctr');
-                $shared->setIV($login['iv']);
-                $shared->setKeyLength(256);
-                $shared->setKey($login['key']);
-                $login['note'] = $shared->decrypt($login['note']);
-            }
+            $login['note'] = AESCrypter::decrypt($this->private, $login['note'], $login['iv'], $login['key']);
             foreach ($members as $row) {
                 $this->share->updateLogin(
                     $row['aid'],
